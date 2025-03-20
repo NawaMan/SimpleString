@@ -1,0 +1,3 @@
+/home/nawa/CascadeProjects/windsurf-project/build/CMakeFiles/unicode_example.dir
+/home/nawa/CascadeProjects/windsurf-project/build/CMakeFiles/edit_cache.dir
+/home/nawa/CascadeProjects/windsurf-project/build/CMakeFiles/rebuild_cache.dir
