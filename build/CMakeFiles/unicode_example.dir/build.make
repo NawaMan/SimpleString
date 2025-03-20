@@ -76,15 +76,15 @@ CMakeFiles/unicode_example.dir/src/main.cpp.o: CMakeFiles/unicode_example.dir/fl
 CMakeFiles/unicode_example.dir/src/main.cpp.o: /home/nawa/CascadeProjects/windsurf-project/src/main.cpp
 CMakeFiles/unicode_example.dir/src/main.cpp.o: CMakeFiles/unicode_example.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nawa/CascadeProjects/windsurf-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/unicode_example.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unicode_example.dir/src/main.cpp.o -MF CMakeFiles/unicode_example.dir/src/main.cpp.o.d -o CMakeFiles/unicode_example.dir/src/main.cpp.o -c /home/nawa/CascadeProjects/windsurf-project/src/main.cpp
+	/usr/lib/llvm-18/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/unicode_example.dir/src/main.cpp.o -MF CMakeFiles/unicode_example.dir/src/main.cpp.o.d -o CMakeFiles/unicode_example.dir/src/main.cpp.o -c /home/nawa/CascadeProjects/windsurf-project/src/main.cpp
 
 CMakeFiles/unicode_example.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/unicode_example.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nawa/CascadeProjects/windsurf-project/src/main.cpp > CMakeFiles/unicode_example.dir/src/main.cpp.i
+	/usr/lib/llvm-18/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nawa/CascadeProjects/windsurf-project/src/main.cpp > CMakeFiles/unicode_example.dir/src/main.cpp.i
 
 CMakeFiles/unicode_example.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/unicode_example.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nawa/CascadeProjects/windsurf-project/src/main.cpp -o CMakeFiles/unicode_example.dir/src/main.cpp.s
+	/usr/lib/llvm-18/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nawa/CascadeProjects/windsurf-project/src/main.cpp -o CMakeFiles/unicode_example.dir/src/main.cpp.s
 
 # Object files for target unicode_example
 unicode_example_OBJECTS = \

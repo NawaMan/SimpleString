@@ -8,9 +8,9 @@ This project demonstrates how to use Boost's Unicode handling capabilities in C+
 - UTF-8 string handling
 
 ## Requirements
-- C++17 or later
+- C++20 (using Clang 18.1.3)
 - CMake 3.10 or later
-- Boost library
+- Boost library with locale component
 
 ## Building the Project
 ```bash
