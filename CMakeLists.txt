@@ -17,3 +17,6 @@ find_package(Boost REQUIRED COMPONENTS locale)
 
 add_executable(unicode_example src/main.cpp)
 target_link_libraries(unicode_example PRIVATE Boost::locale)
+
+add_executable(simple_unicode src/simple_unicode.cpp)
+target_link_libraries(simple_unicode PRIVATE Boost::locale)

@@ -1,32 +1,19 @@
-// C++ Standard Library headers (similar to Java imports)
-#include <iostream>    // Similar to Java's System.out (for console I/O)
-#include <string>      // Similar to Java's String class
-#include <iomanip>     // For formatting output (like Java's String.format)
-#include <vector>      // Similar to Java's ArrayList
-#include <clocale>     // For C locale functions
-
-// Boost.Locale headers (no direct Java equivalent)
-// These provide Unicode support similar to Java's built-in Unicode handling
+// The minimum headers needed for Java-like Unicode support
+#include <iostream>
+#include <string>
+#include <iomanip>     // For formatting output
+#include <vector>      // For test_chars vector
 #include <boost/locale.hpp>
-#include <boost/locale/boundary.hpp>   // For word boundary analysis
-#include <boost/locale/encoding.hpp>   // For character encoding conversions
-#include <boost/locale/info.hpp>       // For locale information
-#include <boost/locale/generator.hpp>  // For locale generation
 
-// Initialize Unicode support for the entire application
+// Initialize Unicode support (makes C++ strings behave more like Java Strings)
 void initUnicode() {
-    // Set the C locale to UTF-8 for proper Unicode handling
-    std::setlocale(LC_ALL, "en_US.UTF-8");
-    
-    // Create a locale generator with proper Unicode support
+    // Create a UTF-8 aware environment (similar to Java's default)
     boost::locale::generator gen;
-    gen.use_ansi_encoding(false);      // Use Unicode instead of ANSI
-    gen.categories(boost::locale::all_categories);
     
-    // Create and set a UTF-8 aware locale (similar to Locale.setDefault() in Java)
-    std::locale loc = gen("en_US.UTF-8");
+    // Set up the locale for the entire program (like Java's JVM)
+    auto loc = gen("en_US.UTF-8");
     std::locale::global(loc);
-    std::cout.imbue(loc);
+    std::cout.imbue(loc);  // For console output (like System.out)
 }
 
 int main() {

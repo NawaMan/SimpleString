@@ -129,6 +129,19 @@ unicode_example/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unicode_example.dir/build.make CMakeFiles/unicode_example.dir/build
 .PHONY : unicode_example/fast
 
+#=============================================================================
+# Target rules for targets named simple_unicode
+
+# Build rule for target.
+simple_unicode: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simple_unicode
+.PHONY : simple_unicode
+
+# fast build rule for target.
+simple_unicode/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_unicode.dir/build.make CMakeFiles/simple_unicode.dir/build
+.PHONY : simple_unicode/fast
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -153,6 +166,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unicode_example.dir/build.make CMakeFiles/unicode_example.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/simple_unicode.o: src/simple_unicode.cpp.o
+.PHONY : src/simple_unicode.o
+
+# target to build an object file
+src/simple_unicode.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_unicode.dir/build.make CMakeFiles/simple_unicode.dir/src/simple_unicode.cpp.o
+.PHONY : src/simple_unicode.cpp.o
+
+src/simple_unicode.i: src/simple_unicode.cpp.i
+.PHONY : src/simple_unicode.i
+
+# target to preprocess a source file
+src/simple_unicode.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_unicode.dir/build.make CMakeFiles/simple_unicode.dir/src/simple_unicode.cpp.i
+.PHONY : src/simple_unicode.cpp.i
+
+src/simple_unicode.s: src/simple_unicode.cpp.s
+.PHONY : src/simple_unicode.s
+
+# target to generate assembly for a file
+src/simple_unicode.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_unicode.dir/build.make CMakeFiles/simple_unicode.dir/src/simple_unicode.cpp.s
+.PHONY : src/simple_unicode.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -161,10 +198,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... simple_unicode"
 	@echo "... unicode_example"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/simple_unicode.o"
+	@echo "... src/simple_unicode.i"
+	@echo "... src/simple_unicode.s"
 .PHONY : help
 
 
