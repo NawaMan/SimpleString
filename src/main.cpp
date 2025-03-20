@@ -13,10 +13,8 @@
 #include <boost/locale/info.hpp>       // For locale information
 #include <boost/locale/generator.hpp>  // For locale generation
 
-int main() {
-    // In C++, we need to explicitly set up Unicode support
-    // In Java, this is handled automatically by the JVM
-    
+// Initialize Unicode support for the entire application
+void initUnicode() {
     // Set the C locale to UTF-8 for proper Unicode handling
     std::setlocale(LC_ALL, "en_US.UTF-8");
     
@@ -29,10 +27,11 @@ int main() {
     std::locale loc = gen("en_US.UTF-8");
     std::locale::global(loc);
     std::cout.imbue(loc);
-    
-    // Configure cout (similar to System.out) to use the current locale
-    // This ensures proper output of Unicode characters
-    std::cout.imbue(std::locale());
+}
+
+int main() {
+    // Initialize Unicode support once at the start
+    initUnicode();
 
     // Unicode string example
     // Unlike Java, C++ std::string doesn't automatically handle Unicode
@@ -103,7 +102,7 @@ int main() {
         boost::locale::boundary::word,     // We want to break into words
         text.begin(),                      // Start of the text
         text.end(),                        // End of the text
-        gen("en_US.UTF-8")                 // Use English locale rules
+        std::locale()                      // Use current locale (already UTF-8 aware)
     );
 
     std::cout << "\nWord boundaries:\n";
