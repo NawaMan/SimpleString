@@ -12,6 +12,11 @@ namespace simple_string {
  */
 class CompareResult {
 public:
+    // Static constant instances for common comparison results
+    static const CompareResult LESS;
+    static const CompareResult EQUAL;
+    static const CompareResult GREATER;
+
     // Static factory method to create CompareResult from int (Java-style)
     static CompareResult fromInt(int value) {
         return CompareResult(value);

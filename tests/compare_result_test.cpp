@@ -3,28 +3,48 @@
 
 using namespace simple_string;
 
+TEST(CompareResultTest, StaticConstants) {
+    // Test static constant values
+    EXPECT_TRUE (CompareResult::LESS.isLess());
+    EXPECT_FALSE(CompareResult::LESS.isEqual());
+    EXPECT_FALSE(CompareResult::LESS.isGreater());
+
+    EXPECT_FALSE(CompareResult::EQUAL.isLess());
+    EXPECT_TRUE (CompareResult::EQUAL.isEqual());
+    EXPECT_FALSE(CompareResult::EQUAL.isGreater());
+
+    EXPECT_FALSE(CompareResult::GREATER.isLess());
+    EXPECT_FALSE(CompareResult::GREATER.isEqual());
+    EXPECT_TRUE (CompareResult::GREATER.isGreater());
+
+    // Test comparison with integers
+    EXPECT_TRUE(CompareResult::LESS    <  0);
+    EXPECT_TRUE(CompareResult::EQUAL   == 0);
+    EXPECT_TRUE(CompareResult::GREATER >  0);
+}
+
 TEST(CompareResultTest, StaticFactoryMethod) {
     CompareResult less = CompareResult::fromInt(-1);
     CompareResult equal = CompareResult::fromInt(0);
     CompareResult greater = CompareResult::fromInt(1);
 
-    EXPECT_TRUE(less.isLess());
+    EXPECT_TRUE (less.isLess());
     EXPECT_FALSE(less.isEqual());
     EXPECT_FALSE(less.isGreater());
-    EXPECT_TRUE(less.isLessOrEqual());
+    EXPECT_TRUE (less.isLessOrEqual());
     EXPECT_FALSE(less.isGreaterOrEqual());
 
     EXPECT_FALSE(equal.isLess());
-    EXPECT_TRUE(equal.isEqual());
+    EXPECT_TRUE (equal.isEqual());
     EXPECT_FALSE(equal.isGreater());
-    EXPECT_TRUE(equal.isLessOrEqual());
-    EXPECT_TRUE(equal.isGreaterOrEqual());
+    EXPECT_TRUE (equal.isLessOrEqual());
+    EXPECT_TRUE (equal.isGreaterOrEqual());
 
     EXPECT_FALSE(greater.isLess());
     EXPECT_FALSE(greater.isEqual());
-    EXPECT_TRUE(greater.isGreater());
+    EXPECT_TRUE (greater.isGreater());
     EXPECT_FALSE(greater.isLessOrEqual());
-    EXPECT_TRUE(greater.isGreaterOrEqual());
+    EXPECT_TRUE (greater.isGreaterOrEqual());
 }
 
 TEST(CompareResultTest, ArbitraryValues) {
