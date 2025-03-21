@@ -109,11 +109,11 @@ bool SString::equals(const SString& other) const {
 CompareResult SString::compareTo(const SString& other) const {
     // Use Boost's locale-aware comparison for proper Unicode handling
     // This matches Java's String.compareTo behavior:
-    // Returns: 
-    //   < 0 if this string is lexicographically less than other
-    //   = 0 if the strings are equal
-    //   > 0 if this string is lexicographically greater than other
-    return compareUtf8Strings(data_, other.data_);
+    // Returns CompareResult representing:
+    // - negative if this < other
+    // - zero if this == other
+    // - positive if this > other
+    return CompareResult::fromInt(compareUtf8Strings(data_, other.data_));
 }
 
 } // namespace sstring

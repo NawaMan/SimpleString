@@ -12,8 +12,13 @@ namespace simple_string {
  */
 class CompareResult {
 public:
-    // Implicit conversion constructor from int
-    CompareResult(int value) : value_(value) {}
+    // Static factory method to create CompareResult from int (Java-style)
+    static CompareResult fromInt(int value) {
+        return CompareResult(value);
+    }
+
+    // Constructor is now explicit to prevent implicit conversions
+    explicit CompareResult(int value) : value_(value) {}
 
     // Comparison check methods
     bool isLess()           const { return value_ <  0; }

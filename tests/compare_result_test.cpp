@@ -3,10 +3,10 @@
 
 using namespace simple_string;
 
-TEST(CompareResultTest, ImplicitConversion) {
-    CompareResult less(-1);
-    CompareResult equal(0);
-    CompareResult greater(1);
+TEST(CompareResultTest, StaticFactoryMethod) {
+    CompareResult less = CompareResult::fromInt(-1);
+    CompareResult equal = CompareResult::fromInt(0);
+    CompareResult greater = CompareResult::fromInt(1);
 
     EXPECT_TRUE(less.isLess());
     EXPECT_FALSE(less.isEqual());
@@ -29,7 +29,7 @@ TEST(CompareResultTest, ImplicitConversion) {
 
 TEST(CompareResultTest, ArbitraryValues) {
     // Any negative value should be "less"
-    CompareResult veryNegative(-100);
+    CompareResult veryNegative = CompareResult::fromInt(-100);
     EXPECT_TRUE(veryNegative.isLess());
     EXPECT_TRUE(veryNegative.isLessOrEqual());
     EXPECT_FALSE(veryNegative.isGreater());
@@ -47,9 +47,9 @@ TEST(CompareResultTest, ArbitraryValues) {
 
 TEST(CompareResultTest, RawValue) {
     // Test that value() returns the original comparison value
-    CompareResult less(-42);
-    CompareResult equal(0);
-    CompareResult greater(42);
+    CompareResult less = CompareResult::fromInt(-42);
+    CompareResult equal = CompareResult::fromInt(0);
+    CompareResult greater = CompareResult::fromInt(42);
 
     EXPECT_EQ(less.value(), -42);
     EXPECT_EQ(equal.value(), 0);
@@ -57,51 +57,51 @@ TEST(CompareResultTest, RawValue) {
 }
 
 TEST(CompareResultTest, IntegerComparison) {
-    CompareResult less(-1);
-    CompareResult equal(0);
-    CompareResult greater(1);
+    CompareResult less = CompareResult::fromInt(-1);
+    CompareResult equal = CompareResult::fromInt(0);
+    CompareResult greater = CompareResult::fromInt(1);
 
     // Test CompareResult op int
-    EXPECT_TRUE(less < 0);
-    EXPECT_TRUE(less <= 0);
-    EXPECT_FALSE(less > 0);
+    EXPECT_TRUE (less <  0);
+    EXPECT_TRUE (less <= 0);
+    EXPECT_FALSE(less >  0);
     EXPECT_FALSE(less >= 0);
     EXPECT_FALSE(less == 0);
-    EXPECT_TRUE(less != 0);
+    EXPECT_TRUE (less != 0);
 
-    EXPECT_FALSE(equal < 0);
-    EXPECT_TRUE(equal <= 0);
-    EXPECT_FALSE(equal > 0);
-    EXPECT_TRUE(equal >= 0);
-    EXPECT_TRUE(equal == 0);
+    EXPECT_FALSE(equal <  0);
+    EXPECT_TRUE (equal <= 0);
+    EXPECT_FALSE(equal >  0);
+    EXPECT_TRUE (equal >= 0);
+    EXPECT_TRUE (equal == 0);
     EXPECT_FALSE(equal != 0);
 
-    EXPECT_FALSE(greater < 0);
+    EXPECT_FALSE(greater <  0);
     EXPECT_FALSE(greater <= 0);
-    EXPECT_TRUE(greater > 0);
-    EXPECT_TRUE(greater >= 0);
+    EXPECT_TRUE (greater >  0);
+    EXPECT_TRUE (greater >= 0);
     EXPECT_FALSE(greater == 0);
-    EXPECT_TRUE(greater != 0);
+    EXPECT_TRUE (greater != 0);
 
     // Test int op CompareResult
-    EXPECT_TRUE(0 > less);
-    EXPECT_TRUE(0 >= less);
-    EXPECT_FALSE(0 < less);
+    EXPECT_TRUE (0 >  less);
+    EXPECT_TRUE (0 >= less);
+    EXPECT_FALSE(0 <  less);
     EXPECT_FALSE(0 <= less);
     EXPECT_FALSE(0 == less);
-    EXPECT_TRUE(0 != less);
+    EXPECT_TRUE (0 != less);
 
-    EXPECT_FALSE(0 > equal);
-    EXPECT_TRUE(0 >= equal);
-    EXPECT_FALSE(0 < equal);
-    EXPECT_TRUE(0 <= equal);
-    EXPECT_TRUE(0 == equal);
+    EXPECT_FALSE(0 >  equal);
+    EXPECT_TRUE (0 >= equal);
+    EXPECT_FALSE(0 <  equal);
+    EXPECT_TRUE (0 <= equal);
+    EXPECT_TRUE (0 == equal);
     EXPECT_FALSE(0 != equal);
 
-    EXPECT_FALSE(0 > greater);
+    EXPECT_FALSE(0 >  greater);
     EXPECT_FALSE(0 >= greater);
-    EXPECT_TRUE(0 < greater);
-    EXPECT_TRUE(0 <= greater);
+    EXPECT_TRUE (0 <  greater);
+    EXPECT_TRUE (0 <= greater);
     EXPECT_FALSE(0 == greater);
-    EXPECT_TRUE(0 != greater);
+    EXPECT_TRUE (0 != greater);
 }
