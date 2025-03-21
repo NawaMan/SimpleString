@@ -23,6 +23,24 @@ TEST(SStringTest, EmptyString) {
     EXPECT_EQ(s.length(), 0);
 }
 
+TEST(SStringTest, IsEmpty) {
+    // Empty string returns true
+    SString empty("");
+    EXPECT_TRUE(empty.isEmpty());
+
+    // Non-empty string returns false
+    SString nonEmpty("Hello");
+    EXPECT_FALSE(nonEmpty.isEmpty());
+
+    // String with only whitespace returns false
+    SString whitespace("  \t\n\r");
+    EXPECT_FALSE(whitespace.isEmpty());
+
+    // String with only null character returns false
+    SString nullChar("\0", 1);
+    EXPECT_FALSE(nullChar.isEmpty());
+}
+
 TEST(SStringTest, EmptyStringComparisons) {
     // Test empty string equality
     SString empty1("");

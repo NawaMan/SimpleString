@@ -36,6 +36,14 @@ public:
     std::size_t length() const;
 
     /**
+     * Returns true if this string is empty (length() == 0).
+     * Note: A string containing only whitespace or null characters is not considered empty.
+     * 
+     * @return true if the string is empty, false otherwise
+     */
+    bool isEmpty() const;
+
+    /**
      * Compares this string with another for equality using byte-by-byte comparison.
      * Note: Characters with different Unicode representations (e.g., é vs e + ◌́)
      * will not be considered equal even if they appear visually identical.

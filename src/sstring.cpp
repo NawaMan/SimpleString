@@ -101,6 +101,11 @@ std::size_t SString::length() const {
     return countUtf16CodeUnits(data_);
 }
 
+bool SString::isEmpty() const {
+    // Return true if the string is empty, just like Java's String.isEmpty()
+    return data_.empty();
+}
+
 bool SString::equals(const SString& other) const {
     // Use Boost's locale-aware comparison for proper Unicode handling
     return compareUtf8Strings(data_, other.data_) == 0;
