@@ -25,7 +25,7 @@ public:
     const std::string& toString() const { return data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return equals(other);         }
+    bool operator==(const SString& other) const { return  equals(other);        }
     bool operator!=(const SString& other) const { return !equals(other);        }
     bool operator< (const SString& other) const { return compareTo(other) <  0; }
     bool operator<=(const SString& other) const { return compareTo(other) <= 0; }
