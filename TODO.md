@@ -26,3 +26,8 @@
    - Consider small string optimization
    - Evaluate UTF-8/UTF-16 conversion strategies
    - Profile and optimize hot paths
+
+3. Unicode Normalization:
+   - Implement Unicode normalization (NFC, NFD, etc.) vis Normalizer class (like in Java)
+   - Add methods for Unicode normalization
+   - Add tests for Unicode normalization

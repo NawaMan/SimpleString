@@ -67,13 +67,21 @@ TEST(SStringTest, CombiningCharacters) {
     // 1. Single code point U+00E9 (Latin small letter e with acute)
     // 2. Two code points: U+0065 (Latin small letter e) + U+0301 (combining acute accent)
     
-    // Single code point version
+    // Single code point version (NFC - Normalized Form Canonical Composition)
     SString s1("é");  // U+00E9
     EXPECT_EQ(s1.length(), 1);  // One UTF-16 code unit
 
-    // Decomposed version with combining character
+    // Decomposed version with combining character (NFD - Normalized Form Canonical Decomposition)
     SString s2("e\u0301");  // U+0065 + U+0301
     EXPECT_EQ(s2.length(), 2);  // Two UTF-16 code units
+
+    // Currently they compare as different strings because we use byte-by-byte comparison
+    // Note: In an ideal Unicode-aware implementation, these would be equal
+    EXPECT_FALSE(s1.equals(s2));
+    EXPECT_NE(s1.compareTo(s2), 0);
+
+    // TODO: Consider implementing Unicode normalization to make these equal
+    // Using Boost.Locale or ICU for proper Unicode normalization would make s1.equals(s2) return true
 }
 
 TEST(SStringTest, Equals) {
