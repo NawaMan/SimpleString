@@ -25,6 +25,22 @@ public:
     // Get the raw comparison value
     int value() const { return value_; }
 
+    // Comparison operators for comparing with integers
+    bool operator==(int other) const { return value_ == other; }
+    bool operator!=(int other) const { return value_ != other; }
+    bool operator< (int other) const { return value_ <  other; }
+    bool operator<=(int other) const { return value_ <= other; }
+    bool operator> (int other) const { return value_ >  other; }
+    bool operator>=(int other) const { return value_ >= other; }
+
+    // Friend operators for reverse comparisons (int op CompareResult)
+    friend bool operator==(int lhs, const CompareResult& rhs) { return rhs == lhs; }
+    friend bool operator!=(int lhs, const CompareResult& rhs) { return rhs != lhs; }
+    friend bool operator< (int lhs, const CompareResult& rhs) { return rhs >  lhs; }
+    friend bool operator<=(int lhs, const CompareResult& rhs) { return rhs >= lhs; }
+    friend bool operator> (int lhs, const CompareResult& rhs) { return rhs <  lhs; }
+    friend bool operator>=(int lhs, const CompareResult& rhs) { return rhs <= lhs; }
+
 private:
     int value_;  // The raw comparison result
 };

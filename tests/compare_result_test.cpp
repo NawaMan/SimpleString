@@ -55,3 +55,53 @@ TEST(CompareResultTest, RawValue) {
     EXPECT_EQ(equal.value(), 0);
     EXPECT_EQ(greater.value(), 42);
 }
+
+TEST(CompareResultTest, IntegerComparison) {
+    CompareResult less(-1);
+    CompareResult equal(0);
+    CompareResult greater(1);
+
+    // Test CompareResult op int
+    EXPECT_TRUE(less < 0);
+    EXPECT_TRUE(less <= 0);
+    EXPECT_FALSE(less > 0);
+    EXPECT_FALSE(less >= 0);
+    EXPECT_FALSE(less == 0);
+    EXPECT_TRUE(less != 0);
+
+    EXPECT_FALSE(equal < 0);
+    EXPECT_TRUE(equal <= 0);
+    EXPECT_FALSE(equal > 0);
+    EXPECT_TRUE(equal >= 0);
+    EXPECT_TRUE(equal == 0);
+    EXPECT_FALSE(equal != 0);
+
+    EXPECT_FALSE(greater < 0);
+    EXPECT_FALSE(greater <= 0);
+    EXPECT_TRUE(greater > 0);
+    EXPECT_TRUE(greater >= 0);
+    EXPECT_FALSE(greater == 0);
+    EXPECT_TRUE(greater != 0);
+
+    // Test int op CompareResult
+    EXPECT_TRUE(0 > less);
+    EXPECT_TRUE(0 >= less);
+    EXPECT_FALSE(0 < less);
+    EXPECT_FALSE(0 <= less);
+    EXPECT_FALSE(0 == less);
+    EXPECT_TRUE(0 != less);
+
+    EXPECT_FALSE(0 > equal);
+    EXPECT_TRUE(0 >= equal);
+    EXPECT_FALSE(0 < equal);
+    EXPECT_TRUE(0 <= equal);
+    EXPECT_TRUE(0 == equal);
+    EXPECT_FALSE(0 != equal);
+
+    EXPECT_FALSE(0 > greater);
+    EXPECT_FALSE(0 >= greater);
+    EXPECT_TRUE(0 < greater);
+    EXPECT_TRUE(0 <= greater);
+    EXPECT_FALSE(0 == greater);
+    EXPECT_TRUE(0 != greater);
+}
