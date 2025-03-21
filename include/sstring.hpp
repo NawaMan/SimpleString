@@ -3,6 +3,7 @@
 
 #include <string>
 #include <boost/locale.hpp>
+#include "compare_result.hpp"
 
 namespace simple_string {
 
@@ -51,20 +52,23 @@ public:
      * even if they appear visually identical.
      * 
      * @param other The string to compare with
-     * @return negative if this < other, 0 if equal, positive if this > other
+     * @return CompareResult representing the comparison outcome:
+     *         - isLess() is true if this < other
+     *         - isEqual() is true if this == other
+     *         - isGreater() is true if this > other
      */
-    int compareTo(const SString& other) const;
+    CompareResult compareTo(const SString& other) const;
 
     // Get the underlying string data
     const std::string& toString() const { return data_; }
 
     // C++ operator overloads for comparison
     bool operator==(const SString& other) const { return  equals(other);        }
-    bool operator!=(const SString& other) const { return !equals(other);        }
-    bool operator< (const SString& other) const { return compareTo(other) <  0; }
-    bool operator<=(const SString& other) const { return compareTo(other) <= 0; }
-    bool operator> (const SString& other) const { return compareTo(other) >  0; }
-    bool operator>=(const SString& other) const { return compareTo(other) >= 0; }
+    bool operator!=(const SString& other) const { return !equals(other);                      }
+    bool operator< (const SString& other) const { return compareTo(other).isLess();           }
+    bool operator<=(const SString& other) const { return compareTo(other).isLessOrEqual();    }
+    bool operator> (const SString& other) const { return compareTo(other).isGreater();        }
+    bool operator>=(const SString& other) const { return compareTo(other).isGreaterOrEqual(); }
 
 private:
     const std::string data_;  // Truly immutable internal string storage - const prevents any modification after construction

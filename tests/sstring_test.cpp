@@ -35,9 +35,9 @@ TEST(SStringTest, EmptyStringComparisons) {
     EXPECT_FALSE(nonEmpty.equals(empty1));
     
     // Test compareTo() method
-    EXPECT_EQ(empty1.compareTo(empty2), 0);
-    EXPECT_LT(empty1.compareTo(nonEmpty), 0);  // empty string sorts before non-empty
-    EXPECT_GT(nonEmpty.compareTo(empty1), 0);  // non-empty string sorts after empty
+    EXPECT_TRUE(empty1.compareTo(empty2).isEqual());
+    EXPECT_TRUE(empty1.compareTo(nonEmpty).isLess());  // empty string sorts before non-empty
+    EXPECT_TRUE(nonEmpty.compareTo(empty1).isGreater());  // non-empty string sorts after empty
     
     // Test operator overloads
     EXPECT_TRUE (empty1 == empty2);
@@ -78,7 +78,7 @@ TEST(SStringTest, CombiningCharacters) {
     // Currently they compare as different strings because we use byte-by-byte comparison
     // Note: In an ideal Unicode-aware implementation, these would be equal
     EXPECT_FALSE(s1.equals(s2));
-    EXPECT_NE(s1.compareTo(s2), 0);
+    EXPECT_FALSE(s1.compareTo(s2).isEqual());
 
     // TODO: Consider implementing Unicode normalization to make these equal
     // Using Boost.Locale or ICU for proper Unicode normalization would make s1.equals(s2) return true
@@ -112,16 +112,16 @@ TEST(SStringTest, CompareTo) {
     SString s2("Hello");
     SString s3("hello");
     SString s4("Help");
-    EXPECT_EQ(s1.compareTo(s2), 0);
-    EXPECT_LT(s1.compareTo(s3), 0);  // 'H' < 'h'
-    EXPECT_LT(s1.compareTo(s4), 0);  // 'l' < 'p'
+    EXPECT_TRUE(s1.compareTo(s2).isEqual());
+    EXPECT_TRUE(s1.compareTo(s3).isLess());  // 'H' < 'h'
+    EXPECT_TRUE(s1.compareTo(s4).isLess());  // 'l' < 'p'
 
     // Test UTF-8 string comparison
     SString s5("Hello, 世界!");  // Hello, 世界!
     SString s6("Hello, 世界!");
     SString s7("Hello, 世界");   // Hello, 世界
-    EXPECT_EQ(s5.compareTo(s6), 0);
-    EXPECT_GT(s5.compareTo(s7), 0);  // '!' > ''
+    EXPECT_TRUE(s5.compareTo(s6).isEqual());
+    EXPECT_TRUE(s5.compareTo(s7).isGreater());  // '!' > ''
 
     // Test operator overloads
     EXPECT_TRUE(s1 <  s3);
@@ -173,8 +173,8 @@ TEST(SStringTest, InvalidUtf8Handling) {
     EXPECT_FALSE(s1.equals(s8));  // Different invalid sequences
     
     // Order should be consistent even with invalid sequences
-    int cmp = s1.compareTo(s8);
-    EXPECT_EQ(s8.compareTo(s1), -cmp);  // Comparison should be symmetric
+    CompareResult cmp = s1.compareTo(s8);
+    EXPECT_EQ(s8.compareTo(s1).value(), -cmp.value());  // Comparison should be symmetric
 }
 
 TEST(SStringTest, Immutability) {
@@ -232,14 +232,14 @@ TEST(SStringTest, NullCharacterHandling) {
     EXPECT_FALSE(s1.equals(s4));        // Same length, different content
     
     // Test comparison
-    EXPECT_EQ(s1.compareTo(s2), 0);     // Equal strings
-    EXPECT_GT(s1.compareTo(s3), 0);     // Longer string > shorter string
-    EXPECT_LT(s1.compareTo(s4), 0);     // '\0' < '\1'
+    EXPECT_TRUE(s1.compareTo(s2).isEqual());     // Equal strings
+    EXPECT_TRUE(s1.compareTo(s3).isGreater());   // Longer string > shorter string
+    EXPECT_TRUE(s1.compareTo(s4).isLess());      // '\0' < '\1'
     
     // Test with regular strings
     SString s5("hel");
     EXPECT_FALSE(s1.equals(s5));        // Different length
-    EXPECT_GT(s1.compareTo(s5), 0);     // Longer string > shorter string
+    EXPECT_TRUE(s1.compareTo(s5).isGreater());   // Longer string > shorter string
     
     // Test operator overloads
     EXPECT_TRUE (s1 == s2);

@@ -106,7 +106,7 @@ bool SString::equals(const SString& other) const {
     return compareUtf8Strings(data_, other.data_) == 0;
 }
 
-int SString::compareTo(const SString& other) const {
+CompareResult SString::compareTo(const SString& other) const {
     // Use Boost's locale-aware comparison for proper Unicode handling
     // This matches Java's String.compareTo behavior:
     // Returns: 
