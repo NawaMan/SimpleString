@@ -7,17 +7,17 @@ using namespace simple_string;
 
 TEST(CompareResultTest, StaticConstants) {
     // Test static constant values
-    EXPECT_TRUE (CompareResult::LESS.isLess());
-    EXPECT_FALSE(CompareResult::LESS.isEqual());
-    EXPECT_FALSE(CompareResult::LESS.isGreater());
+    EXPECT_TRUE (CompareResult::LESS.is_less());
+    EXPECT_FALSE(CompareResult::LESS.is_equal());
+    EXPECT_FALSE(CompareResult::LESS.is_greater());
 
-    EXPECT_FALSE(CompareResult::EQUAL.isLess());
-    EXPECT_TRUE (CompareResult::EQUAL.isEqual());
-    EXPECT_FALSE(CompareResult::EQUAL.isGreater());
+    EXPECT_FALSE(CompareResult::EQUAL.is_less());
+    EXPECT_TRUE (CompareResult::EQUAL.is_equal());
+    EXPECT_FALSE(CompareResult::EQUAL.is_greater());
 
-    EXPECT_FALSE(CompareResult::GREATER.isLess());
-    EXPECT_FALSE(CompareResult::GREATER.isEqual());
-    EXPECT_TRUE (CompareResult::GREATER.isGreater());
+    EXPECT_FALSE(CompareResult::GREATER.is_less());
+    EXPECT_FALSE(CompareResult::GREATER.is_equal());
+    EXPECT_TRUE (CompareResult::GREATER.is_greater());
 
     // Test comparison with integers
     EXPECT_TRUE(CompareResult::LESS    <  0);
@@ -26,52 +26,52 @@ TEST(CompareResultTest, StaticConstants) {
 }
 
 TEST(CompareResultTest, StaticFactoryMethod) {
-    CompareResult less = CompareResult::fromInt(-1);
-    CompareResult equal = CompareResult::fromInt(0);
-    CompareResult greater = CompareResult::fromInt(1);
+    CompareResult less    = CompareResult::from_int(-1);
+    CompareResult equal   = CompareResult::from_int(0);
+    CompareResult greater = CompareResult::from_int(1);
 
-    EXPECT_TRUE (less.isLess());
-    EXPECT_FALSE(less.isEqual());
-    EXPECT_FALSE(less.isGreater());
-    EXPECT_TRUE (less.isLessOrEqual());
-    EXPECT_FALSE(less.isGreaterOrEqual());
+    EXPECT_TRUE (less.is_less());
+    EXPECT_FALSE(less.is_equal());
+    EXPECT_FALSE(less.is_greater());
+    EXPECT_TRUE (less.is_less_or_equal());
+    EXPECT_FALSE(less.is_greater_or_equal());
 
-    EXPECT_FALSE(equal.isLess());
-    EXPECT_TRUE (equal.isEqual());
-    EXPECT_FALSE(equal.isGreater());
-    EXPECT_TRUE (equal.isLessOrEqual());
-    EXPECT_TRUE (equal.isGreaterOrEqual());
+    EXPECT_FALSE(equal.is_less());
+    EXPECT_TRUE (equal.is_equal());
+    EXPECT_FALSE(equal.is_greater());
+    EXPECT_TRUE (equal.is_less_or_equal());
+    EXPECT_TRUE (equal.is_greater_or_equal());
 
-    EXPECT_FALSE(greater.isLess());
-    EXPECT_FALSE(greater.isEqual());
-    EXPECT_TRUE (greater.isGreater());
-    EXPECT_FALSE(greater.isLessOrEqual());
-    EXPECT_TRUE (greater.isGreaterOrEqual());
+    EXPECT_FALSE(greater.is_less());
+    EXPECT_FALSE(greater.is_equal());
+    EXPECT_TRUE (greater.is_greater());
+    EXPECT_FALSE(greater.is_less_or_equal());
+    EXPECT_TRUE (greater.is_greater_or_equal());
 }
 
 TEST(CompareResultTest, ArbitraryValues) {
     // Any negative value should be "less"
-    CompareResult veryNegative = CompareResult::fromInt(-100);
-    EXPECT_TRUE(veryNegative.isLess());
-    EXPECT_TRUE(veryNegative.isLessOrEqual());
-    EXPECT_FALSE(veryNegative.isGreater());
-    EXPECT_FALSE(veryNegative.isGreaterOrEqual());
-    EXPECT_FALSE(veryNegative.isEqual());
+    CompareResult very_negative = CompareResult::from_int(-100);
+    EXPECT_TRUE(very_negative.is_less());
+    EXPECT_TRUE(very_negative.is_less_or_equal());
+    EXPECT_FALSE(very_negative.is_greater());
+    EXPECT_FALSE(very_negative.is_greater_or_equal());
+    EXPECT_FALSE(very_negative.is_equal());
 
     // Any positive value should be "greater"
-    CompareResult veryPositive(100);
-    EXPECT_FALSE(veryPositive.isLess());
-    EXPECT_FALSE(veryPositive.isLessOrEqual());
-    EXPECT_TRUE(veryPositive.isGreater());
-    EXPECT_TRUE(veryPositive.isGreaterOrEqual());
-    EXPECT_FALSE(veryPositive.isEqual());
+    CompareResult very_positive = CompareResult::from_int(100);
+    EXPECT_FALSE(very_positive.is_less());
+    EXPECT_FALSE(very_positive.is_less_or_equal());
+    EXPECT_TRUE(very_positive.is_greater());
+    EXPECT_TRUE(very_positive.is_greater_or_equal());
+    EXPECT_FALSE(very_positive.is_equal());
 }
 
 TEST(CompareResultTest, RawValue) {
     // Test that value() returns the original comparison value
-    CompareResult less = CompareResult::fromInt(-42);
-    CompareResult equal = CompareResult::fromInt(0);
-    CompareResult greater = CompareResult::fromInt(42);
+    CompareResult less    = CompareResult::from_int(-42);
+    CompareResult equal   = CompareResult::from_int(0);
+    CompareResult greater = CompareResult::from_int(42);
 
     EXPECT_EQ(less.value(), -42);
     EXPECT_EQ(equal.value(), 0);
@@ -79,9 +79,9 @@ TEST(CompareResultTest, RawValue) {
 }
 
 TEST(CompareResultTest, IntegerComparison) {
-    CompareResult less = CompareResult::fromInt(-1);
-    CompareResult equal = CompareResult::fromInt(0);
-    CompareResult greater = CompareResult::fromInt(1);
+    CompareResult less    = CompareResult::from_int(-1);
+    CompareResult equal   = CompareResult::from_int(0);
+    CompareResult greater = CompareResult::from_int(1);
 
     // Test CompareResult op int
     EXPECT_TRUE (less <  0);

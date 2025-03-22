@@ -4,9 +4,9 @@
 
 namespace simple_string {
 
-auto SString::charAt(std::size_t index) const -> Char {
+auto SString::char_at(std::size_t index) const -> Char {
     // Get UTF-16 representation (uses cache)
-    const std::u16string& utf16 = getUTF16();
+    const std::u16string& utf16 = get_utf16();
     
     // Check bounds (length in UTF-16 code units)
     if (index >= utf16.length()) {
@@ -19,8 +19,8 @@ auto SString::charAt(std::size_t index) const -> Char {
     return Char(utf16[index]);
 }
 
-auto SString::charValue(std::size_t index) const -> char16_t {
-    return charAt(index).value();
+auto SString::char_value(std::size_t index) const -> char16_t {
+    return char_at(index).value();
 }
 
 } // namespace simple_string

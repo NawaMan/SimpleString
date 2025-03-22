@@ -18,7 +18,7 @@ public:
     static const CompareResult GREATER;
 
     // Static factory method to create CompareResult from int (Java-style)
-    static CompareResult fromInt(int value) {
+    static CompareResult from_int(int value) {
         return CompareResult(value);
     }
 
@@ -26,11 +26,11 @@ public:
     explicit CompareResult(int value) : value_(value) {}
 
     // Comparison check methods
-    bool isLess()           const { return value_ <  0; }
-    bool isGreater()        const { return value_ >  0; }
-    bool isEqual()          const { return value_ == 0; }
-    bool isLessOrEqual()    const { return value_ <= 0; }
-    bool isGreaterOrEqual() const { return value_ >= 0; }
+    bool is_less()             const { return value_ <  0; }
+    bool is_greater()          const { return value_ >  0; }
+    bool is_equal()            const { return value_ == 0; }
+    bool is_less_or_equal()    const { return value_ <= 0; }
+    bool is_greater_or_equal() const { return value_ >= 0; }
 
     // Get the raw comparison value
     int value() const { return value_; }

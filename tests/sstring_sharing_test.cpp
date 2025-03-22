@@ -13,7 +13,7 @@ class SStringSharing : public ::testing::Test {
 protected:
     // Helper method to check if two strings share data
     bool sharingData(const SString& s1, const SString& s2) {
-        return s1.sharesDataWith(s2);
+        return s1.shares_data_with(s2);
     }
 };
 
@@ -75,7 +75,7 @@ TEST_F(SStringSharing, ThreadSafety) {
             }
 
             // Test comparison (should be thread-safe)
-            if (copy.compareTo(shared) != CompareResult::EQUAL) {
+            if (copy.compare_to(shared) != CompareResult::EQUAL) {
                 failed = true;
                 break;
             }
@@ -109,14 +109,14 @@ TEST_F(SStringSharing, ImmutabilityMaintained) {
     EXPECT_TRUE(sharingData(str1, str2));
 
     // Try to modify str1 through toString() (shouldn't be possible due to const)
-    const std::string& str1_data = str1.toString();
+    const std::string& str1_data = str1.to_string();
     // The following line would not compile:
     // str1_data[0] = 'h';  // Error: str1_data is const
 
     // Data should still be shared and unchanged
     EXPECT_TRUE(sharingData(str1, str2));
-    EXPECT_EQ(str1.toString(), "Hello");
-    EXPECT_EQ(str2.toString(), "Hello");
+    EXPECT_EQ(str1.to_string(), "Hello");
+    EXPECT_EQ(str2.to_string(), "Hello");
 }
 
 TEST_F(SStringSharing, VectorCopies) {
@@ -184,11 +184,11 @@ TEST_F(SStringSharing, NullCharacterSharing) {
     EXPECT_TRUE(sharingData(s1, s3));
     
     // Verify the entire content is shared, including after null
-    EXPECT_EQ(s1.toString().length(), 11);
-    EXPECT_EQ(s3.toString().length(), 11);
+    EXPECT_EQ(s1.to_string().length(), 11);
+    EXPECT_EQ(s3.to_string().length(), 11);
     EXPECT_TRUE(std::equal(
-        s1.toString().begin(), s1.toString().end(),
-        s3.toString().begin()
+        s1.to_string().begin(), s1.to_string().end(),
+        s3.to_string().begin()
     ));
 }
 
@@ -205,11 +205,11 @@ TEST_F(SStringSharing, LongStringSharing) {
     EXPECT_TRUE(sharingData(original, copy));
     
     // Verify the entire content is shared
-    EXPECT_EQ(original.toString().length(), size);
-    EXPECT_EQ(copy.toString().length(), size);
+    EXPECT_EQ(original.to_string().length(), size);
+    EXPECT_EQ(copy.to_string().length(), size);
     EXPECT_TRUE(std::equal(
-        original.toString().begin(), original.toString().end(),
-        copy.toString().begin()
+        original.to_string().begin(), original.to_string().end(),
+        copy.to_string().begin()
     ));
 }
 
@@ -223,7 +223,7 @@ TEST_F(SStringSharing, UnicodeSharing) {
     EXPECT_TRUE(sharingData(original, copy));
     
     // Verify the content is identical
-    EXPECT_EQ(original.toString(), copy.toString());
+    EXPECT_EQ(original.to_string(), copy.to_string());
     EXPECT_EQ(original.length(), copy.length());
     
     // Test with combining characters (e + combining acute)

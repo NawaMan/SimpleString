@@ -13,7 +13,7 @@ namespace simple_string {
 namespace detail {
 
 // One-time initialization of Boost Locale
-inline void initLocale() {
+inline void init_locale() {
     static bool initialized = false;
     if (!initialized) {
         boost::locale::generator gen;
@@ -23,7 +23,7 @@ inline void initLocale() {
 }
 
 // Count UTF-16 code units, treating each byte of invalid UTF-8 as a separate code unit
-inline std::size_t countUtf16CodeUnits(const std::string& utf8_str) {
+inline std::size_t count_utf16_code_units(const std::string& utf8_str) {
     std::size_t count = 0;
     const unsigned char* str = reinterpret_cast<const unsigned char*>(utf8_str.c_str());
     const unsigned char* end = str + utf8_str.length();
@@ -98,7 +98,7 @@ inline std::size_t countUtf16CodeUnits(const std::string& utf8_str) {
 }
 
 // Compare two strings using byte-by-byte comparison for exact Java behavior
-inline int compareUtf8Strings(const std::string& str1, const std::string& str2) {
+inline int compare_utf8_strings(const std::string& str1, const std::string& str2) {
     return str1.compare(str2);
 }
 
@@ -140,7 +140,7 @@ public:
     // Get the length of the string in UTF-16 code units
     std::size_t length() const {
         // Initialize locale if needed
-        detail::initLocale();
+        detail::init_locale();
         
         // Use cached UTF-16 representation if available
         if (utf16_cache_) {
@@ -148,7 +148,7 @@ public:
         }
         
         // Otherwise count UTF-16 code units from UTF-8
-        return detail::countUtf16CodeUnits(*data_);
+        return detail::count_utf16_code_units(*data_);
     }
 
     /**
@@ -157,7 +157,7 @@ public:
      * 
      * @return true if the string is empty, false otherwise
      */
-    bool isEmpty() const {
+    bool is_empty() const {
         return data_->empty();
     }
 
@@ -171,7 +171,7 @@ public:
      */
     bool equals(const SString& other) const {
         // Fast path: check if strings share data
-        if (sharesDataWith(other)) {
+        if (shares_data_with(other)) {
             return true;
         }
         
@@ -191,14 +191,14 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    CompareResult compareTo(const SString& other) const {
+    CompareResult compare_to(const SString& other) const {
         // Fast path: check if strings share data
-        if (sharesDataWith(other)) {
+        if (shares_data_with(other)) {
             return CompareResult::EQUAL;
         }
         
         // Otherwise do byte-by-byte comparison
-        int result = detail::compareUtf8Strings(*data_, *other.data_);
+        int result = detail::compare_utf8_strings(*data_, *other.data_);
         if (result < 0) return CompareResult::LESS;
         if (result > 0) return CompareResult::GREATER;
         return CompareResult::EQUAL;
@@ -210,9 +210,9 @@ public:
      * 
      * @param index Zero-based index of the character
      * @return The character at the specified index
-     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()B
      */
-    Char charAt(std::size_t index) const;
+    Char char_at(std::size_t index) const;
 
     /**
      * Array-style access to characters. Equivalent to charAt().
@@ -221,7 +221,7 @@ public:
      * @return The character at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    Char operator[](std::size_t index) const { return charAt(index); }
+    Char operator[](std::size_t index) const { return char_at(index); }
 
     /**
      * Returns the raw UTF-16 code unit at the specified index.
@@ -230,25 +230,25 @@ public:
      * @return The UTF-16 code unit at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    char16_t charValue(std::size_t index) const;
+    char16_t char_value(std::size_t index) const;
 
     // Get the underlying string data
-    const std::string& toString() const { return *data_; }
+    const std::string& to_string() const { return *data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return  equals(other);                      }
-    bool operator!=(const SString& other) const { return !equals(other);                      }
-    bool operator< (const SString& other) const { return compareTo(other).isLess();           }
-    bool operator<=(const SString& other) const { return compareTo(other).isLessOrEqual();    }
-    bool operator> (const SString& other) const { return compareTo(other).isGreater();        }
-    bool operator>=(const SString& other) const { return compareTo(other).isGreaterOrEqual(); }
+    bool operator==(const SString& other) const { return  equals(other);                         }
+    bool operator!=(const SString& other) const { return !equals(other);                         }
+    bool operator< (const SString& other) const { return compare_to(other).is_less();             }
+    bool operator<=(const SString& other) const { return compare_to(other).is_less_or_equal();    }
+    bool operator> (const SString& other) const { return compare_to(other).is_greater();          }
+    bool operator>=(const SString& other) const { return compare_to(other).is_greater_or_equal(); }
 
 private:
     std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
     mutable std::shared_ptr<const std::u16string> utf16_cache_;  // Cached UTF-16 representation
     
     // Get or create UTF-16 representation
-    const std::u16string& getUTF16() const {
+    const std::u16string& get_utf16() const {
         // Double-checked locking pattern with atomic operations
         auto cache = utf16_cache_;
         if (!cache) {
@@ -271,7 +271,7 @@ private:
      * @param other The string to compare with
      * @return true if both strings share the same underlying data, false otherwise
      */
-    bool sharesDataWith(const SString& other) const { return data_ == other.data_; }
+    bool shares_data_with(const SString& other) const { return data_ == other.data_; }
 
     // Allow test fixtures to access private members
     friend class SStringTest;

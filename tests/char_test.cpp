@@ -34,68 +34,68 @@ TEST(CharTest, Construction) {
 TEST(CharTest, SurrogatePairs) {
     // High surrogate
     Char high(static_cast<char16_t>(0xD83D));
-    EXPECT_TRUE(high.isHighSurrogate());
-    EXPECT_FALSE(high.isLowSurrogate());
-    EXPECT_TRUE(high.isSurrogate());
+    EXPECT_TRUE(high.is_high_surrogate());
+    EXPECT_FALSE(high.is_low_surrogate());
+    EXPECT_TRUE(high.is_surrogate());
     
     // Low surrogate
     Char low(static_cast<char16_t>(0xDE00));
-    EXPECT_FALSE(low.isHighSurrogate());
-    EXPECT_TRUE(low.isLowSurrogate());
-    EXPECT_TRUE(low.isSurrogate());
+    EXPECT_FALSE(low.is_high_surrogate());
+    EXPECT_TRUE(low.is_low_surrogate());
+    EXPECT_TRUE(low.is_surrogate());
     
     // Non-surrogate
     Char regular('A');
-    EXPECT_FALSE(regular.isHighSurrogate());
-    EXPECT_FALSE(regular.isLowSurrogate());
-    EXPECT_FALSE(regular.isSurrogate());
+    EXPECT_FALSE(regular.is_high_surrogate());
+    EXPECT_FALSE(regular.is_low_surrogate());
+    EXPECT_FALSE(regular.is_surrogate());
 }
 
 TEST(CharTest, CodePointConversion) {
     // BMP character (U+0041 LATIN CAPITAL LETTER A)
     char32_t bmpChar = 0x0041;
-    EXPECT_FALSE(Char::isSupplementaryCodePoint(bmpChar));
-    EXPECT_FALSE(Char::fromCodePoint(bmpChar).has_value());
+    EXPECT_FALSE(Char::is_supplementary_code_point(bmpChar));
+    EXPECT_FALSE(Char::from_code_point(bmpChar).has_value());
     
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
-    EXPECT_TRUE(Char::isSupplementaryCodePoint(supplementary));
+    EXPECT_TRUE(Char::is_supplementary_code_point(supplementary));
     
     // Convert supplementary to surrogate pair using new static method
-    auto maybePair = Char::fromCodePoint(supplementary);
+    auto maybePair = Char::from_code_point(supplementary);
     EXPECT_TRUE(maybePair.has_value());
     
     const auto& [high, low] = *maybePair;
     
     // Verify surrogate pair
-    EXPECT_TRUE(high.isHighSurrogate());
-    EXPECT_TRUE(low.isLowSurrogate());
+    EXPECT_TRUE(high.is_high_surrogate());
+    EXPECT_TRUE(low.is_low_surrogate());
     
     // Convert back to code point
-    char32_t roundTrip = high.toCodePoint(low);
+    char32_t roundTrip = high.to_code_point(low);
     EXPECT_EQ(roundTrip, supplementary);
     
     // Invalid surrogate pair should return INVALID_CODEPOINT
     Char regular('A');
-    EXPECT_EQ(regular.toCodePoint(low), Char::INVALID_CODEPOINT);
+    EXPECT_EQ(regular.to_code_point(low), Char::INVALID_CODEPOINT);
 }
 
 TEST(CharTest, StringConversion) {
     // ASCII character
     Char ascii('A');
-    EXPECT_EQ(ascii.toString(), std::u16string(1, u'A'));
+    EXPECT_EQ(ascii.to_string(), std::u16string(1, u'A'));
     
     // BMP character
     Char bmp(static_cast<char16_t>(0x00F1));  // ñ
-    EXPECT_EQ(bmp.toString(), std::u16string(1, static_cast<char16_t>(0x00F1)));
+    EXPECT_EQ(bmp.to_string(), std::u16string(1, static_cast<char16_t>(0x00F1)));
     
     // Surrogate
     Char surrogate(static_cast<char16_t>(0xD83D));
-    EXPECT_EQ(surrogate.toString(), std::u16string(1, static_cast<char16_t>(0xD83D)));
+    EXPECT_EQ(surrogate.to_string(), std::u16string(1, static_cast<char16_t>(0xD83D)));
     
     // Replacement character
     Char replacement(static_cast<char16_t>(Char::REPLACEMENT_CHAR));
-    EXPECT_EQ(replacement.toString(), std::u16string(1, static_cast<char16_t>(0xFFFD)));
+    EXPECT_EQ(replacement.to_string(), std::u16string(1, static_cast<char16_t>(0xFFFD)));
 }
 
 TEST(CharTest, Comparison) {

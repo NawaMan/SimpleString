@@ -28,19 +28,19 @@ TEST(SStringTest, EmptyString) {
 TEST(SStringTest, IsEmpty) {
     // Empty string returns true
     SString empty("");
-    EXPECT_TRUE(empty.isEmpty());
+    EXPECT_TRUE(empty.is_empty());
 
     // Non-empty string returns false
     SString nonEmpty("Hello");
-    EXPECT_FALSE(nonEmpty.isEmpty());
+    EXPECT_FALSE(nonEmpty.is_empty());
 
     // String with only whitespace returns false
     SString whitespace("  \t\n\r");
-    EXPECT_FALSE(whitespace.isEmpty());
+    EXPECT_FALSE(whitespace.is_empty());
 
     // String with only null character returns false
     SString nullChar("\0", 1);
-    EXPECT_FALSE(nullChar.isEmpty());
+    EXPECT_FALSE(nullChar.is_empty());
 }
 
 TEST(SStringTest, EmptyStringComparisons) {
@@ -54,10 +54,10 @@ TEST(SStringTest, EmptyStringComparisons) {
     EXPECT_FALSE(empty1.equals(nonEmpty));
     EXPECT_FALSE(nonEmpty.equals(empty1));
     
-    // Test compareTo() method
-    EXPECT_TRUE(empty1.compareTo(empty2).isEqual());
-    EXPECT_TRUE(empty1.compareTo(nonEmpty).isLess());  // empty string sorts before non-empty
-    EXPECT_TRUE(nonEmpty.compareTo(empty1).isGreater());  // non-empty string sorts after empty
+    // Test compare_to() method
+    EXPECT_TRUE(empty1.compare_to(empty2).is_equal());
+    EXPECT_TRUE(empty1.compare_to(nonEmpty).is_less());  // empty string sorts before non-empty
+    EXPECT_TRUE(nonEmpty.compare_to(empty1).is_greater());  // non-empty string sorts after empty
     
     // Test operator overloads
     EXPECT_TRUE (empty1 == empty2);
@@ -98,7 +98,7 @@ TEST(SStringTest, CombiningCharacters) {
     // Currently they compare as different strings because we use byte-by-byte comparison
     // Note: In an ideal Unicode-aware implementation, these would be equal
     EXPECT_FALSE(s1.equals(s2));
-    EXPECT_FALSE(s1.compareTo(s2).isEqual());
+    EXPECT_FALSE(s1.compare_to(s2).is_equal());
 
     // TODO: Consider implementing Unicode normalization to make these equal
     // Using Boost.Locale or ICU for proper Unicode normalization would make s1.equals(s2) return true
@@ -132,16 +132,16 @@ TEST(SStringTest, CompareTo) {
     SString s2("Hello");
     SString s3("hello");
     SString s4("Help");
-    EXPECT_TRUE(s1.compareTo(s2).isEqual());
-    EXPECT_TRUE(s1.compareTo(s3).isLess());  // 'H' < 'h'
-    EXPECT_TRUE(s1.compareTo(s4).isLess());  // 'l' < 'p'
+    EXPECT_TRUE(s1.compare_to(s2).is_equal());
+    EXPECT_TRUE(s1.compare_to(s3).is_less());  // 'H' < 'h'
+    EXPECT_TRUE(s1.compare_to(s4).is_less());  // 'l' < 'p'
 
     // Test UTF-8 string comparison
     SString s5("Hello, 世界!");  // Hello, 世界!
     SString s6("Hello, 世界!");
     SString s7("Hello, 世界");   // Hello, 世界
-    EXPECT_TRUE(s5.compareTo(s6).isEqual());
-    EXPECT_TRUE(s5.compareTo(s7).isGreater());  // '!' > ''
+    EXPECT_TRUE(s5.compare_to(s6).is_equal());
+    EXPECT_TRUE(s5.compare_to(s7).is_greater());  // '!' > ''
 
     // Test operator overloads
     EXPECT_TRUE(s1 <  s3);
@@ -193,8 +193,8 @@ TEST(SStringTest, InvalidUtf8Handling) {
     EXPECT_FALSE(s1.equals(s8));  // Different invalid sequences
     
     // Order should be consistent even with invalid sequences
-    CompareResult cmp = s1.compareTo(s8);
-    EXPECT_EQ(s8.compareTo(s1).value(), -cmp.value());  // Comparison should be symmetric
+    CompareResult cmp = s1.compare_to(s8);
+    EXPECT_EQ(s8.compare_to(s1).value(), -cmp.value());  // Comparison should be symmetric
 }
 
 TEST(SStringTest, Immutability) {
@@ -202,16 +202,16 @@ TEST(SStringTest, Immutability) {
     std::string mutableStr = "Hello";
     SString s1(mutableStr);
     mutableStr[0] = 'h';  // Modify original string
-    EXPECT_EQ(s1.toString(), "Hello");  // SString should remain unchanged
+    EXPECT_EQ(s1.to_string(), "Hello");  // SString should remain unchanged
     
     // Test immutability with char* constructor
     char mutableBuf[] = "World";
     SString s2(mutableBuf, 5);
     mutableBuf[0] = 'w';  // Modify original buffer
-    EXPECT_EQ(s2.toString(), "World");  // SString should remain unchanged
+    EXPECT_EQ(s2.to_string(), "World");  // SString should remain unchanged
     
     // Test that toString() returns a const reference that can't modify internal data
-    const std::string& ref = s1.toString();
+    const std::string& ref = s1.to_string();
     static_assert(std::is_const<std::remove_reference_t<decltype(ref)>>::value,
                   "toString() must return a const reference");
     
@@ -219,14 +219,14 @@ TEST(SStringTest, Immutability) {
     std::string utf8Str = "Hello, 世界";
     SString s3(utf8Str);
     utf8Str[7] = 'X';  // Try to modify UTF-8 sequence
-    EXPECT_EQ(s3.toString(), "Hello, 世界");  // SString should remain unchanged
+    EXPECT_EQ(s3.to_string(), "Hello, 世界");  // SString should remain unchanged
     
     // Test immutability with null characters
     char nullBuf[] = {'H', 'e', '\0', 'l', 'o'};
     SString s4(nullBuf, 5);
     nullBuf[2] = 'l';  // Modify null character
     const char expected[] = {'H', 'e', '\0', 'l', 'o'};
-    EXPECT_EQ(std::string(s4.toString().data(), 5),
+    EXPECT_EQ(std::string(s4.to_string().data(), 5),
               std::string(expected, 5));
 }
 
@@ -252,14 +252,14 @@ TEST(SStringTest, NullCharacterHandling) {
     EXPECT_FALSE(s1.equals(s4));        // Same length, different content
     
     // Test comparison
-    EXPECT_TRUE(s1.compareTo(s2).isEqual());     // Equal strings
-    EXPECT_TRUE(s1.compareTo(s3).isGreater());   // Longer string > shorter string
-    EXPECT_TRUE(s1.compareTo(s4).isLess());      // '\0' < '\1'
+    EXPECT_TRUE(s1.compare_to(s2).is_equal());     // Equal strings
+    EXPECT_TRUE(s1.compare_to(s3).is_greater());   // Longer string > shorter string
+    EXPECT_TRUE(s1.compare_to(s4).is_less());      // '\0' < '\1'
     
     // Test with regular strings
     SString s5("hel");
     EXPECT_FALSE(s1.equals(s5));        // Different length
-    EXPECT_TRUE(s1.compareTo(s5).isGreater());   // Longer string > shorter string
+    EXPECT_TRUE(s1.compare_to(s5).is_greater());   // Longer string > shorter string
     
     // Test operator overloads
     EXPECT_TRUE (s1 == s2);

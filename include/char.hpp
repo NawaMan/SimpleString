@@ -29,34 +29,34 @@ public:
     constexpr explicit Char(char32_t c) noexcept 
         : value_(c <= 0xFFFF ? 
                  static_cast<char16_t>(c) : 
-                 (isSupplementaryCodePoint(c) ? REPLACEMENT_CHAR : static_cast<char16_t>(c))) {}
+                 (is_supplementary_code_point(c) ? REPLACEMENT_CHAR : static_cast<char16_t>(c))) {}
 
     // Value accessors
     constexpr char16_t value() const noexcept { return value_; }
     
     // Surrogate pair checks
-    constexpr bool isHighSurrogate() const noexcept {
+    constexpr bool is_high_surrogate() const noexcept {
         return value_ >= 0xD800 && value_ <= 0xDBFF;
     }
     
-    constexpr bool isLowSurrogate() const noexcept {
+    constexpr bool is_low_surrogate() const noexcept {
         return value_ >= 0xDC00 && value_ <= 0xDFFF;
     }
     
-    constexpr bool isSurrogate() const noexcept {
+    constexpr bool is_surrogate() const noexcept {
         return value_ >= 0xD800 && value_ <= 0xDFFF;
     }
 
     // Code point conversion
-    constexpr char32_t toCodePoint(Char lowSurrogate) const noexcept {
-        if (!isHighSurrogate() || !lowSurrogate.isLowSurrogate()) {
+    constexpr char32_t to_code_point(Char low_surrogate) const noexcept {
+        if (!is_high_surrogate() || !low_surrogate.is_low_surrogate()) {
             return INVALID_CODEPOINT;
         }
-        return 0x10000 + ((value_ - 0xD800) << 10) + (lowSurrogate.value() - 0xDC00);
+        return 0x10000 + ((value_ - 0xD800) << 10) + (low_surrogate.value() - 0xDC00);
     }
 
     // String conversion
-    std::u16string toString() const {
+    std::u16string to_string() const {
         return std::u16string(1, value_);
     }
 
@@ -69,26 +69,26 @@ public:
     constexpr bool operator>=(const Char& other) const noexcept { return value_ >= other.value_; }
 
     // Static utility methods
-    static constexpr char16_t highSurrogateOf(char32_t codePoint) noexcept {
-        return static_cast<char16_t>(((codePoint - 0x10000) >> 10) + 0xD800);
+    static constexpr char16_t high_surrogate_of(char32_t code_point) noexcept {
+        return static_cast<char16_t>(((code_point - 0x10000) >> 10) + 0xD800);
     }
     
-    static constexpr char16_t lowSurrogateOf(char32_t codePoint) noexcept {
-        return static_cast<char16_t>(((codePoint - 0x10000) & 0x3FF) + 0xDC00);
+    static constexpr char16_t low_surrogate_of(char32_t code_point) noexcept {
+        return static_cast<char16_t>(((code_point - 0x10000) & 0x3FF) + 0xDC00);
     }
     
-    static constexpr bool isSupplementaryCodePoint(char32_t codePoint) noexcept {
-        return codePoint >= 0x10000 && codePoint <= 0x10FFFF;
+    static constexpr bool is_supplementary_code_point(char32_t code_point) noexcept {
+        return code_point >= 0x10000 && code_point <= 0x10FFFF;
     }
 
     // Create a surrogate pair from a code point
-    static constexpr std::optional<std::pair<Char, Char>> fromCodePoint(char32_t codePoint) noexcept {
-        if (!isSupplementaryCodePoint(codePoint)) {
+    static constexpr std::optional<std::pair<Char, Char>> from_code_point(char32_t code_point) noexcept {
+        if (!is_supplementary_code_point(code_point)) {
             return std::nullopt;
         }
         return std::make_pair(
-            Char(highSurrogateOf(codePoint)),
-            Char(lowSurrogateOf(codePoint))
+            Char(high_surrogate_of(code_point)),
+            Char(low_surrogate_of(code_point))
         );
     }
 
