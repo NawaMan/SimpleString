@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <optional>
 
 namespace simple_string {
 
@@ -17,12 +18,18 @@ namespace simple_string {
  */
 class Char {
 public:
+    // Special values
+    static constexpr char32_t INVALID_CODEPOINT = 0xFFFFFFFF;
+    static constexpr char16_t REPLACEMENT_CHAR = 0xFFFD;
+
     // Constructors
     constexpr Char() noexcept : value_(0) {}
     constexpr explicit Char(char c) noexcept : value_(static_cast<char16_t>(c)) {}
     constexpr explicit Char(char16_t c) noexcept : value_(c) {}
     constexpr explicit Char(char32_t c) noexcept 
-        : value_(c <= 0xFFFF ? static_cast<char16_t>(c) : highSurrogateOf(c)) {}
+        : value_(c <= 0xFFFF ? 
+                 static_cast<char16_t>(c) : 
+                 (isSupplementaryCodePoint(c) ? REPLACEMENT_CHAR : static_cast<char16_t>(c))) {}
 
     // Value accessors
     constexpr char16_t value() const noexcept { return value_; }
@@ -41,19 +48,24 @@ public:
     }
 
     // Code point conversion
-    constexpr char32_t toCodePoint(Char lowSurrogate) const {
+    constexpr char32_t toCodePoint(Char lowSurrogate) const noexcept {
         if (!isHighSurrogate() || !lowSurrogate.isLowSurrogate()) {
-            throw std::invalid_argument("Invalid surrogate pair");
+            return INVALID_CODEPOINT;
         }
         return 0x10000 + ((value_ - 0xD800) << 10) + (lowSurrogate.value() - 0xDC00);
+    }
+
+    // String conversion
+    std::u16string toString() const {
+        return std::u16string(1, value_);
     }
 
     // Comparison operators
     constexpr bool operator==(const Char& other) const noexcept { return value_ == other.value_; }
     constexpr bool operator!=(const Char& other) const noexcept { return value_ != other.value_; }
-    constexpr bool operator<(const Char& other) const noexcept { return value_ < other.value_; }
+    constexpr bool operator< (const Char& other) const noexcept { return value_ <  other.value_; }
     constexpr bool operator<=(const Char& other) const noexcept { return value_ <= other.value_; }
-    constexpr bool operator>(const Char& other) const noexcept { return value_ > other.value_; }
+    constexpr bool operator> (const Char& other) const noexcept { return value_ >  other.value_; }
     constexpr bool operator>=(const Char& other) const noexcept { return value_ >= other.value_; }
 
     // Static utility methods
@@ -67,6 +79,17 @@ public:
     
     static constexpr bool isSupplementaryCodePoint(char32_t codePoint) noexcept {
         return codePoint >= 0x10000 && codePoint <= 0x10FFFF;
+    }
+
+    // Create a surrogate pair from a code point
+    static constexpr std::optional<std::pair<Char, Char>> fromCodePoint(char32_t codePoint) noexcept {
+        if (!isSupplementaryCodePoint(codePoint)) {
+            return std::nullopt;
+        }
+        return std::make_pair(
+            Char(highSurrogateOf(codePoint)),
+            Char(lowSurrogateOf(codePoint))
+        );
     }
 
 private:
