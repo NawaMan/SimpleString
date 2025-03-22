@@ -82,14 +82,14 @@ int compareUtf8Strings(const std::string& str1, const std::string& str2) {
 } // anonymous namespace
 
 SString::SString(const std::string& str) 
-    // Force immediate copy of string data
-    : data_(str.data(), str.length()) {
+    // Create shared immutable string data
+    : data_(std::make_shared<const std::string>(str)) {
     initLocale();
 }
 
 SString::SString(const char* str, std::size_t length) 
-    // Validate input and force immediate copy of data
-    : data_(str ? std::string(str, length) : std::string()) {
+    // Validate input and create shared immutable string data
+    : data_(std::make_shared<const std::string>(str ? std::string(str, length) : std::string())) {
     if (!str && length > 0) {
         throw std::invalid_argument("Null pointer with non-zero length");
     }
@@ -98,27 +98,35 @@ SString::SString(const char* str, std::size_t length)
 
 std::size_t SString::length() const {
     // Return number of UTF-16 code units, just like Java's String.length()
-    return countUtf16CodeUnits(data_);
+    return countUtf16CodeUnits(*data_);
 }
 
 bool SString::isEmpty() const {
     // Return true if the string is empty, just like Java's String.isEmpty()
-    return data_.empty();
+    return data_->empty();
 }
 
 bool SString::equals(const SString& other) const {
-    // Use Boost's locale-aware comparison for proper Unicode handling
-    return compareUtf8Strings(data_, other.data_) == 0;
+    // First check if we're sharing the same string data
+    if (data_ == other.data_) {
+        return true;  // Same object, must be equal
+    }
+    // Otherwise use Boost's locale-aware comparison for proper Unicode handling
+    return compareUtf8Strings(*data_, *other.data_) == 0;
 }
 
 CompareResult SString::compareTo(const SString& other) const {
-    // Use Boost's locale-aware comparison for proper Unicode handling
+    // First check if we're sharing the same string data
+    if (data_ == other.data_) {
+        return CompareResult::EQUAL;  // Same object, must be equal
+    }
+    // Otherwise use Boost's locale-aware comparison for proper Unicode handling
     // This matches Java's String.compareTo behavior:
     // Returns CompareResult representing:
     // - negative if this < other
     // - zero if this == other
     // - positive if this > other
-    return CompareResult::fromInt(compareUtf8Strings(data_, other.data_));
+    return CompareResult::fromInt(compareUtf8Strings(*data_, *other.data_));
 }
 
 } // namespace sstring

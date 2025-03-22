@@ -2,6 +2,7 @@
 #define SIMPLE_STRING_HPP
 
 #include <string>
+#include <memory>
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 
@@ -68,10 +69,13 @@ public:
     CompareResult compareTo(const SString& other) const;
 
     // Get the underlying string data
-    const std::string& toString() const { return data_; }
+    const std::string& toString() const { return *data_; }
+
+    // Check if two strings share the same underlying data
+    bool sharesDataWith(const SString& other) const { return data_ == other.data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return  equals(other);        }
+    bool operator==(const SString& other) const { return  equals(other);                      }
     bool operator!=(const SString& other) const { return !equals(other);                      }
     bool operator< (const SString& other) const { return compareTo(other).isLess();           }
     bool operator<=(const SString& other) const { return compareTo(other).isLessOrEqual();    }
@@ -79,7 +83,7 @@ public:
     bool operator>=(const SString& other) const { return compareTo(other).isGreaterOrEqual(); }
 
 private:
-    const std::string data_;  // Truly immutable internal string storage - const prevents any modification after construction
+    std::shared_ptr<const std::string> data_;  // Immutable string storage shared between instances
 };
 
 } // namespace simple_string
