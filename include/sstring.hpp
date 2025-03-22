@@ -10,6 +10,100 @@
 
 namespace simple_string {
 
+namespace detail {
+
+// One-time initialization of Boost Locale
+inline void initLocale() {
+    static bool initialized = false;
+    if (!initialized) {
+        boost::locale::generator gen;
+        std::locale::global(gen("en_US.UTF-8"));
+        initialized = true;
+    }
+}
+
+// Count UTF-16 code units, treating each byte of invalid UTF-8 as a separate code unit
+inline std::size_t countUtf16CodeUnits(const std::string& utf8_str) {
+    std::size_t count = 0;
+    const unsigned char* str = reinterpret_cast<const unsigned char*>(utf8_str.c_str());
+    const unsigned char* end = str + utf8_str.length();
+
+    while (str < end) {
+        if (*str < 0x80) {
+            // ASCII character
+            count++;
+            str++;
+        } else if ((*str & 0xE0) == 0xC0) {
+            // 2-byte UTF-8 sequence
+            if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
+                // Invalid or incomplete sequence, treat each byte separately
+                count++;
+                str++;
+                continue;
+            }
+            // Check for overlong encoding (should have used fewer bytes)
+            unsigned int codepoint = ((str[0] & 0x1F) << 6) | (str[1] & 0x3F);
+            if (codepoint < 0x80) {
+                // Overlong encoding, treat each byte separately
+                count += 2;
+                str += 2;
+                continue;
+            }
+            count++;
+            str += 2;
+        } else if ((*str & 0xF0) == 0xE0) {
+            // 3-byte UTF-8 sequence
+            if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
+                // Invalid or incomplete sequence, treat each byte separately
+                count++;
+                str++;
+                continue;
+            }
+            // Check for overlong encoding and surrogate range
+            unsigned int codepoint = ((str[0] & 0x0F) << 12) | ((str[1] & 0x3F) << 6) | (str[2] & 0x3F);
+            if (codepoint < 0x800 || (codepoint >= 0xD800 && codepoint <= 0xDFFF)) {
+                // Overlong encoding or surrogate range, treat each byte separately
+                count += 3;
+                str += 3;
+                continue;
+            }
+            count++;
+            str += 3;
+        } else if ((*str & 0xF8) == 0xF0) {
+            // 4-byte UTF-8 sequence (surrogate pair in UTF-16)
+            if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
+                // Invalid or incomplete sequence, treat each byte separately
+                count++;
+                str++;
+                continue;
+            }
+            // Check for overlong encoding and valid Unicode range
+            unsigned int codepoint = ((str[0] & 0x07) << 18) | ((str[1] & 0x3F) << 12) |
+                                    ((str[2] & 0x3F) << 6)  | (str[3] & 0x3F);
+            if (codepoint < 0x10000 || codepoint > 0x10FFFF) {
+                // Overlong encoding or outside Unicode range, treat each byte separately
+                count += 4;
+                str += 4;
+                continue;
+            }
+            count += 2;  // Surrogate pair counts as two UTF-16 code units
+            str += 4;
+        } else {
+            // Invalid UTF-8 byte, treat as a single code unit
+            count++;
+            str++;
+        }
+    }
+    return count;
+}
+
+// Compare two strings using byte-by-byte comparison for exact Java behavior
+inline int compareUtf8Strings(const std::string& str1, const std::string& str2) {
+    return str1.compare(str2);
+}
+
+} // namespace detail
+
 /**
  * SString - A simple string class that provides Java String-like functionality
  *
@@ -36,13 +130,26 @@ public:
 class SString {
 public:
     // Constructor from C++ string literal
-    explicit SString(const std::string& str);
+    explicit SString(const std::string& str)
+        : data_(std::make_shared<const std::string>(str)), utf16_cache_() {}
     
     // Constructor from C string with explicit length (for strings with null chars)
-    SString(const char* str, std::size_t length);
+    SString(const char* str, std::size_t length)
+        : data_(std::make_shared<const std::string>(str, length)), utf16_cache_() {}
     
-    // Get the length of the string
-    std::size_t length() const;
+    // Get the length of the string in UTF-16 code units
+    std::size_t length() const {
+        // Initialize locale if needed
+        detail::initLocale();
+        
+        // Use cached UTF-16 representation if available
+        if (utf16_cache_) {
+            return utf16_cache_->length();
+        }
+        
+        // Otherwise count UTF-16 code units from UTF-8
+        return detail::countUtf16CodeUnits(*data_);
+    }
 
     /**
      * Returns true if this string is empty (length() == 0).
@@ -50,7 +157,9 @@ public:
      * 
      * @return true if the string is empty, false otherwise
      */
-    bool isEmpty() const;
+    bool isEmpty() const {
+        return data_->empty();
+    }
 
     /**
      * Compares this string with another for equality using byte-by-byte comparison.
@@ -60,7 +169,15 @@ public:
      * @param other The string to compare with
      * @return true if the strings are exactly equal, false otherwise
      */
-    bool equals(const SString& other) const;
+    bool equals(const SString& other) const {
+        // Fast path: check if strings share data
+        if (sharesDataWith(other)) {
+            return true;
+        }
+        
+        // Otherwise do byte-by-byte comparison
+        return *data_ == *other.data_;
+    }
 
     /**
      * Compares this string with another lexicographically using byte-by-byte comparison.
@@ -74,7 +191,18 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    CompareResult compareTo(const SString& other) const;
+    CompareResult compareTo(const SString& other) const {
+        // Fast path: check if strings share data
+        if (sharesDataWith(other)) {
+            return CompareResult::EQUAL;
+        }
+        
+        // Otherwise do byte-by-byte comparison
+        int result = detail::compareUtf8Strings(*data_, *other.data_);
+        if (result < 0) return CompareResult::LESS;
+        if (result > 0) return CompareResult::GREATER;
+        return CompareResult::EQUAL;
+    }
 
     /**
      * Returns the character at the specified index as a Char.
@@ -116,7 +244,22 @@ public:
     bool operator>=(const SString& other) const { return compareTo(other).isGreaterOrEqual(); }
 
 private:
-    std::shared_ptr<const std::string> data_;  // Immutable string storage shared between instances
+    std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
+    mutable std::shared_ptr<const std::u16string> utf16_cache_;  // Cached UTF-16 representation
+    
+    // Get or create UTF-16 representation
+    const std::u16string& getUTF16() const {
+        // Double-checked locking pattern with atomic operations
+        auto cache = utf16_cache_;
+        if (!cache) {
+            // First check failed, acquire the data and create cache
+            cache = std::make_shared<const std::u16string>(
+                boost::locale::conv::utf_to_utf<char16_t>(*data_)
+            );
+            utf16_cache_ = cache;
+        }
+        return *cache;
+    }
 
     /**
      * Check if this string shares the same underlying data with another string.

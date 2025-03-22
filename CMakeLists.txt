@@ -31,7 +31,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Add the library
 add_library(simple_string_lib
-    src/sstring.cpp
     src/compare_result.cpp
     src/sstring_char.cpp
 )
