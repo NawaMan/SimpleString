@@ -83,19 +83,19 @@ TEST(CharTest, CodePointConversion) {
 TEST(CharTest, StringConversion) {
     // ASCII character
     Char ascii('A');
-    EXPECT_EQ(ascii.toString(), u"A");
+    EXPECT_EQ(ascii.toString(), std::u16string(1, u'A'));
     
     // BMP character
     Char bmp(static_cast<char16_t>(0x00F1));  // ñ
-    EXPECT_EQ(bmp.toString(), u"\u00F1");
+    EXPECT_EQ(bmp.toString(), std::u16string(1, static_cast<char16_t>(0x00F1)));
     
     // Surrogate
     Char surrogate(static_cast<char16_t>(0xD83D));
-    EXPECT_EQ(surrogate.toString(), u"\uD83D");
+    EXPECT_EQ(surrogate.toString(), std::u16string(1, static_cast<char16_t>(0xD83D)));
     
     // Replacement character
     Char replacement(static_cast<char16_t>(Char::REPLACEMENT_CHAR));
-    EXPECT_EQ(replacement.toString(), u"\uFFFD");
+    EXPECT_EQ(replacement.toString(), std::u16string(1, static_cast<char16_t>(0xFFFD)));
 }
 
 TEST(CharTest, Comparison) {
