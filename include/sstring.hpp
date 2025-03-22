@@ -71,9 +71,6 @@ public:
     // Get the underlying string data
     const std::string& toString() const { return *data_; }
 
-    // Check if two strings share the same underlying data
-    bool sharesDataWith(const SString& other) const { return data_ == other.data_; }
-
     // C++ operator overloads for comparison
     bool operator==(const SString& other) const { return  equals(other);                      }
     bool operator!=(const SString& other) const { return !equals(other);                      }
@@ -84,6 +81,22 @@ public:
 
 private:
     std::shared_ptr<const std::string> data_;  // Immutable string storage shared between instances
+
+    /**
+     * Check if this string shares the same underlying data with another string.
+     * 
+     * This is an implementation detail used for testing the string sharing behavior.
+     * If true, the strings are guaranteed to be equal. However, if false, the
+     * strings may still be equal but stored in different memory locations.
+     * 
+     * @param other The string to compare with
+     * @return true if both strings share the same underlying data, false otherwise
+     */
+    bool sharesDataWith(const SString& other) const { return data_ == other.data_; }
+
+    // Allow test fixtures to access private members
+    friend class SStringTest;
+    friend class SStringSharing;  // Test fixture for string sharing tests
 };
 
 } // namespace simple_string

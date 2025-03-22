@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "compare_result.hpp"
 
+// Task-003: String Sharing Optimization
+
 using namespace simple_string;
 
 TEST(CompareResultTest, StaticConstants) {

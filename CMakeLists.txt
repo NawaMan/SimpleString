@@ -45,6 +45,7 @@ target_link_libraries(simple_string_lib PUBLIC
 add_executable(simple_string_tests
     tests/sstring_test.cpp
     tests/compare_result_test.cpp
+    tests/sstring_sharing_test.cpp
 )
 target_include_directories(simple_string_tests PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(simple_string_tests PRIVATE

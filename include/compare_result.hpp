@@ -43,6 +43,14 @@ public:
     bool operator> (int other) const { return value_ >  other; }
     bool operator>=(int other) const { return value_ >= other; }
 
+    // Comparison with other CompareResult instances
+    bool operator==(const CompareResult& other) const { return value_ == other.value_; }
+    bool operator!=(const CompareResult& other) const { return value_ != other.value_; }
+    bool operator< (const CompareResult& other) const { return value_ <  other.value_; }
+    bool operator<=(const CompareResult& other) const { return value_ <= other.value_; }
+    bool operator> (const CompareResult& other) const { return value_ >  other.value_; }
+    bool operator>=(const CompareResult& other) const { return value_ >= other.value_; }
+
     // Friend operators for reverse comparisons (int op CompareResult)
     friend bool operator==(int lhs, const CompareResult& rhs) { return rhs == lhs; }
     friend bool operator!=(int lhs, const CompareResult& rhs) { return rhs != lhs; }

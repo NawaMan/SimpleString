@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "sstring.hpp"
 
+// Task-003: String Sharing Optimization
+
 using namespace simple_string;
 
 TEST(SStringTest, ConstructFromLiteral) {
