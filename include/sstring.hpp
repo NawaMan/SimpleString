@@ -3,8 +3,10 @@
 
 #include <string>
 #include <memory>
+#include <stdexcept>
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
+#include "char.hpp"
 
 namespace simple_string {
 
@@ -24,6 +26,12 @@ namespace simple_string {
  * These will compare as different strings and have different lengths.
  * Future versions may support Unicode normalization for comparing such equivalent forms.
  */
+
+class StringIndexOutOfBoundsException : public std::out_of_range {
+public:
+    explicit StringIndexOutOfBoundsException(const std::string& msg)
+        : std::out_of_range(msg) {}
+};
 
 class SString {
 public:
@@ -67,6 +75,34 @@ public:
      *         - isGreater() is true if this > other
      */
     CompareResult compareTo(const SString& other) const;
+
+    /**
+     * Returns the character at the specified index as a Char.
+     * The index refers to UTF-16 code units, not bytes or code points.
+     * 
+     * @param index Zero-based index of the character
+     * @return The character at the specified index
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     */
+    Char charAt(std::size_t index) const;
+
+    /**
+     * Array-style access to characters. Equivalent to charAt().
+     * 
+     * @param index Zero-based index of the character
+     * @return The character at the specified index
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     */
+    Char operator[](std::size_t index) const { return charAt(index); }
+
+    /**
+     * Returns the raw UTF-16 code unit at the specified index.
+     * 
+     * @param index Zero-based index of the code unit
+     * @return The UTF-16 code unit at the specified index
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     */
+    char16_t charValue(std::size_t index) const;
 
     // Get the underlying string data
     const std::string& toString() const { return *data_; }

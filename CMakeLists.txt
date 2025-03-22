@@ -33,6 +33,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_library(simple_string_lib
     src/sstring.cpp
     src/compare_result.cpp
+    src/sstring_char.cpp
 )
 target_include_directories(simple_string_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -47,6 +48,7 @@ add_executable(simple_string_tests
     tests/compare_result_test.cpp
     tests/sstring_sharing_test.cpp
     tests/char_test.cpp
+    tests/sstring_char_test.cpp
 )
 target_include_directories(simple_string_tests PRIVATE ${GTEST_INCLUDE_DIRS})
 target_link_libraries(simple_string_tests PRIVATE
