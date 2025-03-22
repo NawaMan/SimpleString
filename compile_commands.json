@@ -7,9 +7,9 @@
 },
 {
   "directory": "/home/nawa/CascadeProjects/SString/build",
-  "command": "/usr/lib/llvm-18/bin/clang++ -DBOOST_CHRONO_DYN_LINK -DBOOST_CHRONO_NO_LIB -DBOOST_LOCALE_DYN_LINK -DBOOST_LOCALE_NO_LIB -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_DYN_LINK -DBOOST_THREAD_NO_LIB -I/home/nawa/CascadeProjects/SString/include -isystem /home/linuxbrew/.linuxbrew/include -std=gnu++20 -o CMakeFiles/sstring_lib.dir/src/sstring_char.cpp.o -c /home/nawa/CascadeProjects/SString/src/sstring_char.cpp",
-  "file": "/home/nawa/CascadeProjects/SString/src/sstring_char.cpp",
-  "output": "CMakeFiles/sstring_lib.dir/src/sstring_char.cpp.o"
+  "command": "/usr/lib/llvm-18/bin/clang++ -DBOOST_CHRONO_DYN_LINK -DBOOST_CHRONO_NO_LIB -DBOOST_LOCALE_DYN_LINK -DBOOST_LOCALE_NO_LIB -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_DYN_LINK -DBOOST_THREAD_NO_LIB -I/home/nawa/CascadeProjects/SString/include -isystem /home/linuxbrew/.linuxbrew/include -std=gnu++20 -o CMakeFiles/sstring_lib.dir/src/sstring.cpp.o -c /home/nawa/CascadeProjects/SString/src/sstring.cpp",
+  "file": "/home/nawa/CascadeProjects/SString/src/sstring.cpp",
+  "output": "CMakeFiles/sstring_lib.dir/src/sstring.cpp.o"
 },
 {
   "directory": "/home/nawa/CascadeProjects/SString/build",

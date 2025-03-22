@@ -32,7 +32,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Add the library
 add_library(sstring_lib
     src/compare_result.cpp
-    src/sstring_char.cpp
+    src/sstring.cpp
 )
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
