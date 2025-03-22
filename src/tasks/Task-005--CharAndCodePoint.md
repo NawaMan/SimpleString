@@ -10,20 +10,21 @@ SString needs Java-like character and code point access methods. This requires a
 
 ## Acceptance Criteria
 
-### Phase 1: Char Class
-- [ ] Create Char class with:
-    - [ ] 16-bit storage (char16_t)
-    - [ ] Constructors for char, char16_t, char32_t
-    - [ ] Value comparison operators
-    - [ ] Methods: isHighSurrogate(), isLowSurrogate()
-    - [ ] Conversion methods: toCodePoint() (with another Char)
+### Phase 1: Char Class ✓
+- [x] Create Char class with:
+    - [x] 16-bit storage (char16_t)
+    - [x] Constructors for char, char16_t, char32_t
+    - [x] Value comparison operators
+    - [x] Methods: isHighSurrogate(), isLowSurrogate()
+    - [x] Conversion methods: toCodePoint() (with another Char)
 
-### Phase 2: Character Access
-- [ ] Add to SString:
-    - [ ] charAt(size_t): Get Char at index
-    - [ ] operator[]: Same as charAt
-    - [ ] charValue(size_t): Get raw char16_t value
-    - [ ] Proper bounds checking
+### Phase 2: Character Access ✓
+- [x] Add to SString:
+    - [x] charAt(size_t): Get Char at index
+    - [x] operator[]: Same as charAt
+    - [x] charValue(size_t): Get raw char16_t value
+    - [x] Proper bounds checking
+    - [x] UTF-16 caching for performance
 
 ### Phase 3: Code Point Access
 - [ ] Add to SString:
