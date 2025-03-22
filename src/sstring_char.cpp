@@ -4,7 +4,7 @@
 
 namespace simple_string {
 
-Char SString::charAt(std::size_t index) const {
+auto SString::charAt(std::size_t index) const -> Char {
     // Get UTF-16 representation (uses cache)
     const std::u16string& utf16 = getUTF16();
     
@@ -19,7 +19,7 @@ Char SString::charAt(std::size_t index) const {
     return Char(utf16[index]);
 }
 
-char16_t SString::charValue(std::size_t index) const {
+auto SString::charValue(std::size_t index) const -> char16_t {
     return charAt(index).value();
 }
 
