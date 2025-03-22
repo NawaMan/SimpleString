@@ -5,8 +5,8 @@
 namespace simple_string {
 
 Char SString::charAt(std::size_t index) const {
-    // Convert UTF-8 to UTF-16
-    std::u16string utf16 = boost::locale::conv::utf_to_utf<char16_t>(*data_);
+    // Get UTF-16 representation (uses cache)
+    const std::u16string& utf16 = getUTF16();
     
     // Check bounds (length in UTF-16 code units)
     if (index >= utf16.length()) {
