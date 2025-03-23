@@ -1,0 +1,46 @@
+name: Quick Build and Test
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'plan/**'
+      - '.gitignore'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'plan/**'
+      - '.gitignore'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: '!contains(github.event.head_commit.message, "Merge pull request")'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libboost-dev libboost-locale-dev libgtest-dev
+
+    - name: Build and Test
+      run: ./build-quick.sh
+      shell: bash
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libsstring-debug
+        path: |
+          ${{github.workspace}}/dist/libsstring_lib.a
+          ${{github.workspace}}/build/compile_commands.json
+        if-no-files-found: error
