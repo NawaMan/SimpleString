@@ -97,3 +97,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 [NawaMan](https://github.com/nawaman) - nawa@nawaman.net
+
+The real reason to write this library is for Java developers like myself to use Java-style string in C++.
