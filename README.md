@@ -11,10 +11,30 @@ A modern C++ string library with robust Unicode support and efficient memory man
 - Extensive test coverage
 
 ## Requirements
-- C++20 or later
+
+### Build System
 - CMake 3.10 or later
-- Boost library
-- Google Test (for testing)
+- C++20 compatible compiler (e.g., GCC 10+, Clang 11+, MSVC 19.29+)
+
+### Required Dependencies
+- Boost 1.71 or later
+  - boost-locale component required
+
+### Optional Dependencies
+- Google Test 1.11 or later (for testing)
+
+### Ubuntu 24.04 Installation
+```bash
+# Install build tools
+sudo apt-get update
+sudo apt-get install -y cmake g++
+
+# Install required dependencies
+sudo apt-get install -y libboost-dev libboost-locale-dev
+
+# Install optional dependencies (for testing)
+sudo apt-get install -y libgtest-dev
+```
 
 ## Installation
 

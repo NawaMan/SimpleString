@@ -12,11 +12,11 @@ Let's start with organizing build files.
     - [x] Add Debug build types
     - [x] Add build status output
     - [x] Add option to build with/without tests
-- [ ] Document required dependencies
-    - [ ] List all dependencies with versions
-    - [ ] Add installation instructions for Ubuntu 24.04
-    - [ ] Document minimum CMake version
-- [ ] Add GitHub action for quick build -- for all PRs and push to main (except PR merge)
+- [x] Document required dependencies
+    - [x] List all dependencies with versions
+    - [x] Add installation instructions for Ubuntu 24.04
+    - [x] Document minimum CMake version
+- [x] Add GitHub action for quick build -- for all PRs and push to main (except PR merge)
 - [x] Add clean option
     - [x] Update .gitignore accordingly
 
