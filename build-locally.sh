@@ -34,16 +34,38 @@ ctest --output-on-failure
 
 # Build with coverage
 print_section "Building with coverage"
+
+# Clean previous coverage data
+find . -name "*.gcda" -delete 2>/dev/null || true
+find . -name "*.gcno" -delete 2>/dev/null || true
+
+# Configure and build with coverage
 cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON ..
 make clean
 make -j
+
+# Run tests to generate coverage data
 ctest --output-on-failure
 
 if command -v lcov >/dev/null 2>&1; then
     print_section "Generating coverage report"
-    lcov --directory . --capture --output-file coverage.info
-    lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage.info
-    lcov --list coverage.info
+    # Capture coverage data
+    lcov --directory . --capture --output-file coverage.info \
+        --rc lcov_branch_coverage=1 \
+        --ignore-errors mismatch,negative,gcov,source,empty,unused \
+        --include "*/src/*"
+    # Remove system files and test files from report
+    lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage.info \
+        --rc lcov_branch_coverage=1 \
+        --ignore-errors empty,unused
+    # Generate HTML report
+    genhtml coverage.info --output-directory ../coverage_report \
+        --rc lcov_branch_coverage=1 \
+        --ignore-errors source,empty,unused
+    echo -e "\nCoverage report generated in coverage_report/index.html"
+    # Show summary
+    lcov --list coverage.info --rc lcov_branch_coverage=1 \
+        --ignore-errors empty,unused
 else
     echo -e "${YELLOW}lcov not found, skipping coverage report${NC}"
 fi

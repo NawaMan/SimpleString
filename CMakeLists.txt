@@ -14,8 +14,15 @@ message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERS
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Optionally enable testing
+# Optionally enable testing and coverage
 option(BUILD_TESTING "Build tests" ON)
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+
+# Coverage configuration
+if(ENABLE_COVERAGE)
+    add_compile_options(--coverage -O0)
+    add_link_options(--coverage)
+endif()
 
 # Set Boost-related policies
 if(POLICY CMP0167)

@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libgtest-dev \
     libboost-all-dev \
+    rpm \
+    lcov \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
