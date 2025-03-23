@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# build-locally.sh: Local development build script for SString library
+#
+# Purpose:
+#   - Builds and tests the library
+#   - Runs coverage analysis
+#   - Performs static analysis
+#   - Generates distribution packages
+#
+# Usage: ./build-locally.sh
+#
+# Requirements:
+#   - CMake 3.10+
+#   - C++ compiler (GCC/Clang)
+#   - lcov (optional, for coverage)
+#   - clang-tidy (optional, for static analysis)
+#
+# Output:
+#   - Library: dist/libsstring_lib.a
+#   - Coverage: coverage_report/index.html
+#   - Packages: dist/*.{tar.gz,deb,rpm,zip}
+
 set -e  # Exit on error
 
 # Colors for output
