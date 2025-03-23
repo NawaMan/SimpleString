@@ -51,20 +51,16 @@ if command -v lcov >/dev/null 2>&1; then
     print_section "Generating coverage report"
     # Capture coverage data
     lcov --directory . --capture --output-file coverage.info \
-        --rc lcov_branch_coverage=1 \
+        --rc branch_coverage=1 \
         --ignore-errors mismatch,negative,gcov,source,empty,unused \
         --include "*/src/*"
-    # Remove system files and test files from report
-    lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage.info \
-        --rc lcov_branch_coverage=1 \
-        --ignore-errors empty,unused
     # Generate HTML report
     genhtml coverage.info --output-directory ../coverage_report \
-        --rc lcov_branch_coverage=1 \
+        --rc branch_coverage=1 \
         --ignore-errors source,empty,unused
     echo -e "\nCoverage report generated in coverage_report/index.html"
     # Show summary
-    lcov --list coverage.info --rc lcov_branch_coverage=1 \
+    lcov --list coverage.info --rc branch_coverage=1 \
         --ignore-errors empty,unused
 else
     echo -e "${YELLOW}lcov not found, skipping coverage report${NC}"
