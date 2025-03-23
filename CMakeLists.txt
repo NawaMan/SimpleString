@@ -76,6 +76,7 @@ if(BUILD_TESTING)
         tests/sstring_sharing_test.cpp
         tests/char_test.cpp
         tests/sstring_char_test.cpp
+        tests/sstring_invalid_utf8_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE

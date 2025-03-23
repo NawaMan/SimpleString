@@ -40,5 +40,11 @@
   "command": "/usr/bin/c++ -DBOOST_CHRONO_DYN_LINK -DBOOST_CHRONO_NO_LIB -DBOOST_LOCALE_DYN_LINK -DBOOST_LOCALE_NO_LIB -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_DYN_LINK -DBOOST_THREAD_NO_LIB -I/home/nawa/CascadeProjects/SString/include -isystem /home/linuxbrew/.linuxbrew/include -std=gnu++20 -o CMakeFiles/sstring_tests.dir/tests/sstring_char_test.cpp.o -c /home/nawa/CascadeProjects/SString/tests/sstring_char_test.cpp",
   "file": "/home/nawa/CascadeProjects/SString/tests/sstring_char_test.cpp",
   "output": "CMakeFiles/sstring_tests.dir/tests/sstring_char_test.cpp.o"
+},
+{
+  "directory": "/home/nawa/CascadeProjects/SString/build",
+  "command": "/usr/bin/c++ -DBOOST_CHRONO_DYN_LINK -DBOOST_CHRONO_NO_LIB -DBOOST_LOCALE_DYN_LINK -DBOOST_LOCALE_NO_LIB -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_DYN_LINK -DBOOST_THREAD_NO_LIB -I/home/nawa/CascadeProjects/SString/include -isystem /home/linuxbrew/.linuxbrew/include -std=gnu++20 -o CMakeFiles/sstring_tests.dir/tests/sstring_invalid_utf8_test.cpp.o -c /home/nawa/CascadeProjects/SString/tests/sstring_invalid_utf8_test.cpp",
+  "file": "/home/nawa/CascadeProjects/SString/tests/sstring_invalid_utf8_test.cpp",
+  "output": "CMakeFiles/sstring_tests.dir/tests/sstring_invalid_utf8_test.cpp.o"
 }
 ]

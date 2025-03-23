@@ -253,9 +253,87 @@ private:
         auto cache = utf16_cache_;
         if (!cache) {
             // First check failed, acquire the data and create cache
-            cache = std::make_shared<const std::u16string>(
-                boost::locale::conv::utf_to_utf<char16_t>(*data_)
-            );
+            std::u16string result;
+            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str());
+            const unsigned char* end = str + data_->length();
+            
+            while (str < end) {
+                if (*str < 0x80) {
+                    // ASCII character
+                    result.push_back(*str);
+                    str++;
+                } else if ((*str & 0xE0) == 0xC0) {
+                    // 2-byte UTF-8 sequence
+                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
+                        // Invalid or incomplete sequence
+                        result.push_back(0xFFFD);
+                        str++;
+                        continue;
+                    }
+                    // Check for overlong encoding
+                    unsigned int codepoint = ((str[0] & 0x1F) << 6) | (str[1] & 0x3F);
+                    if (codepoint < 0x80) {
+                        // Overlong encoding
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        str += 2;
+                        continue;
+                    }
+                    result.push_back(codepoint);
+                    str += 2;
+                } else if ((*str & 0xF0) == 0xE0) {
+                    // 3-byte UTF-8 sequence
+                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
+                        // Invalid or incomplete sequence
+                        result.push_back(0xFFFD);
+                        str++;
+                        continue;
+                    }
+                    // Check for overlong encoding and surrogate range
+                    unsigned int codepoint = ((str[0] & 0x0F) << 12) | ((str[1] & 0x3F) << 6) | (str[2] & 0x3F);
+                    if (codepoint < 0x800 || (codepoint >= 0xD800 && codepoint <= 0xDFFF)) {
+                        // Overlong encoding or surrogate range
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        str += 3;
+                        continue;
+                    }
+                    result.push_back(codepoint);
+                    str += 3;
+                } else if ((*str & 0xF8) == 0xF0) {
+                    // 4-byte UTF-8 sequence
+                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
+                        // Invalid or incomplete sequence
+                        result.push_back(0xFFFD);
+                        str++;
+                        continue;
+                    }
+                    // Check for overlong encoding and valid Unicode range
+                    unsigned int codepoint = ((str[0] & 0x07) << 18) | ((str[1] & 0x3F) << 12) |
+                                            ((str[2] & 0x3F) << 6)  | (str[3] & 0x3F);
+                    if (codepoint < 0x10000 || codepoint > 0x10FFFF) {
+                        // Overlong encoding or outside Unicode range
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        result.push_back(0xFFFD);
+                        str += 4;
+                        continue;
+                    }
+                    // Convert to surrogate pair
+                    codepoint -= 0x10000;
+                    result.push_back(0xD800 + (codepoint >> 10));
+                    result.push_back(0xDC00 + (codepoint & 0x3FF));
+                    str += 4;
+                } else {
+                    // Invalid UTF-8 byte
+                    result.push_back(0xFFFD);
+                    str++;
+                }
+            }
+            
+            cache = std::make_shared<const std::u16string>(std::move(result));
             utf16_cache_ = cache;
         }
         return *cache;
