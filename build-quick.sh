@@ -15,13 +15,20 @@
 #   -t, --with-tests   Build with tests (default)
 #   -n, --no-tests     Build without tests
 #   -c, --clean        Clean build directory before building
+#   --coverage        Enable code coverage (requires tests)
 #
 # Examples:
 #   ./build-quick.sh              # Debug build with tests
 #   ./build-quick.sh -n          # Debug build without tests
-#   ./build-quick.sh -c          # Clean debug build with tests
+#   ./build-quick.sh --coverage   # Debug build with tests and coverage
+#   ./build-quick.sh -c          # Clean debug build
 
 set -e  # Exit on error
+
+# Default configuration
+BUILD_TESTS="ON"
+ENABLE_COVERAGE="OFF"
+CLEAN_BUILD=0
 
 # Colors for output
 RED='\033[0;31m'
@@ -81,6 +88,11 @@ while [[ $# -gt 0 ]]; do
             CLEAN_BUILD=1
             shift
             ;;
+        --coverage)
+            ENABLE_COVERAGE="ON"
+            BUILD_TESTS="ON"  # Coverage requires tests
+            shift
+            ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
             show_help
@@ -108,6 +120,7 @@ print_status "Running CMake..."
 cmake -DCMAKE_BUILD_TYPE=Debug \
       -DBUILD_TESTING=${BUILD_TESTS} \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      -DENABLE_COVERAGE=ON \
       ..
 
 # Build
@@ -120,6 +133,13 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
     print_section "Running Tests"
     print_status "Running CTest..."
     ctest --output-on-failure
+
+    # Generate coverage report if enabled
+    if [ -x "$(command -v lcov)" ]; then
+        print_status "Generating coverage report..."
+        lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info --rc lcov_branch_coverage=1
+    fi
 fi
 
 # Copy compile commands to root for tooling
@@ -129,6 +149,7 @@ print_section "Build Summary"
 echo -e "${GREEN}Build completed successfully!${NC}"
 echo -e "Build Type: ${BLUE}Debug${NC}"
 echo -e "Tests: ${BLUE}${BUILD_TESTS}${NC}"
+echo -e "Coverage: ${BLUE}${ENABLE_COVERAGE}${NC}"
 echo -e "\nOutput files:"
 echo -e "  - Library: ${BLUE}$(pwd)/../dist/libsstring_lib.a${NC}"
 if [ "${BUILD_TESTS}" = "ON" ]; then
