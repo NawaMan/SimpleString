@@ -7,17 +7,17 @@ Let's start with organizing build files.
 ## Acceptance Criteria
 
 ### Phase 1: Quick build
-- [ ] Add build-quick.sh 
-    - [ ] Build just enough to run tests
-    - [ ] Add Debug build types
-    - [ ] Add build status output
-    - [ ] Add option to build with/without tests
+- [x] Add build-quick.sh 
+    - [x] Build just enough to run tests
+    - [x] Add Debug build types
+    - [x] Add build status output
+    - [x] Add option to build with/without tests
 - [ ] Document required dependencies
     - [ ] List all dependencies with versions
     - [ ] Add installation instructions for Ubuntu 24.04
     - [ ] Document minimum CMake version
 - [ ] Add GitHub action for quick build -- for all PRs and push to main (except PR merge)
-- [ ] Add clean option
+- [x] Add clean option
     - [ ] Update .gitignore accordingly
 
 
