@@ -17,6 +17,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Optionally enable testing
 option(BUILD_TESTING "Build tests" ON)
 
+# Set Boost-related policies
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
+
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS locale)
 
