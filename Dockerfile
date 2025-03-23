@@ -1,3 +1,4 @@
+# Docker file for cross-compilation build and package generation.
 FROM ubuntu:22.04
 
 # Install common dependencies
