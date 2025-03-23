@@ -137,8 +137,17 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
     # Generate coverage report if enabled
     if [ -x "$(command -v lcov)" ]; then
         print_status "Generating coverage report..."
-        lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1
-        lcov --remove coverage.info '/usr/*' --output-file coverage.info --rc lcov_branch_coverage=1
+        # Generate coverage report with branch coverage and error handling
+        lcov --capture --directory . \
+             --output-file coverage.info \
+             --rc branch_coverage=1 \
+             --ignore-errors mismatch \
+             --rc geninfo_unexecuted_blocks=1
+
+        # Remove system headers from coverage
+        lcov --remove coverage.info '/usr/*' \
+             --output-file coverage.info \
+             --rc branch_coverage=1
     fi
 fi
 
