@@ -117,10 +117,16 @@ cd build
 # Configure
 print_section "Configuring Build"
 print_status "Running CMake..."
+
+# Add -fprofile-update=atomic when coverage is enabled
+if [ "${ENABLE_COVERAGE}" = "ON" ]; then
+    export CXXFLAGS="${CXXFLAGS} -fprofile-update=atomic"
+fi
+
 cmake -DCMAKE_BUILD_TYPE=Debug \
       -DBUILD_TESTING=${BUILD_TESTS} \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      -DENABLE_COVERAGE=ON \
+      -DENABLE_COVERAGE=${ENABLE_COVERAGE} \
       ..
 
 # Build
@@ -141,8 +147,10 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
         lcov --capture --directory . \
              --output-file coverage.info \
              --rc branch_coverage=1 \
-             --ignore-errors mismatch \
-             --rc geninfo_unexecuted_blocks=1
+             --ignore-errors mismatch,mismatch,negative,empty \
+             --rc geninfo_unexecuted_blocks=1 \
+             --rc geninfo_auto_base=1 \
+             --rc geninfo_auto_base=1
 
         # Remove system headers from coverage
         lcov --remove coverage.info '/usr/*' \
