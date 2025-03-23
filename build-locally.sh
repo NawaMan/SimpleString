@@ -69,14 +69,28 @@ fi
 # Build packages
 print_section "Building packages"
 cd build
-cpack -G "TGZ"
+# Ensure dist directory exists
+mkdir -p ../dist
+
+# Generate packages one by one
+for generator in TGZ DEB RPM ZIP; do
+    echo "Generating $generator package..."
+    if [ "$generator" = "DEB" ]; then
+        cpack -B ../dist -G "$generator" \
+              -D CPACK_DEBIAN_PACKAGE_MAINTAINER="nawa@nawaman.net" \
+              -D CPACK_PACKAGE_CONTACT="nawa@nawaman.net" || echo "Failed to generate $generator package"
+    else
+        cpack -B ../dist -G "$generator" || echo "Failed to generate $generator package"
+    fi
+    echo ""
+done
 
 echo -e "\n${GREEN}All checks completed!${NC}"
 
 # Print summary of generated files
-print_section "Generated files in build directory"
-ls -lh *.tar.gz 2>/dev/null || echo "No packages generated"
-ls -lh *.a 2>/dev/null || echo "No static libraries generated"
-ls -lh coverage.info 2>/dev/null || echo "No coverage report generated"
+print_section "Generated files in dist directory"
+cd ../dist
+echo "Package files:"
+ls -lh *.{tar.gz,deb,rpm,zip} 2>/dev/null || echo "No packages generated"
 
 echo -e "\n${GREEN}Done!${NC}"

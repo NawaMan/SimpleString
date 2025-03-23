@@ -73,3 +73,51 @@ if(BUILD_TESTING)
     )
     add_test(NAME sstring_tests COMMAND sstring_tests)
 endif()
+
+# CPack configuration - set variables before including CPack
+
+# Basic package information
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "SString - A smart string library")
+set(CPACK_PACKAGE_VENDOR "NawaMan")
+set(CPACK_PACKAGE_CONTACT "nawa@nawaman.net")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+
+# Package generators
+set(CPACK_GENERATOR "TGZ;DEB;RPM;ZIP")
+set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
+
+# Debian package settings
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
+set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+
+# RPM package settings
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
+
+# Finally include CPack
+include(CPack)
+
+# Installation configuration
+install(TARGETS sstring_lib
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
+install(DIRECTORY include/ DESTINATION include)
+
+# Package generators
+set(CPACK_GENERATOR "TGZ;DEB;RPM;ZIP")
+set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
+
+# Debian package settings
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
+set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+
+# RPM package settings
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")

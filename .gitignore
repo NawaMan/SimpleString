@@ -23,3 +23,10 @@ CTestTestfile.cmake
 # OS specific files
 .DS_Store
 Thumbs.db
+
+dist/
+
+build-linux-aarch64-gcc/
+build-linux-x86_64-clang/
+build-linux-x86_64-gcc/
+build-windows-x86_64-mingw/
