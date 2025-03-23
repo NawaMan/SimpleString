@@ -18,7 +18,7 @@ Let's start with organizing build files.
     - [ ] Document minimum CMake version
 - [ ] Add GitHub action for quick build -- for all PRs and push to main (except PR merge)
 - [x] Add clean option
-    - [ ] Update .gitignore accordingly
+    - [x] Update .gitignore accordingly
 
 
 NOTE: 
