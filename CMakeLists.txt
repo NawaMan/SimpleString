@@ -98,18 +98,23 @@ set(CPACK_PACKAGE_CONTACT "nawa@nawaman.net")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
 # Package generators
-set(CPACK_GENERATOR "TGZ;DEB;RPM;ZIP")
-set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
+if(WIN32)
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_SOURCE_GENERATOR "ZIP")
+else()
+    set(CPACK_GENERATOR "TGZ;DEB;RPM")
+    set(CPACK_SOURCE_GENERATOR "TGZ")
 
-# Debian package settings
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
-set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+    # Debian package settings
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
+    set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
 
-# RPM package settings
-set(CPACK_RPM_PACKAGE_LICENSE "MIT")
-set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
-set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
+    # RPM package settings
+    set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+    set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+    set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
+endif()
 
 # Finally include CPack
 include(CPack)
@@ -120,17 +125,3 @@ install(TARGETS sstring_lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
-
-# Package generators
-set(CPACK_GENERATOR "TGZ;DEB;RPM;ZIP")
-set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
-
-# Debian package settings
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
-set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-
-# RPM package settings
-set(CPACK_RPM_PACKAGE_LICENSE "MIT")
-set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
-set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
