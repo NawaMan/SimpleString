@@ -28,9 +28,22 @@ endif()
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
+if(POLICY CMP0111)
+    cmake_policy(SET CMP0111 NEW)
+endif()
 
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS locale)
+
+# Set IMPORTED_LOCATION for Boost::locale
+if(TARGET Boost::locale)
+    get_target_property(BOOST_LOCALE_LIB Boost::locale IMPORTED_LOCATION_RELEASE)
+    if(NOT BOOST_LOCALE_LIB)
+        set_target_properties(Boost::locale PROPERTIES
+            IMPORTED_LOCATION_RELEASE "${Boost_LOCALE_LIBRARY_RELEASE}"
+            IMPORTED_LOCATION "${Boost_LOCALE_LIBRARY}")
+    endif()
+endif()
 
 # Print compiler information
 message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")

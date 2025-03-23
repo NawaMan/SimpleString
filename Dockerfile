@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 as base
+FROM ubuntu:24.04 AS base
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -22,10 +22,10 @@ ENV VERSION=${VERSION}
 COPY docker-build.sh /build/
 RUN chmod +x /build/docker-build.sh
 
-FROM base as linux
+FROM base AS linux
 CMD ["./docker-build.sh", "linux"]
 
-FROM base as windows
+FROM base AS windows
 RUN apt-get update && apt-get install -y \
     mingw-w64 \
     wine64 \
@@ -44,7 +44,7 @@ RUN apt-get update && \
 WORKDIR /build
 CMD ["./docker-build.sh", "windows"]
 
-FROM base as macos
+FROM base AS macos
 RUN apt-get update && apt-get install -y \
     clang \
     llvm \
