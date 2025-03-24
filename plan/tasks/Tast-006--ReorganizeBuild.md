@@ -53,10 +53,11 @@ NOTE:
     - [x] Add version.txt
     - [x] Create release branch
     - [x] Modify `build-release.sh` to use version.txt if no version is given
-    - [ ] Git action only triggered manually
+    - [x] Git action only triggered manually
     - [ ] When the build is done (all test passed) and the commit is on the release branch
-        - [ ] Publish artifacts to GitHub releases
+        - [x] Publish artifacts to GitHub artifacts
         - [ ] Add Git tag for that version
+        - [ ] Create a release and Publish artifacts as a release package.
 
 ### Phase 3: Testing & Verification
 - [ ] Verify builds

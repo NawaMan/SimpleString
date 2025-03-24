@@ -82,7 +82,9 @@ jobs:
           VERSION="${{ steps.get_version.outputs.version }}"
           # Extract the section for current version from CHANGELOG.md
           awk -v ver="$VERSION" '
+          BEGIN { found=0 }
           /^## \[{ver}\]/ {
+            found=1
             p=1
             print
             next
@@ -92,7 +94,17 @@ jobs:
           }
           p {
             print
-          }' CHANGELOG.md > release_notes.md
+          }
+          END {
+            exit !found
+          }' CHANGELOG.md > release_notes.md || {
+            echo "Error: No changelog entry found for version $VERSION"
+            echo "Please add an entry to CHANGELOG.md in the format:"
+            echo "Error: Please add an entry to CHANGELOG.md with this format:"
+            echo "## [$VERSION]"
+            echo "- Your changes here"
+            exit 1
+          }
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
