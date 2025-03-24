@@ -1,4 +1,4 @@
-name: Release
+name: Release (Manual)
 
 on:
   workflow_dispatch:
@@ -8,10 +8,15 @@ on:
         required: false
         type: string
       platforms:
-        description: 'Platforms to build (linux,windows,macos)'
+        description: 'Platforms to build'
         required: false
-        default: 'linux,windows,macos'
-        type: string
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'linux'
+          - 'windows'
+          - 'macos'
 
 jobs:
   build:
@@ -33,10 +38,11 @@ jobs:
           fi
           
           PLATFORM_ARG=""
-          if [ ! -z "${{ github.event.inputs.platforms }}" ]; then
+          if [ "${{ github.event.inputs.platforms }}" != "all" ]; then
             PLATFORM_ARG="-p ${{ github.event.inputs.platforms }}"
           fi
           
+          echo "Building with arguments: $VERSION_ARG $PLATFORM_ARG"
           ./build-release.sh $VERSION_ARG $PLATFORM_ARG
 
       - name: Upload Artifacts
