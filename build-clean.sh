@@ -9,11 +9,6 @@
 #
 # Usage: ./build-clean.sh
 #
-# Cleans:
-#   - build/          (local build)
-#   - build-linux-*   (Linux platform builds)
-#   - build-windows-* (Windows platform builds)
-#   - dist/           (distribution packages)
 
 # Colors for output
 RED='\033[0;31m'
@@ -30,8 +25,6 @@ echo -e "${YELLOW}Starting build cleanup...${NC}\n"
 # Remove build directories
 print_section "Removing build directories"
 rm -rf build
-rm -rf build-linux-*
-rm -rf build-windows-*
 
 # Remove package directories
 print_section "Removing package directories"
