@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     ruby-dev \
     rubygems \
     rpm \
+    clang \
     && gem install fpm \
     && rm -rf /var/lib/apt/lists/*
 
@@ -23,7 +24,6 @@ COPY docker-build.sh /build/
 RUN chmod +x /build/docker-build.sh
 
 FROM base AS linux
-CMD ["./docker-build.sh", "linux"]
 
 FROM base AS windows
 RUN apt-get update && apt-get install -y \
@@ -42,11 +42,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-CMD ["./docker-build.sh", "windows"]
 
 FROM base AS macos
 RUN apt-get update && apt-get install -y \
     clang \
     llvm \
     && rm -rf /var/lib/apt/lists/*
-CMD ["./docker-build.sh", "macos"]
