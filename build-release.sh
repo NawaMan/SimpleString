@@ -259,8 +259,8 @@ WXSEOF
             usr/local/include/sstring.hpp \
             usr/local/include/char.hpp \
             usr/local/include/compare_result.hpp
-
-        mv sstring.tar "SString-${VERSION}-macOS-universal.tar.gz"
+        gzip -f sstring*.tar
+        mv sstring*.tar.gz "/build/dist/SString-${VERSION}-macOS-universal.tar.gz"
         cd ..
         ;;
 esac
@@ -342,6 +342,7 @@ for platform in $PLATFORMS; do
     print_status "Building Docker image for $platform..."
     docker build --target $platform \
                 --build-arg VERSION=$VERSION \
+                -f config/Dockerfile \
                 -t sstring-$platform-builder .
     
     # Run the build
