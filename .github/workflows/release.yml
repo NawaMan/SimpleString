@@ -103,6 +103,7 @@ jobs:
             echo "Error: Please add an entry to CHANGELOG.md with this format:"
             echo "## [$VERSION]"
             echo "- Your changes here"
+            exit 1
           }
 
       - name: Create Release
