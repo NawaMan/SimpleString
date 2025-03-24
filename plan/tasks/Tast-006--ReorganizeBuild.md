@@ -50,6 +50,13 @@ NOTE:
     - [x] Consistent artifact naming scheme
 - [x] Add a standard way to specify versions.
 - [ ] Add GitHub action for release. TODO - Make more detail plan before executing
+    - [x] Add version.txt
+    - [x] Create release branch
+    - [x] Modify `build-release.sh` to use version.txt if no version is given
+    - [ ] Git action only triggered manually
+    - [ ] When the build is done (all test passed) and the commit is on the release branch
+        - [ ] Publish artifacts to GitHub releases
+        - [ ] Add Git tag for that version
 
 ### Phase 3: Testing & Verification
 - [ ] Verify builds

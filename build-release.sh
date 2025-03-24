@@ -80,11 +80,16 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check required arguments
+# Check version
 if [ -z "$VERSION" ]; then
-    print_error "Version is required. Use -v or --version to specify."
-    show_help
-    exit 1
+    if [ -f "version.txt" ]; then
+        VERSION=$(cat version.txt)
+        print_status "Using version from version.txt: $VERSION"
+    else
+        print_error "Version is required. Use -v/--version or create version.txt"
+        show_help
+        exit 1
+    fi
 fi
 
 # Create Docker build context

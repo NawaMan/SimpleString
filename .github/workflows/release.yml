@@ -1,0 +1,47 @@
+name: Manual Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (optional, will use version.txt if not provided)'
+        required: false
+        type: string
+      platforms:
+        description: 'Platforms to build (linux,windows,macos)'
+        required: false
+        default: 'linux,windows,macos'
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Release Packages
+        run: |
+          VERSION_ARG=""
+          if [ ! -z "${{ github.event.inputs.version }}" ]; then
+            VERSION_ARG="-v ${{ github.event.inputs.version }}"
+          fi
+          
+          PLATFORM_ARG=""
+          if [ ! -z "${{ github.event.inputs.platforms }}" ]; then
+            PLATFORM_ARG="-p ${{ github.event.inputs.platforms }}"
+          fi
+          
+          ./build-release.sh $VERSION_ARG $PLATFORM_ARG
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-packages
+          path: dist/*
+          if-no-files-found: error
