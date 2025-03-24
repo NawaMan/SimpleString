@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y \
     wine64 \
     mingw-w64-tools \
     software-properties-common \
+    wixl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install MinGW Boost

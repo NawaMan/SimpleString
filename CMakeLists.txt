@@ -14,14 +14,26 @@ message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERS
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# MSVC-specific settings
-if(MSVC)
-    # Use static runtime for Release builds
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    # Enable maximum warning level
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    # Disable specific warnings
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # class needs to have dll-interface
+# Windows-specific settings
+if(WIN32)
+    # Enable exports in Windows DLL
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    
+    # MinGW settings
+    if(MINGW)
+        # Link statically against the standard libraries
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+    endif()
+    
+    # MSVC settings
+    if(MSVC)
+        # Use static runtime for Release builds
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        # Enable maximum warning level
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+        # Disable specific warnings
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # class needs to have dll-interface
+    endif()
 endif()
 
 # Optionally enable testing and coverage

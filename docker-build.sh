@@ -71,7 +71,65 @@ case $PLATFORM in
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
         make -j$(nproc)
-        cpack -G ZIP
+        # Build DLL and import library
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -DBUILD_SHARED_LIBS=ON \
+              -DBUILD_TESTING=OFF \
+              -DCMAKE_INSTALL_PREFIX=/usr \
+              -DBOOST_INCLUDEDIR=/usr/x86_64-w64-mingw32/include \
+              -DBOOST_LIBRARYDIR=/usr/x86_64-w64-mingw32/lib \
+              -DBoost_USE_STATIC_LIBS=ON \
+              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Windows-x86_64-mingw" \
+              -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
+              ..
+        make -j$(nproc)
+        x86_64-w64-mingw32-strip libsstring_lib.dll
+
+        # Create MSI package
+        cat > sstring.wxs << WXSEOF
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Product Name='SString Library'
+             Id='*'
+             UpgradeCode='12345678-1234-1234-1234-123456789012'
+             Language='1033'
+             Codepage='1252'
+             Version='${VERSION}'
+             Manufacturer='SString'>
+        <Package Id='*'
+                 Keywords='Installer'FROM base AS macos
+                 Description='SString Library Installer'
+                 Manufacturer='SString'
+                 InstallerVersion='100'
+                 Languages='1033'
+                 Compressed='yes'
+                 SummaryCodepage='1252'/>
+
+        <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes'/>
+
+        <Directory Id='TARGETDIR' Name='SourceDir'>
+            <Directory Id='ProgramFilesFolder' Name='PFiles'>
+                <Directory Id='SString' Name='SString'>
+                    <Directory Id='INSTALLDIR' Name='.'>
+                        <Component Id='MainLibrary' Guid='12345678-1234-1234-1234-123456789013'>
+                            <File Id='LibraryDLL'
+                                  Name='sstring.dll'
+                                  Source='libsstring_lib.dll'
+                                  KeyPath='yes'/>
+                        </Component>
+                    </Directory>
+                </Directory>
+            </Directory>
+        </Directory>
+
+        <Feature Id='Complete' Level='1'>
+            <ComponentRef Id='MainLibrary'/>
+        </Feature>
+    </Product>
+</Wix>
+WXSEOF
+
+        wixl -v sstring.wxs -o "SString-${VERSION}-Windows-x86_64-mingw.msi"
         cd ..
         ;;
         
@@ -85,7 +143,30 @@ case $PLATFORM in
               -DCPACK_SYSTEM_NAME="macOS-universal" \
               ..
         make -j$(nproc)
-        cpack -G TGZ
+        # Create PKG package
+        mkdir -p pkg_root/usr/local/{lib,include}
+        cp /build/dist/libsstring_lib.a pkg_root/usr/local/lib/
+        cp /build/include/sstring.hpp pkg_root/usr/local/include/
+        cp /build/include/char.hpp pkg_root/usr/local/include/
+        cp /build/include/compare_result.hpp pkg_root/usr/local/include/
+
+        fpm -s dir -t tar \
+            -n sstring \
+            -v "${VERSION}" \
+            --description "SString Library - A C++ string library with UTF-16 support" \
+            --url "https://github.com/NawaMan/SString" \
+            --vendor "SString" \
+            --license "MIT" \
+            --maintainer "NawaMan" \
+            --architecture universal \
+            --prefix / \
+            -C pkg_root \
+            usr/local/lib/libsstring_lib.a \
+            usr/local/include/sstring.hpp \
+            usr/local/include/char.hpp \
+            usr/local/include/compare_result.hpp
+
+        mv sstring.tar "SString-${VERSION}-macOS-universal.tar.gz"
         cd ..
         ;;
 esac
@@ -98,7 +179,7 @@ find . -type f \( \
     -name "SString-*.tar.gz" -o \
     -name "SString-*.deb" -o \
     -name "SString-*.rpm" -o \
-    -name "SString-*.zip" -o \
+    -name "SString-*.pkg" -o \
     -name "SString-*.msi" \
 \) -exec cp {} /build/dist/ \;
 
