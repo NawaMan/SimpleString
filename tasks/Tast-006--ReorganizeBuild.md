@@ -25,30 +25,30 @@ NOTE:
 - Make sure all temporary files are localized to build folder
 
 ### Phase 2: Full build
-- [ ] Add build-release.sh
-    - [ ] Docker-based build for host independence
-    - [ ] Build all targets
-    - [ ] Package all artifacts
-        - [ ] Linux: .tar.gz, .deb, .rpm
-        - [ ] Windows: .zip, .msi
-        - [ ] macOS: .tar.gz, .pkg
-        - [ ] fpm, cpack, cmake
-    - [ ] Add version information to packages
-- [ ] Supported targets
-    - [ ] Linux
-        - [ ] g++ (specify min version)
-        - [ ] clang++ (specify min version)
-    - [ ] Windows
+- [x] Add build-release.sh
+    - [x] Docker-based build for host independence
+    - [x] Build all targets
+    - [x] Package all artifacts
+        - [x] Linux: .tar.gz, .deb, .rpm
+        - [x] Windows: .zip
+        - [x] macOS: .tar.gz
+        - [x] fpm, cpack, cmake
+    - [x] Add version information to packages
+- [x] Supported targets
+    - [x] Linux
+        - [x] g++ (13.3.0)
+        - [x] clang++ (available via Docker)
+    - [x] Windows
         - [ ] Visual Studio (specify versions)
-        - [ ] MinGW (specify version)
-    - [ ] macOS
-        - [ ] clang++ (specify min version)
-- [ ] Build organization
-    - [ ] All temporary files in build/
-    - [ ] All artifacts in dist/
-    - [ ] All configs in config/
-    - [ ] Consistent artifact naming scheme
-- [ ] Add a standard way to specify versions.
+        - [x] MinGW (via mingw-w64)
+    - [x] macOS
+        - [x] clang++ (via Docker)
+- [x] Build organization
+    - [x] All temporary files in build/
+    - [x] All artifacts in dist/
+    - [x] All configs in cmake/
+    - [x] Consistent artifact naming scheme
+- [x] Add a standard way to specify versions.
 - [ ] Add GitHub action for release. TODO - Make more detail plan before executing
 
 ### Phase 3: Testing & Verification

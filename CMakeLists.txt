@@ -14,6 +14,16 @@ message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERS
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# MSVC-specific settings
+if(MSVC)
+    # Use static runtime for Release builds
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    # Enable maximum warning level
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    # Disable specific warnings
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # class needs to have dll-interface
+endif()
+
 # Optionally enable testing and coverage
 option(BUILD_TESTING "Build tests" ON)
 option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
@@ -114,6 +124,15 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 if(WIN32)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_SOURCE_GENERATOR "ZIP")
+elseif(APPLE)
+    set(CPACK_GENERATOR "TGZ;productbuild")
+    set(CPACK_SOURCE_GENERATOR "TGZ")
+
+    # macOS package settings
+    set(CPACK_PRODUCTBUILD_IDENTIFIER "net.nawaman.sstring")
+    set(CPACK_PRODUCTBUILD_DOMAINS true)
+    set(CPACK_PRODUCTBUILD_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/packaging/macos")
+    set(CPACK_OSX_PACKAGE_VERSION "10.15")
 else()
     set(CPACK_GENERATOR "TGZ;DEB;RPM")
     set(CPACK_SOURCE_GENERATOR "TGZ")
