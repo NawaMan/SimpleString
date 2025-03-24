@@ -92,4 +92,15 @@ esac
 
 # Copy packages to dist directory
 mkdir -p /build/dist
-find . -type f \( -name "*.tar.gz" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" -o -name "*.msi" \) -exec cp {} /build/dist/ \;
+
+# Find and copy only release packages
+find . -type f \( \
+    -name "SString-*.tar.gz" -o \
+    -name "SString-*.deb" -o \
+    -name "SString-*.rpm" -o \
+    -name "SString-*.zip" -o \
+    -name "SString-*.msi" \
+\) -exec cp {} /build/dist/ \;
+
+# Clean up any temporary files from package creation
+find /build/dist -type f ! -name "SString-*" -delete
