@@ -33,3 +33,4 @@ build-linux-x86_64-gcc/
 build-windows-x86_64-mingw/
 
 coverage_report/
+docker-build.sh
