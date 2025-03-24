@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0] - 2025-03-24
+
+Add the check to ensure that changelog entry exists for the release.
+
+
 ## [0.1.0] - 2025-03-24
 
 Initial release of the SString library, providing a Java String-like implementation for C++.
