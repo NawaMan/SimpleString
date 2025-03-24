@@ -58,6 +58,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -73,6 +76,24 @@ jobs:
             echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get Changelog Entry
+        id: get_changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          # Extract the section for current version from CHANGELOG.md
+          awk -v ver="$VERSION" '
+          /^## \[{ver}\]/ {
+            p=1
+            print
+            next
+          }
+          /^## \[/ {
+            p=0
+          }
+          p {
+            print
+          }' CHANGELOG.md > release_notes.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -81,4 +102,5 @@ jobs:
           draft: false
           prerelease: false
           files: dist/*
-          generate_release_notes: true
+          body_path: release_notes.md
+          generate_release_notes: false
