@@ -56,8 +56,11 @@ NOTE:
     - [x] Git action only triggered manually
     - [ ] When the build is done (all test passed) and the commit is on the release branch
         - [x] Publish artifacts to GitHub artifacts
-        - [ ] Add Git tag for that version
-        - [ ] Create a release and Publish artifacts as a release package.
+        - [x] Add Git tag for that version
+        - [x] Create a release and Publish artifacts as a release package.
+        - [ ] Only runnable in main and release branch
+        - [ ] If the branch is not release, append the version with "-snapshot"
+        - [ ] If the branch is not release, do not publish the release.
 
 ### Phase 3: Testing & Verification
 - [ ] Verify builds
