@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include "unicode_category.hpp"
 
 namespace simple_string {
@@ -72,6 +71,7 @@ public:
     constexpr bool operator<=(const CodePoint& other) const noexcept { return value_ <= other.value_; }
     constexpr bool operator> (const CodePoint& other) const noexcept { return value_ >  other.value_; }
     constexpr bool operator>=(const CodePoint& other) const noexcept { return value_ >= other.value_; }
+    
     
 private:
     char32_t value_;

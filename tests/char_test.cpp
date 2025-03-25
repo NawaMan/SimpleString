@@ -54,12 +54,12 @@ TEST(CharTest, SurrogatePairs) {
 TEST(CharTest, CodePointConversion) {
     // BMP character (U+0041 LATIN CAPITAL LETTER A)
     char32_t bmpChar = 0x0041;
-    EXPECT_FALSE(Char::is_supplementary_code_point(bmpChar));
+    EXPECT_FALSE(UnicodeUtil::is_supplementary_code_point(bmpChar));
     EXPECT_FALSE(Char::from_code_point(bmpChar).has_value());
     
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
-    EXPECT_TRUE(Char::is_supplementary_code_point(supplementary));
+    EXPECT_TRUE(UnicodeUtil::is_supplementary_code_point(supplementary));
     
     // Convert supplementary to surrogate pair using new static method
     auto maybePair = Char::from_code_point(supplementary);
