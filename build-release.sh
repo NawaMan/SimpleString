@@ -130,7 +130,7 @@ case $PLATFORM in
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
               -DCMAKE_INSTALL_PREFIX=/usr \
-              -DCMAKE_TOOLCHAIN_FILE=../cmake/x86_64-linux-clang.cmake \
+              -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/linux-x86_64-clang.cmake \
               -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-x86_64-clang" \
               -DCPACK_SYSTEM_NAME="Linux-x86_64-clang" \
               ..
@@ -146,7 +146,7 @@ case $PLATFORM in
             cmake -DCMAKE_BUILD_TYPE=Release \
                   -DBUILD_TESTING=OFF \
                   -DCMAKE_INSTALL_PREFIX=/usr \
-                  -DCMAKE_TOOLCHAIN_FILE=../cmake/aarch64-linux-gcc.cmake \
+                  -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/linux-aarch64-gcc.cmake \
                   -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-aarch64-gcc" \
                   -DCPACK_SYSTEM_NAME="Linux-aarch64-gcc" \
                   ..
@@ -165,7 +165,7 @@ case $PLATFORM in
         mkdir -p build-windows-mingw && cd build-windows-mingw
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
-              -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw-w64-x86_64.cmake \
+              -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/windows-x86_64-mingw.cmake \
               -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Windows-x86_64-mingw" \
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
@@ -182,7 +182,7 @@ case $PLATFORM in
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
         make -j$(nproc)
-        x86_64-w64-mingw32-strip libsstring_lib.dll
+        x86_64-w64-mingw32-strip bin/libsstring_lib.dll
 
         # Create MSI package
         cat > sstring.wxs << 'WXSEOF'
@@ -213,7 +213,7 @@ case $PLATFORM in
                         <Component Id='MainLibrary' Guid='12345678-1234-1234-1234-123456789013'>
                             <File Id='LibraryDLL'
                                   Name='sstring.dll'
-                                  Source='libsstring_lib.dll'
+                                  Source='bin/libsstring_lib.dll'
                                   KeyPath='yes'/>
                         </Component>
                     </Directory>

@@ -118,9 +118,10 @@ cd build
 print_section "Configuring Build"
 print_status "Running CMake..."
 
-# Add -fprofile-update=atomic when coverage is enabled
+# Configure coverage flags
 if [ "${ENABLE_COVERAGE}" = "ON" ]; then
-    export CXXFLAGS="${CXXFLAGS} -fprofile-update=atomic"
+    export CXXFLAGS="${CXXFLAGS} --coverage -fprofile-arcs -ftest-coverage -fprofile-update=atomic"
+    export LDFLAGS="${LDFLAGS} --coverage"
 fi
 
 cmake -DCMAKE_BUILD_TYPE=Debug \
@@ -141,21 +142,43 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
     ctest --output-on-failure
 
     # Generate coverage report if enabled
-    if [ -x "$(command -v lcov)" ]; then
+    if [ -x "$(command -v lcov)" ] && [ "${ENABLE_COVERAGE}" = "ON" ]; then
         print_status "Generating coverage report..."
-        # Generate coverage report with branch coverage and error handling
-        lcov --capture --directory . \
+        # Reset counters
+        lcov --directory . --zerocounters
+
+        # Run tests again to generate coverage
+        ./sstring_tests
+
+        # Capture coverage data
+        lcov --directory . \
+             --capture \
+             --output-file coverage.info.raw \
+             --rc branch_coverage=1 \
+             --ignore-errors mismatch,negative,empty,unused \
+             --rc geninfo_unexecuted_blocks=1 \
+             --base-directory "$(pwd)/.."
+
+        # Remove system files and test files
+        lcov --remove coverage.info.raw \
+             '/usr/include/*' \
+             '*/tests/*' \
              --output-file coverage.info \
              --rc branch_coverage=1 \
-             --ignore-errors mismatch,mismatch,negative,empty \
-             --rc geninfo_unexecuted_blocks=1 \
-             --rc geninfo_auto_base=1 \
-             --rc geninfo_auto_base=1
+             --ignore-errors unused,mismatch
 
-        # Remove system headers from coverage
-        lcov --remove coverage.info '/usr/*' \
-             --output-file coverage.info \
-             --rc branch_coverage=1
+        # Generate HTML report
+        if [ -x "$(command -v genhtml)" ]; then
+            print_status "Generating HTML coverage report..."
+            genhtml coverage.info \
+                    --output-directory ../coverage_report \
+                    --branch-coverage \
+                    --legend \
+                    --title "SString Coverage Report" \
+                    --prefix $(pwd)/.. \
+                    --rc branch_coverage=1
+            echo -e "Coverage report generated at: ${BLUE}$(pwd)/../coverage_report/index.html${NC}"
+        fi
     fi
 fi
 
