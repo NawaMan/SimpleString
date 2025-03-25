@@ -34,3 +34,5 @@ build-windows-x86_64-mingw/
 
 coverage_report/
 docker-build.sh
+
+.cache/
