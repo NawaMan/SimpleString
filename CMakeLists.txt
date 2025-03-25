@@ -112,6 +112,8 @@ if(BUILD_TESTING)
         tests/char_test.cpp
         tests/sstring_char_test.cpp
         tests/sstring_invalid_utf8_test.cpp
+        tests/unicode_category_test.cpp
+        tests/code_point_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE

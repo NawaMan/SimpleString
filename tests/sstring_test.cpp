@@ -271,6 +271,60 @@ TEST(SStringTest, NullCharacterHandling) {
     EXPECT_TRUE (s1 >= s2);
 }
 
+TEST(SStringTest, CodePointAt) {
+    // Test BMP characters
+    SString bmp("Hello");
+    EXPECT_EQ(bmp.code_point_at(0).value(), U'H');
+    EXPECT_EQ(bmp.code_point_at(4).value(), U'o');
+    EXPECT_TRUE(bmp.code_point_at(0).is_category(UnicodeCategory(UnicodeCategoryEnum::UPPERCASE_LETTER)));
+    EXPECT_TRUE(bmp.code_point_at(4).is_category(UnicodeCategory(UnicodeCategoryEnum::LOWERCASE_LETTER)));
+
+    // Test non-BMP characters (surrogate pairs)
+    SString nonBmp("Hello 🌟");
+    auto star = nonBmp.code_point_at(6);
+    EXPECT_EQ(star.value(), 0x1F31F);  // 🌟 is U+1F31F
+
+    // Test error cases
+    EXPECT_THROW(bmp.code_point_at(5), StringIndexOutOfBoundsException);
+    EXPECT_THROW(bmp.code_point_at(100), StringIndexOutOfBoundsException);
+}
+
+TEST(SStringTest, CodePointBefore) {
+    // Test BMP characters
+    SString bmp("Hello");
+    EXPECT_EQ(bmp.code_point_before(1).value(), U'H');
+    EXPECT_EQ(bmp.code_point_before(5).value(), U'o');
+    EXPECT_TRUE(bmp.code_point_before(1).is_category(UnicodeCategory(UnicodeCategoryEnum::UPPERCASE_LETTER)));
+    EXPECT_TRUE(bmp.code_point_before(5).is_category(UnicodeCategory(UnicodeCategoryEnum::LOWERCASE_LETTER)));
+
+    // Test non-BMP characters (surrogate pairs)
+    SString nonBmp("Hello 🌟");
+    auto star = nonBmp.code_point_before(8);
+    EXPECT_EQ(star.value(), 0x1F31F);  // 🌟 is U+1F31F
+
+    // Test error cases
+    EXPECT_THROW(bmp.code_point_before(0), StringIndexOutOfBoundsException);
+    EXPECT_THROW(bmp.code_point_before(6), StringIndexOutOfBoundsException);
+    EXPECT_THROW(bmp.code_point_before(100), StringIndexOutOfBoundsException);
+}
+
+TEST(SStringTest, CodePointCount) {
+    // Test BMP characters
+    SString bmp("Hello");
+    EXPECT_EQ(bmp.code_point_count(0, 5), 5);
+    EXPECT_EQ(bmp.code_point_count(1, 4), 3);
+
+    // Test non-BMP characters (surrogate pairs)
+    SString nonBmp("Hello 🌟🌍");
+    EXPECT_EQ(nonBmp.code_point_count(0, 10), 8);  // 6 BMP chars + 2 surrogate pairs
+    EXPECT_EQ(nonBmp.code_point_count(6, 8), 1);  // Just the 🌟
+
+    // Test error cases
+    EXPECT_THROW(bmp.code_point_count(4, 2), StringIndexOutOfBoundsException);  // begin > end
+    EXPECT_THROW(bmp.code_point_count(0, 6), StringIndexOutOfBoundsException);  // end > length
+    EXPECT_THROW(bmp.code_point_count(100, 101), StringIndexOutOfBoundsException);  // both out of bounds
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -7,6 +7,7 @@
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
+#include "code_point.hpp"
 
 namespace simple_string {
 
@@ -231,6 +232,78 @@ public:
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
     char16_t char_value(std::size_t index) const;
+
+    /**
+     * Returns the Unicode code point at the specified index.
+     * 
+     * @param index Zero-based index of the code unit to start from
+     * @return The Unicode code point at the specified index as a CodePoint object
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     */
+    CodePoint code_point_at(std::size_t index) const {
+        const auto& utf16 = get_utf16();
+        if (index >= utf16.length()) {
+            throw StringIndexOutOfBoundsException("Index out of bounds");
+        }
+        char16_t first = utf16[index];
+        if (first >= 0xD800 && first <= 0xDBFF && index + 1 < utf16.length()) {
+            char16_t second = utf16[index + 1];
+            if (second >= 0xDC00 && second <= 0xDFFF) {
+                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
+            }
+        }
+        return CodePoint(first);
+    }
+
+    /**
+     * Returns the Unicode code point before the specified index.
+     * 
+     * @param index One-based index of the code unit to start from
+     * @return The Unicode code point before the specified index as a CodePoint object
+     * @throws StringIndexOutOfBoundsException if index is negative or > length()
+     */
+    CodePoint code_point_before(std::size_t index) const {
+        const auto& utf16 = get_utf16();
+        if (index == 0 || index > utf16.length()) {
+            throw StringIndexOutOfBoundsException("Index out of bounds");
+        }
+        char16_t second = utf16[index - 1];
+        if (second >= 0xDC00 && second <= 0xDFFF && index >= 2) {
+            char16_t first = utf16[index - 2];
+            if (first >= 0xD800 && first <= 0xDBFF) {
+                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
+            }
+        }
+        return CodePoint(second);
+    }
+
+    /**
+     * Returns the number of Unicode code points in the specified text range.
+     * 
+     * @param begin_index Index to the first code unit of the text range
+     * @param end_index Index after the last code unit of the text range
+     * @return Number of Unicode code points in the specified range
+     * @throws StringIndexOutOfBoundsException if begin_index is negative or > end_index,
+     *         or end_index is > length()
+     */
+    std::size_t code_point_count(std::size_t begin_index, std::size_t end_index) const {
+        const auto& utf16 = get_utf16();
+        if (begin_index > end_index || end_index > utf16.length()) {
+            throw StringIndexOutOfBoundsException("Invalid range");
+        }
+        std::size_t count = 0;
+        for (std::size_t i = begin_index; i < end_index; ++i) {
+            char16_t ch = utf16[i];
+            if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < end_index) {
+                char16_t next = utf16[i + 1];
+                if (next >= 0xDC00 && next <= 0xDFFF) {
+                    ++i;  // Skip low surrogate
+                }
+            }
+            ++count;
+        }
+        return count;
+    }
 
     // Get the underlying string data
     const std::string& to_string() const { return *data_; }
