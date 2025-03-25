@@ -2,7 +2,11 @@
 
 ## [0.2.0] - 2025-03-24
 
-Add the check to ensure that changelog entry exists for the release.
+Add the check to ensure that changelog entry exists for the release -- Fixed.
+
+## [0.2.0] - 2025-03-24
+
+Add the check to ensure that changelog entry exists for the release -- Failed.
 
 
 ## [0.1.0] - 2025-03-24
