@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "char.hpp"
+#include "code_point.hpp"
 
 // Task-005: Character and Code Point Support
 
@@ -9,6 +10,7 @@ TEST(CharTest, Construction) {
     // Default constructor
     Char c1;
     EXPECT_EQ(c1.value(), 0);
+    EXPECT_TRUE(c1.is_null());
     
     // From char
     Char c2('A');
@@ -59,6 +61,42 @@ TEST(CharTest, CodePointConversion) {
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
     EXPECT_TRUE(UnicodeUtil::is_supplementary_code_point(supplementary));
+}
+
+TEST(CharTest, NullCharacterConversion) {
+    // Create a null Char
+    Char nullChar;
+    EXPECT_TRUE(nullChar.is_null());
+    
+    // Convert Char to CodePoint
+    CodePoint nullPoint(nullChar.value());
+    EXPECT_EQ(nullPoint.value(), 0);
+    
+    // Convert CodePoint back to Char
+    Char convertedChar(static_cast<char16_t>(nullPoint.value()));
+    EXPECT_TRUE(convertedChar.is_null());
+    
+    // Test explicit construction
+    Char explicitNull(static_cast<char16_t>(0));
+    EXPECT_TRUE(explicitNull.is_null());
+    
+    // Test char32_t constructor
+    Char char32Null(static_cast<char32_t>(0));
+    EXPECT_TRUE(char32Null.is_null());
+    
+    // Test non-null cases
+    Char nonNull('A');
+    EXPECT_FALSE(nonNull.is_null());
+    
+    // Test CodePoint with null high surrogate but non-null low surrogate
+    CodePoint highNullPoint(0xDC00);  // Just a low surrogate
+    EXPECT_EQ(highNullPoint.high_surrogate(), 0);
+    EXPECT_NE(highNullPoint.low_surrogate(), 0);
+    
+    // Test CodePoint with null low surrogate but non-null high surrogate
+    CodePoint lowNullPoint(0xD800);  // Just a high surrogate
+    EXPECT_NE(lowNullPoint.high_surrogate(), 0);
+    EXPECT_EQ(lowNullPoint.low_surrogate(), 0);
 }
 
 TEST(CharTest, StringConversion) {

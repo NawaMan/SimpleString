@@ -33,6 +33,11 @@ public:
     // Value accessors
     constexpr char16_t value() const noexcept { return value_; }
     
+    // Null check
+    constexpr bool is_null() const noexcept {
+        return value_ == 0;
+    }
+    
     // Surrogate pair checks
     constexpr bool is_high_surrogate() const noexcept {
         return value_ >= 0xD800
