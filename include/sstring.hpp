@@ -309,8 +309,8 @@ public:
     const std::string& to_string() const { return *data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return  equals(other);                         }
-    bool operator!=(const SString& other) const { return !equals(other);                         }
+    bool operator==(const SString& other) const { return  equals(other);                          }
+    bool operator!=(const SString& other) const { return !equals(other);                          }
     bool operator< (const SString& other) const { return compare_to(other).is_less();             }
     bool operator<=(const SString& other) const { return compare_to(other).is_less_or_equal();    }
     bool operator> (const SString& other) const { return compare_to(other).is_greater();          }
