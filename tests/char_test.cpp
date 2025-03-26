@@ -55,29 +55,10 @@ TEST(CharTest, CodePointConversion) {
     // BMP character (U+0041 LATIN CAPITAL LETTER A)
     char32_t bmpChar = 0x0041;
     EXPECT_FALSE(UnicodeUtil::is_supplementary_code_point(bmpChar));
-    EXPECT_FALSE(Char::from_code_point(bmpChar).has_value());
     
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
     EXPECT_TRUE(UnicodeUtil::is_supplementary_code_point(supplementary));
-    
-    // Convert supplementary to surrogate pair using new static method
-    auto maybePair = Char::from_code_point(supplementary);
-    EXPECT_TRUE(maybePair.has_value());
-    
-    const auto& [high, low] = *maybePair;
-    
-    // Verify surrogate pair
-    EXPECT_TRUE(high.is_high_surrogate());
-    EXPECT_TRUE(low.is_low_surrogate());
-    
-    // Convert back to code point
-    char32_t roundTrip = high.to_code_point(low);
-    EXPECT_EQ(roundTrip, supplementary);
-    
-    // Invalid surrogate pair should return INVALID_CODEPOINT
-    Char regular('A');
-    EXPECT_EQ(regular.to_code_point(low), Char::INVALID_CODEPOINT);
 }
 
 TEST(CharTest, StringConversion) {

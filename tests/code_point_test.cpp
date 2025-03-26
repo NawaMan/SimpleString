@@ -92,3 +92,51 @@ TEST(CodePointTest, NonASCII) {
     CodePoint private_use(0xE000);
     EXPECT_TRUE(private_use.is_category(UnicodeCategory::private_use()));
 }
+
+TEST(CodePointTest, SurrogatePairs) {
+    // Test high surrogate (U+D800)
+    CodePoint high_surrogate(0xD800);
+    EXPECT_TRUE(high_surrogate.is_surrogate_pair());
+    EXPECT_EQ(high_surrogate.high_surrogate(), 0xD800);
+    EXPECT_EQ(high_surrogate.low_surrogate(), 0);
+    
+    // Test low surrogate (U+DC00)
+    CodePoint low_surrogate(0xDC00);
+    EXPECT_TRUE(low_surrogate.is_surrogate_pair());
+    EXPECT_EQ(low_surrogate.high_surrogate(), 0);
+    EXPECT_EQ(low_surrogate.low_surrogate(), 0xDC00);
+    
+    // Test last high surrogate (U+DBFF)
+    CodePoint last_high(0xDBFF);
+    EXPECT_TRUE(last_high.is_surrogate_pair());
+    EXPECT_EQ(last_high.high_surrogate(), 0xDBFF);
+    EXPECT_EQ(last_high.low_surrogate(), 0);
+    
+    // Test last low surrogate (U+DFFF)
+    CodePoint last_low(0xDFFF);
+    EXPECT_TRUE(last_low.is_surrogate_pair());
+    EXPECT_EQ(last_low.high_surrogate(), 0);
+    EXPECT_EQ(last_low.low_surrogate(), 0xDFFF);
+    
+    // Test non-surrogate code points
+    CodePoint ascii(U'A');
+    EXPECT_FALSE(ascii.is_surrogate_pair());
+    EXPECT_EQ(ascii.high_surrogate(), 0);
+    EXPECT_EQ(ascii.low_surrogate(), 0);
+    
+    CodePoint bmp(0x0101);  // Latin small letter a with macron
+    EXPECT_FALSE(bmp.is_surrogate_pair());
+    EXPECT_EQ(bmp.high_surrogate(), 0);
+    EXPECT_EQ(bmp.low_surrogate(), 0);
+    
+    // Test boundary conditions
+    CodePoint before_high(0xD7FF);
+    EXPECT_FALSE(before_high.is_surrogate_pair());
+    EXPECT_EQ(before_high.high_surrogate(), 0);
+    EXPECT_EQ(before_high.low_surrogate(), 0);
+    
+    CodePoint after_low(0xE000);
+    EXPECT_FALSE(after_low.is_surrogate_pair());
+    EXPECT_EQ(after_low.high_surrogate(), 0);
+    EXPECT_EQ(after_low.low_surrogate(), 0);
+}

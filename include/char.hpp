@@ -2,11 +2,10 @@
 #define SIMPLE_STRING_CHAR_HPP
 
 #include <string>
-#include <optional>
 #include "unicode_util.hpp"
 
 namespace simple_string {
-
+    
 /**
  * Char - A class representing a UTF-16 code unit, similar to Java's Character.
  * 
@@ -70,17 +69,6 @@ public:
     constexpr bool operator<=(const Char& other) const noexcept { return value_ <= other.value_; }
     constexpr bool operator> (const Char& other) const noexcept { return value_ >  other.value_; }
     constexpr bool operator>=(const Char& other) const noexcept { return value_ >= other.value_; }
-
-    // Create a surrogate pair from a code point
-    static constexpr std::optional<std::pair<Char, Char>> from_code_point(char32_t code_point) noexcept {
-        if (!UnicodeUtil::is_supplementary_code_point(code_point)) {
-            return std::nullopt;
-        }
-        return std::make_pair(
-            Char(UnicodeUtil::high_surrogate_of(code_point)),
-            Char(UnicodeUtil::low_surrogate_of(code_point))
-        );
-    }
 
 private:
     char16_t value_;  // UTF-16 code unit

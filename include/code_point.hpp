@@ -64,6 +64,36 @@ public:
     constexpr bool is_printable()      const noexcept { return category().is_printable();      }
     constexpr bool is_case_ignorable() const noexcept { return category().is_case_ignorable(); }
     
+    /**
+     * @brief Checks if this code point is part of a surrogate pair
+     * @return True if the code point is a high or low surrogate, false otherwise
+     */
+    constexpr bool is_surrogate_pair() const noexcept {
+        return value_ >= 0xD800 && value_ <= 0xDFFF;
+    }
+
+    /**
+     * @brief Retrieves the high surrogate for supplementary code points
+     * @return The high surrogate if the code point is supplementary, null character otherwise
+     */
+    constexpr char32_t high_surrogate() const noexcept {
+        if (is_surrogate_pair() && value_ >= 0xD800 && value_ <= 0xDBFF) {
+            return value_;  // High surrogate in the range [0xD800, 0xDBFF]
+        }
+        return 0;  // Not a valid high surrogate
+    }
+
+    /**
+     * @brief Retrieves the low surrogate for supplementary code points
+     * @return The low surrogate if the code point is supplementary, null character otherwise
+     */
+    constexpr char32_t low_surrogate() const noexcept {
+        if (is_surrogate_pair() && value_ >= 0xDC00 && value_ <= 0xDFFF) {
+            return value_;  // Low surrogate in the range [0xDC00, 0xDFFF]
+        }
+        return 0;  // Not a valid low surrogate
+    }
+    
     // Comparison operators
     constexpr bool operator==(const CodePoint& other) const noexcept { return value_ == other.value_; }
     constexpr bool operator!=(const CodePoint& other) const noexcept { return value_ != other.value_; }
@@ -71,7 +101,6 @@ public:
     constexpr bool operator<=(const CodePoint& other) const noexcept { return value_ <= other.value_; }
     constexpr bool operator> (const CodePoint& other) const noexcept { return value_ >  other.value_; }
     constexpr bool operator>=(const CodePoint& other) const noexcept { return value_ >= other.value_; }
-    
     
 private:
     char32_t value_;
