@@ -81,18 +81,19 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.3
       
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
+      # Use a different approach for vcpkg
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git C:/vcpkg
+          cd C:/vcpkg
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
       
       - name: Install Boost
         run: |
-          # Install required Boost components
-          vcpkg install boost-locale:x64-windows boost-regex:x64-windows
-          vcpkg integrate install
+          C:/vcpkg/vcpkg install boost-locale:x64-windows boost-regex:x64-windows
           # Verify installation
-          dir $env:VCPKG_ROOT/installed/x64-windows/include/boost
+          dir C:/vcpkg/installed/x64-windows/include/boost
       
       - name: Configure CMake
         run: |
@@ -100,11 +101,14 @@ jobs:
           cd build
           # Use vcpkg.cmake from the vcpkg installation
           $version = "${{ needs.build.outputs.version }}"
-          # Set environment variables for CMake to find Boost
-          $env:CMAKE_PREFIX_PATH = "$env:VCPKG_ROOT/installed/x64-windows"
-          $env:Boost_DIR = "$env:VCPKG_ROOT/installed/x64-windows/share/boost"
-          # Run CMake with proper configuration
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCPACK_PACKAGE_FILE_NAME=SString-$version-Windows-x86_64-msvc -DCPACK_SYSTEM_NAME=Windows-x86_64-msvc
+          
+          # Run CMake with proper configuration - using PowerShell line continuation with backtick
+          cmake .. -DCMAKE_BUILD_TYPE=Release `
+                -DBUILD_TESTING=OFF `
+                -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+                -DVCPKG_TARGET_TRIPLET=x64-windows `
+                -DCPACK_PACKAGE_FILE_NAME="SString-$version-Windows-x86_64-msvc" `
+                -DCPACK_SYSTEM_NAME="Windows-x86_64-msvc"
       
       - name: Build
         run: |
