@@ -120,9 +120,13 @@ jobs:
           cd build
           cpack -G ZIP
           cpack -G WIX
-          mkdir -p ../dist
-          cp *.zip ../dist/
-          cp *.msi ../dist/
+          # Create dist directory if it doesn't exist (PowerShell syntax)
+          if (-not (Test-Path -Path ../dist)) {
+            New-Item -ItemType Directory -Path ../dist -Force
+          }
+          # Copy the packages to the dist directory
+          Copy-Item -Path *.zip -Destination ../dist/
+          Copy-Item -Path *.msi -Destination ../dist/
       
       - name: Upload MSVC artifacts
         uses: actions/upload-artifact@v4
