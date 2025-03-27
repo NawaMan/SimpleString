@@ -1,7 +1,7 @@
-#ifndef SIMPLE_STRING_COMPARE_RESULT_HPP
-#define SIMPLE_STRING_COMPARE_RESULT_HPP
+#ifndef MOSAIC_COMPARE_RESULT_HPP
+#define MOSAIC_COMPARE_RESULT_HPP
 
-namespace simple_string {
+namespace mosaic {
 
 /**
  * CompareResult - A wrapper for string comparison results that provides
@@ -63,6 +63,6 @@ private:
     int value_;  // The raw comparison result
 };
 
-} // namespace simple_string
+} // namespace mosaic
 
-#endif // SIMPLE_STRING_COMPARE_RESULT_HPP
+#endif // MOSAIC_COMPARE_RESULT_HPP

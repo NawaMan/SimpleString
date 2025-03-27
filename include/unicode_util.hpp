@@ -1,6 +1,6 @@
 #pragma once
 
-namespace simple_string {
+namespace mosaic {
 
 /**
  * @brief Utility functions for Unicode code point and surrogate pair operations

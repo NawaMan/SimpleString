@@ -1,9 +1,8 @@
 #pragma once
 #include <array>
-#include <cstdint>
 #include "unicode_category_enum.hpp"
 
-namespace simple_string {
+namespace mosaic {
 namespace unicode_data {
 
 struct CodePointRange {

@@ -9,7 +9,7 @@
 #include "char.hpp"
 #include "code_point.hpp"
 
-namespace simple_string {
+namespace mosaic {
 
 namespace detail {
 
@@ -128,14 +128,14 @@ public:
         : std::out_of_range(msg) {}
 };
 
-class SString {
+class String {
 public:
     // Constructor from C++ string literal
-    explicit SString(const std::string& str)
+    explicit String(const std::string& str)
         : data_(std::make_shared<const std::string>(str)), utf16_cache_() {}
     
     // Constructor from C string with explicit length (for strings with null chars)
-    SString(const char* str, std::size_t length)
+    String(const char* str, std::size_t length)
         : data_(std::make_shared<const std::string>(str, length)), utf16_cache_() {}
     
     // Get the length of the string in UTF-16 code units
@@ -170,7 +170,7 @@ public:
      * @param other The string to compare with
      * @return true if the strings are exactly equal, false otherwise
      */
-    bool equals(const SString& other) const {
+    bool equals(const String& other) const {
         // Fast path: check if strings share data
         if (shares_data_with(other)) {
             return true;
@@ -192,17 +192,17 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    CompareResult compare_to(const SString& other) const {
+    mosaic::CompareResult compare_to(const String& other) const {
         // Fast path: check if strings share data
         if (shares_data_with(other)) {
-            return CompareResult::EQUAL;
+            return mosaic::CompareResult::EQUAL;
         }
         
         // Otherwise do byte-by-byte comparison
         int result = detail::compare_utf8_strings(*data_, *other.data_);
-        if (result < 0) return CompareResult::LESS;
-        if (result > 0) return CompareResult::GREATER;
-        return CompareResult::EQUAL;
+        if (result < 0) return mosaic::CompareResult::LESS;
+        if (result > 0) return mosaic::CompareResult::GREATER;
+        return mosaic::CompareResult::EQUAL;
     }
 
     /**
@@ -240,7 +240,7 @@ public:
      * @return The Unicode code point at the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    CodePoint code_point_at(std::size_t index) const {
+    mosaic::CodePoint code_point_at(std::size_t index) const {
         const auto& utf16 = get_utf16();
         if (index >= utf16.length()) {
             throw StringIndexOutOfBoundsException("Index out of bounds");
@@ -262,7 +262,7 @@ public:
      * @return The Unicode code point before the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or > length()
      */
-    CodePoint code_point_before(std::size_t index) const {
+    mosaic::CodePoint code_point_before(std::size_t index) const {
         const auto& utf16 = get_utf16();
         if (index == 0 || index > utf16.length()) {
             throw StringIndexOutOfBoundsException("Index out of bounds");
@@ -309,12 +309,12 @@ public:
     const std::string& to_string() const { return *data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return  equals(other);                          }
-    bool operator!=(const SString& other) const { return !equals(other);                          }
-    bool operator< (const SString& other) const { return compare_to(other).is_less();             }
-    bool operator<=(const SString& other) const { return compare_to(other).is_less_or_equal();    }
-    bool operator> (const SString& other) const { return compare_to(other).is_greater();          }
-    bool operator>=(const SString& other) const { return compare_to(other).is_greater_or_equal(); }
+    bool operator==(const String& other) const { return  equals(other);                          }
+    bool operator!=(const String& other) const { return !equals(other);                          }
+    bool operator< (const String& other) const { return compare_to(other).is_less();             }
+    bool operator<=(const String& other) const { return compare_to(other).is_less_or_equal();    }
+    bool operator> (const String& other) const { return compare_to(other).is_greater();          }
+    bool operator>=(const String& other) const { return compare_to(other).is_greater_or_equal(); }
 
 private:
     std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
@@ -422,13 +422,13 @@ private:
      * @param other The string to compare with
      * @return true if both strings share the same underlying data, false otherwise
      */
-    bool shares_data_with(const SString& other) const { return data_ == other.data_; }
+    bool shares_data_with(const String& other) const { return data_ == other.data_; }
 
     // Allow test fixtures to access private members
-    friend class SStringTest;
+    friend class StringTest;
     friend class SStringSharing;  // Test fixture for string sharing tests
 };
 
-} // namespace simple_string
+} // namespace mosaic
 
 #endif // SIMPLE_STRING_HPP

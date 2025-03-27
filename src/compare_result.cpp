@@ -1,10 +1,9 @@
-#include "compare_result.hpp"
-
-namespace simple_string {
+#include "../include/compare_result.hpp"
+namespace mosaic {
 
 // Initialize static constant instances
-const CompareResult CompareResult::LESS    = CompareResult(-1);
-const CompareResult CompareResult::EQUAL   = CompareResult(0);
-const CompareResult CompareResult::GREATER = CompareResult(1);
+const mosaic::CompareResult CompareResult::LESS    = CompareResult(-1);
+const mosaic::CompareResult CompareResult::EQUAL   = CompareResult(0);
+const mosaic::CompareResult CompareResult::GREATER = CompareResult(1);
 
-} // namespace simple_string
+} // namespace mosaic

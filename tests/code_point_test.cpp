@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include "code_point.hpp"
+#include "../include/code_point.hpp"
+#include "../include/unicode_category.hpp"     
 
-using namespace simple_string;
+using namespace mosaic;
 
 TEST(CodePointTest, BasicProperties) {
     CodePoint a(U'A');

@@ -2,31 +2,31 @@
 #include <thread>
 #include <vector>
 #include <atomic>
-#include "sstring.hpp"
+#include "../include/sstring.hpp"
 
 // Task-003: String Sharing Optimization
 
-namespace simple_string {
+namespace mosaic {
 
 // Test fixture for accessing private members
 class SStringSharing : public ::testing::Test {
 protected:
     // Helper method to check if two strings share data
-    bool sharingData(const SString& s1, const SString& s2) {
+    bool sharingData(const String& s1, const String& s2) {
         return s1.shares_data_with(s2);
     }
 };
 
-} // namespace simple_string
+} // namespace mosaic
 
-using namespace simple_string;
+using namespace mosaic;
 
 TEST_F(SStringSharing, CopyConstructorSharing) {
     // Create original string
-    SString original("Hello");
+    String original("Hello");
     
     // Create copy through copy constructor
-    SString copy(original);
+    String copy(original);
     
     // They should share the same data
     EXPECT_TRUE(sharingData(original, copy));
@@ -34,8 +34,8 @@ TEST_F(SStringSharing, CopyConstructorSharing) {
 
 TEST_F(SStringSharing, AssignmentSharing) {
     // Create two strings
-    SString str1("Hello");
-    SString str2("World");
+    String str1("Hello");
+    String str2("World");
     
     // Assignment should share data
     str2 = str1;
@@ -44,12 +44,12 @@ TEST_F(SStringSharing, AssignmentSharing) {
 
 TEST_F(SStringSharing, IndependentStrings) {
     // Different content should not share data
-    SString str1("Hello");
-    SString str2("World");
+    String str1("Hello");
+    String str2("World");
     EXPECT_FALSE(sharingData(str1, str2));
 
     // Same content but independently constructed should not share
-    SString str3("Hello");
+    String str3("Hello");
     EXPECT_FALSE(sharingData(str1, str3));
 }
 
@@ -60,13 +60,13 @@ TEST_F(SStringSharing, ThreadSafety) {
     std::vector<std::thread> threads;
 
     // Create a shared string
-    SString shared("Test String");
+    String shared("Test String");
     
     // Function to test string operations
     auto test_func = [&]() {
         for (int i = 0; i < ITERATIONS && !failed; ++i) {
             // Create a copy (should be thread-safe)
-            SString copy = shared;
+            String copy = shared;
             
             // Test sharing (should be thread-safe)
             if (!sharingData(copy, shared)) {
@@ -100,10 +100,10 @@ TEST_F(SStringSharing, ThreadSafety) {
 
 TEST_F(SStringSharing, ImmutabilityMaintained) {
     // Create a string
-    SString str1("Hello");
+    String str1("Hello");
     
     // Create a copy that shares the same data
-    SString str2 = str1;
+    String str2 = str1;
 
     // Verify they share the same data
     EXPECT_TRUE(sharingData(str1, str2));
@@ -120,10 +120,10 @@ TEST_F(SStringSharing, ImmutabilityMaintained) {
 }
 
 TEST_F(SStringSharing, VectorCopies) {
-    std::vector<SString> strings;
+    std::vector<String> strings;
     
     // Add original string
-    strings.push_back(SString("Hello"));
+    strings.push_back(String("Hello"));
     
     // Add copies through push_back
     for (int i = 1; i < 5; ++i) {
@@ -143,16 +143,16 @@ TEST_F(SStringSharing, VectorCopies) {
 
 TEST_F(SStringSharing, EmptyStringSharing) {
     // Empty string constructed different ways
-    SString empty1("");
-    SString empty2("");
+    String empty1("");
+    String empty2("");
     
     // Create empty3 through conditional to test sharing behavior
-    SString hello("hello");
-    SString world("world");
-    SString empty3 = hello.equals(world) ? empty1 : empty2; // Should use empty2
+    String hello("hello");
+    String world("world");
+    String empty3 = hello.equals(world) ? empty1 : empty2; // Should use empty2
     
-    SString empty4(empty1); // Copy constructor
-    SString empty5 = empty2; // Copy assignment
+    String empty4(empty1); // Copy constructor
+    String empty5 = empty2; // Copy assignment
 
     // All empty strings should be equal
     EXPECT_TRUE(empty1.equals(empty2));
@@ -172,10 +172,10 @@ TEST_F(SStringSharing, NullCharacterSharing) {
     // Create strings with embedded null characters
     std::string str1("hello\0world", 11);
     std::string str2("hello\0world", 11);
-    
-    SString s1(str1);
-    SString s2(str2);
-    SString s3 = s1; // Copy of s1
+
+    String s1(str1);
+    String s2(str2);
+    String s3 = s1; // Copy of s1
     
     // Same content but independently constructed should not share
     EXPECT_FALSE(sharingData(s1, s2));
@@ -198,8 +198,8 @@ TEST_F(SStringSharing, LongStringSharing) {
     std::string longStr(size, 'x');
     
     // Create original and copy
-    SString original(longStr);
-    SString copy = original;
+    String original(longStr);
+    String copy = original;
     
     // Verify sharing works for long strings
     EXPECT_TRUE(sharingData(original, copy));
@@ -216,8 +216,8 @@ TEST_F(SStringSharing, LongStringSharing) {
 TEST_F(SStringSharing, UnicodeSharing) {
     // Test with various Unicode sequences
     const char* utf8_str = "Hello 世界 🌍"; // Mix of ASCII, CJK, and emoji
-    SString original(utf8_str);
-    SString copy = original;
+    String original(utf8_str);
+    String copy = original;
     
     // Verify sharing works with Unicode strings
     EXPECT_TRUE(sharingData(original, copy));
@@ -228,8 +228,8 @@ TEST_F(SStringSharing, UnicodeSharing) {
     
     // Test with combining characters (e + combining acute)
     const char* combining = "e\xcc\x81"; // e + COMBINING ACUTE ACCENT (U+0301)
-    SString combining1(combining);
-    SString combining2 = combining1;
+    String combining1(combining);
+    String combining2 = combining1;
     
     EXPECT_TRUE(sharingData(combining1, combining2));
     EXPECT_EQ(combining1.length(), combining2.length());
@@ -237,13 +237,13 @@ TEST_F(SStringSharing, UnicodeSharing) {
 
 TEST_F(SStringSharing, LengthCalculationBenchmark) {
     // Create strings with different characteristics
-    std::vector<SString> testStrings = {
-        SString(""),  // Empty
-        SString("Hello, World!"),  // ASCII only
-        SString("Hello, 世界!"),  // Mixed ASCII and CJK
-        SString(std::string(1000, 'a')),  // Long ASCII
-        SString("🌍🌎🌏"),  // All emoji (all surrogate pairs)
-        SString("e\xcc\x81\xcc\x82\xcc\x83")  // Lots of combining chars
+    std::vector<String> testStrings = {
+        String(""),  // Empty
+        String("Hello, World!"),  // ASCII only
+        String("Hello, 世界!"),  // Mixed ASCII and CJK
+        String(std::string(1000, 'a')),  // Long ASCII
+        String("🌍🌎🌏"),  // All emoji (all surrogate pairs)
+        String("e\xcc\x81\xcc\x82\xcc\x83")  // Lots of combining chars
     };
 
     const int ITERATIONS = 100000;

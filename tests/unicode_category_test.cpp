@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "unicode_category.hpp"
+#include "../include/unicode_category.hpp"
 
-using namespace simple_string;
+using namespace mosaic;
 
 TEST(UnicodeCategoryTest, CategoryChecks) {
     // Test individual category checks

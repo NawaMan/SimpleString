@@ -1,10 +1,10 @@
-#ifndef SIMPLE_STRING_CHAR_HPP
-#define SIMPLE_STRING_CHAR_HPP
+#ifndef MOSAIC_CHAR_HPP
+#define MOSAIC_CHAR_HPP
 
 #include <string>
 #include "unicode_util.hpp"
 
-namespace simple_string {
+namespace mosaic {
     
 /**
  * Char - A class representing a UTF-16 code unit, similar to Java's Character.
@@ -25,10 +25,10 @@ public:
     constexpr Char()                    noexcept : value_(0) {}
     constexpr explicit Char(char c)     noexcept : value_(static_cast<char16_t>(c)) {}
     constexpr explicit Char(char16_t c) noexcept : value_(c) {}
-    constexpr explicit Char(char32_t c) noexcept 
+    constexpr Char(char32_t c) noexcept 
         : value_(c <= 0xFFFF ? 
                  static_cast<char16_t>(c) : 
-                 (UnicodeUtil::is_supplementary_code_point(c) ? REPLACEMENT_CHAR : static_cast<char16_t>(c))) {}
+                 REPLACEMENT_CHAR) {}
 
     // Value accessors
     constexpr char16_t value() const noexcept { return value_; }
@@ -43,15 +43,13 @@ public:
         return value_ >= 0xD800
             && value_ <= 0xDBFF;
     }
-    
     constexpr bool is_low_surrogate() const noexcept {
         return value_ >= 0xDC00
             && value_ <= 0xDFFF;
     }
     
     constexpr bool is_surrogate() const noexcept {
-        return value_ >= 0xD800
-            && value_ <= 0xDFFF;
+        return is_high_surrogate() || is_low_surrogate();
     }
 
     // Code point conversion
@@ -68,17 +66,16 @@ public:
     }
 
     // Comparison operators
-    constexpr bool operator==(const Char& other) const noexcept { return value_ == other.value_; }
-    constexpr bool operator!=(const Char& other) const noexcept { return value_ != other.value_; }
-    constexpr bool operator< (const Char& other) const noexcept { return value_ <  other.value_; }
-    constexpr bool operator<=(const Char& other) const noexcept { return value_ <= other.value_; }
-    constexpr bool operator> (const Char& other) const noexcept { return value_ >  other.value_; }
-    constexpr bool operator>=(const Char& other) const noexcept { return value_ >= other.value_; }
+    constexpr bool operator==(Char other) const noexcept { return value_ == other.value_; }
+    constexpr bool operator!=(Char other) const noexcept { return value_ != other.value_; }
+    constexpr bool operator< (Char other) const noexcept { return value_ <  other.value_; }
+    constexpr bool operator> (Char other) const noexcept { return value_ >  other.value_; }
+    constexpr bool operator<=(Char other) const noexcept { return value_ <= other.value_; }
+    constexpr bool operator>=(Char other) const noexcept { return value_ >= other.value_; }
 
-private:
     char16_t value_;  // UTF-16 code unit
 };
 
-} // namespace simple_string
+} // namespace mosaic
 
-#endif // SIMPLE_STRING_CHAR_HPP
+#endif // MOSAIC_CHAR_HPP

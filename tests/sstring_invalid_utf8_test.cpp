@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "sstring.hpp"
+#include "../include/sstring.hpp"
 #include <array>
 
-using namespace simple_string;
+using namespace mosaic;
 
 namespace {
 // Helper function to create strings with raw bytes
@@ -12,29 +12,29 @@ std::string make_raw_string(const std::array<unsigned char, N>& bytes) {
 }
 }
 
-class SStringInvalidUtf8Test : public ::testing::Test {
+class StringInvalidUtf8Test : public ::testing::Test {
 protected:
     // Invalid UTF-8 sequences
-    SString invalid1{make_raw_string<1>({0xFF})};
-    SString invalid2{make_raw_string<2>({0xC0, 0xAF})};
-    SString invalid3{make_raw_string<3>({0xE0, 0x80, 0xAF})};
-    SString invalid4{make_raw_string<4>({0xF0, 0x80, 0x80, 0xAF})};
+    String invalid1{make_raw_string<1>({0xFF})};
+    String invalid2{make_raw_string<2>({0xC0, 0xAF})};
+    String invalid3{make_raw_string<3>({0xE0, 0x80, 0xAF})};
+    String invalid4{make_raw_string<4>({0xF0, 0x80, 0x80, 0xAF})};
     // Incomplete UTF-8 sequences
-    SString incomplete1{make_raw_string<1>({0xC2})};
-    SString incomplete2{make_raw_string<2>({0xE2, 0x82})};
-    SString incomplete3{make_raw_string<3>({0xF0, 0x9F, 0x8C})};
+    String incomplete1{make_raw_string<1>({0xC2})};
+    String incomplete2{make_raw_string<2>({0xE2, 0x82})};
+    String incomplete3{make_raw_string<3>({0xF0, 0x9F, 0x8C})};
     // Overlong encodings
-    SString overlong1{make_raw_string<2>({0xC0, 0x80})};
-    SString overlong2{make_raw_string<3>({0xE0, 0x80, 0x80})};
-    SString overlong3{make_raw_string<4>({0xF0, 0x80, 0x80, 0x80})};
+    String overlong1{make_raw_string<2>({0xC0, 0x80})};
+    String overlong2{make_raw_string<3>({0xE0, 0x80, 0x80})};
+    String overlong3{make_raw_string<4>({0xF0, 0x80, 0x80, 0x80})};
     // Surrogate range in UTF-8
-    SString surrogate{make_raw_string<3>({0xED, 0xA0, 0x80})};
+    String surrogate{make_raw_string<3>({0xED, 0xA0, 0x80})};
     // Out of Unicode range
-    SString outOfRange{make_raw_string<4>({0xF4, 0x90, 0x80, 0x80})};
+    String outOfRange{make_raw_string<4>({0xF4, 0x90, 0x80, 0x80})};
 };
 
 // Test invalid UTF-8 sequences
-TEST_F(SStringInvalidUtf8Test, InvalidUtf8) {
+TEST_F(StringInvalidUtf8Test, InvalidUtf8) {
     // Single invalid byte
     EXPECT_EQ(invalid1.length(), 1);
     EXPECT_EQ(invalid1.char_at(0).value(), 0xFFFD);
@@ -59,7 +59,7 @@ TEST_F(SStringInvalidUtf8Test, InvalidUtf8) {
 }
 
 // Test incomplete UTF-8 sequences
-TEST_F(SStringInvalidUtf8Test, IncompleteUtf8) {
+TEST_F(StringInvalidUtf8Test, IncompleteUtf8) {
     // Incomplete 2-byte sequence
     EXPECT_EQ(incomplete1.length(), 1);
     EXPECT_EQ(incomplete1.char_at(0).value(), 0xFFFD);
@@ -77,7 +77,7 @@ TEST_F(SStringInvalidUtf8Test, IncompleteUtf8) {
 }
 
 // Test overlong UTF-8 encodings
-TEST_F(SStringInvalidUtf8Test, OverlongUtf8) {
+TEST_F(StringInvalidUtf8Test, OverlongUtf8) {
     // Overlong 2-byte sequence
     EXPECT_EQ(overlong1.length(), 2);
     EXPECT_EQ(overlong1.char_at(0).value(), 0xFFFD);
@@ -98,7 +98,7 @@ TEST_F(SStringInvalidUtf8Test, OverlongUtf8) {
 }
 
 // Test surrogate range and out of range UTF-8
-TEST_F(SStringInvalidUtf8Test, InvalidRanges) {
+TEST_F(StringInvalidUtf8Test, InvalidRanges) {
     // Surrogate range in UTF-8
     EXPECT_EQ(surrogate.length(), 3);
     EXPECT_EQ(surrogate.char_at(0).value(), 0xFFFD);

@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace simple_string {
+namespace mosaic {
 
 /**
  * @brief Enumeration of Unicode General Categories

@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "char.hpp"
-#include "code_point.hpp"
+#include "../include/char.hpp"
+#include "../include/code_point.hpp"
 
 // Task-005: Character and Code Point Support
 
-using namespace simple_string;
+using namespace mosaic;
 
 TEST(CharTest, Construction) {
     // Default constructor
@@ -30,7 +30,7 @@ TEST(CharTest, Construction) {
     
     // From invalid code point (> 0x10FFFF)
     Char c6(static_cast<char32_t>(0x110000));
-    EXPECT_EQ(c6.value(), static_cast<char16_t>(0x110000 & 0xFFFF));
+    EXPECT_EQ(c6.value(), Char::REPLACEMENT_CHAR);
 }
 
 TEST(CharTest, SurrogatePairs) {
