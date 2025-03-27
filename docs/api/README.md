@@ -1,17 +1,17 @@
-# SString API Documentation
+# Simple String API Documentation
 
 ## Overview
-SString is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization.
+String is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization.
 
 ## Core Classes
 
-### `SString`
+### `String`
 Main string class that provides Java String-like functionality.
 
 #### Constructors
 ```cpp
-explicit SString(const std::string& str);
-SString(const char* str, std::size_t length);
+explicit String(const std::string& str);
+String(const char* str, std::size_t length);
 ```
 
 #### Core Methods
@@ -21,8 +21,8 @@ SString(const char* str, std::size_t length);
 - `char16_t char_value(std::size_t index) const`: Gets raw UTF-16 code unit at index
 
 #### Comparison Methods
-- `bool equals(const SString& other) const`: Exact string equality
-- `CompareResult compare_to(const SString& other) const`: Lexicographic comparison
+- `bool equals(const String& other) const`: Exact string equality
+- `CompareResult compare_to(const String& other) const`: Lexicographic comparison
 - Operators: `==`, `!=`, `<`, `<=`, `>`, `>=`
 
 #### String Operations
@@ -85,12 +85,12 @@ class StringIndexOutOfBoundsException : public std::out_of_range;
 
 ## Example Usage
 ```cpp
-#include "sstring.hpp"
-using namespace simple_string;
+#include "string.hpp"
+using namespace simple;
 
 // Create strings
-SString str1{"Hello, 世界!"};  // UTF-8 literal
-SString str2{"🌟 Stars"};      // Emoji support
+String str1{"Hello, 世界!"};  // UTF-8 literal
+String str2{"🌟 Stars"};      // Emoji support
 
 // Access characters
 Char ch = str1.char_at(7);     // Gets '世'

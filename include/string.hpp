@@ -1,5 +1,4 @@
-#ifndef SIMPLE_STRING_HPP
-#define SIMPLE_STRING_HPP
+#pragma once
 
 #include <string>
 #include <memory>
@@ -7,8 +6,9 @@
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
+#include "code_point.hpp"
 
-namespace simple_string {
+namespace simple {
 
 namespace detail {
 
@@ -105,7 +105,7 @@ inline int compare_utf8_strings(const std::string& str1, const std::string& str2
 } // namespace detail
 
 /**
- * SString - A simple string class that provides Java String-like functionality
+ * Simple String - A simple string class that provides Java String-like functionality
  *
  * Unicode Handling:
  * - Strings are stored internally as UTF-8
@@ -127,14 +127,14 @@ public:
         : std::out_of_range(msg) {}
 };
 
-class SString {
+class String {
 public:
     // Constructor from C++ string literal
-    explicit SString(const std::string& str)
+    explicit String(const std::string& str)
         : data_(std::make_shared<const std::string>(str)), utf16_cache_() {}
     
     // Constructor from C string with explicit length (for strings with null chars)
-    SString(const char* str, std::size_t length)
+    String(const char* str, std::size_t length)
         : data_(std::make_shared<const std::string>(str, length)), utf16_cache_() {}
     
     // Get the length of the string in UTF-16 code units
@@ -169,7 +169,7 @@ public:
      * @param other The string to compare with
      * @return true if the strings are exactly equal, false otherwise
      */
-    bool equals(const SString& other) const {
+    bool equals(const String& other) const {
         // Fast path: check if strings share data
         if (shares_data_with(other)) {
             return true;
@@ -191,17 +191,17 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    CompareResult compare_to(const SString& other) const {
+    simple::CompareResult compare_to(const String& other) const {
         // Fast path: check if strings share data
         if (shares_data_with(other)) {
-            return CompareResult::EQUAL;
+            return simple::CompareResult::EQUAL;
         }
         
         // Otherwise do byte-by-byte comparison
         int result = detail::compare_utf8_strings(*data_, *other.data_);
-        if (result < 0) return CompareResult::LESS;
-        if (result > 0) return CompareResult::GREATER;
-        return CompareResult::EQUAL;
+        if (result < 0) return simple::CompareResult::LESS;
+        if (result > 0) return simple::CompareResult::GREATER;
+        return simple::CompareResult::EQUAL;
     }
 
     /**
@@ -232,16 +232,88 @@ public:
      */
     char16_t char_value(std::size_t index) const;
 
+    /**
+     * Returns the Unicode code point at the specified index.
+     * 
+     * @param index Zero-based index of the code unit to start from
+     * @return The Unicode code point at the specified index as a CodePoint object
+     * @throws StringIndexOutOfBoundsException if index is negative or >= length()
+     */
+    simple::CodePoint code_point_at(std::size_t index) const {
+        const auto& utf16 = get_utf16();
+        if (index >= utf16.length()) {
+            throw StringIndexOutOfBoundsException("Index out of bounds");
+        }
+        char16_t first = utf16[index];
+        if (first >= 0xD800 && first <= 0xDBFF && index + 1 < utf16.length()) {
+            char16_t second = utf16[index + 1];
+            if (second >= 0xDC00 && second <= 0xDFFF) {
+                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
+            }
+        }
+        return CodePoint(first);
+    }
+
+    /**
+     * Returns the Unicode code point before the specified index.
+     * 
+     * @param index One-based index of the code unit to start from
+     * @return The Unicode code point before the specified index as a CodePoint object
+     * @throws StringIndexOutOfBoundsException if index is negative or > length()
+     */
+    simple::CodePoint code_point_before(std::size_t index) const {
+        const auto& utf16 = get_utf16();
+        if (index == 0 || index > utf16.length()) {
+            throw StringIndexOutOfBoundsException("Index out of bounds");
+        }
+        char16_t second = utf16[index - 1];
+        if (second >= 0xDC00 && second <= 0xDFFF && index >= 2) {
+            char16_t first = utf16[index - 2];
+            if (first >= 0xD800 && first <= 0xDBFF) {
+                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
+            }
+        }
+        return CodePoint(second);
+    }
+
+    /**
+     * Returns the number of Unicode code points in the specified text range.
+     * 
+     * @param begin_index Index to the first code unit of the text range
+     * @param end_index Index after the last code unit of the text range
+     * @return Number of Unicode code points in the specified range
+     * @throws StringIndexOutOfBoundsException if begin_index is negative or > end_index,
+     *         or end_index is > length()
+     */
+    std::size_t code_point_count(std::size_t begin_index, std::size_t end_index) const {
+        const auto& utf16 = get_utf16();
+        if (begin_index > end_index || end_index > utf16.length()) {
+            throw StringIndexOutOfBoundsException("Invalid range");
+        }
+        std::size_t count = 0;
+        for (std::size_t i = begin_index; i < end_index; ++i) {
+            char16_t ch = utf16[i];
+            if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < end_index) {
+                char16_t next = utf16[i + 1];
+                if (next >= 0xDC00 && next <= 0xDFFF) {
+                    ++i;  // Skip low surrogate
+                }
+            }
+            ++count;
+        }
+        return count;
+    }
+
     // Get the underlying string data
     const std::string& to_string() const { return *data_; }
 
     // C++ operator overloads for comparison
-    bool operator==(const SString& other) const { return  equals(other);                         }
-    bool operator!=(const SString& other) const { return !equals(other);                         }
-    bool operator< (const SString& other) const { return compare_to(other).is_less();             }
-    bool operator<=(const SString& other) const { return compare_to(other).is_less_or_equal();    }
-    bool operator> (const SString& other) const { return compare_to(other).is_greater();          }
-    bool operator>=(const SString& other) const { return compare_to(other).is_greater_or_equal(); }
+    bool operator==(const String& other) const { return  equals(other);                          }
+    bool operator!=(const String& other) const { return !equals(other);                          }
+    bool operator< (const String& other) const { return compare_to(other).is_less();             }
+    bool operator<=(const String& other) const { return compare_to(other).is_less_or_equal();    }
+    bool operator> (const String& other) const { return compare_to(other).is_greater();          }
+    bool operator>=(const String& other) const { return compare_to(other).is_greater_or_equal(); }
 
 private:
     std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
@@ -349,13 +421,11 @@ private:
      * @param other The string to compare with
      * @return true if both strings share the same underlying data, false otherwise
      */
-    bool shares_data_with(const SString& other) const { return data_ == other.data_; }
+    bool shares_data_with(const String& other) const { return data_ == other.data_; }
 
     // Allow test fixtures to access private members
-    friend class SStringTest;
-    friend class SStringSharing;  // Test fixture for string sharing tests
+    friend class StringTest;
+    friend class StringSharing;  // Test fixture for string sharing tests
 };
 
-} // namespace simple_string
-
-#endif // SIMPLE_STRING_HPP
+} // namespace simple

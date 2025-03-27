@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_release: ${{ steps.get_version.outputs.is_release }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -69,8 +70,73 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-  publish:
+  build-windows-msvc:
+    runs-on: windows-latest
     needs: build
+    # Only run this job if building for Windows or all platforms
+    if: github.event.inputs.platforms == 'windows' || github.event.inputs.platforms == 'all' || github.event.inputs.platforms == ''
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3
+      
+      # Use a different approach for vcpkg
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git C:/vcpkg
+          cd C:/vcpkg
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+      
+      - name: Install Boost
+        run: |
+          C:/vcpkg/vcpkg install boost-locale:x64-windows boost-regex:x64-windows
+          # Verify installation
+          dir C:/vcpkg/installed/x64-windows/include/boost
+      
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          # Use vcpkg.cmake from the vcpkg installation
+          $version = "${{ needs.build.outputs.version }}"
+          
+          # Run CMake with proper configuration - using PowerShell line continuation with backtick
+          cmake .. -DCMAKE_BUILD_TYPE=Release `
+                -DBUILD_TESTING=OFF `
+                -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+                -DVCPKG_TARGET_TRIPLET=x64-windows `
+                -DCPACK_PACKAGE_FILE_NAME="SString-$version-Windows-x86_64-msvc" `
+                -DCPACK_SYSTEM_NAME="Windows-x86_64-msvc"
+      
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
+      
+      - name: Package
+        run: |
+          cd build
+          cpack -G ZIP
+          cpack -G WIX
+          # Create dist directory if it doesn't exist (PowerShell syntax)
+          if (-not (Test-Path -Path ../dist)) {
+            New-Item -ItemType Directory -Path ../dist -Force
+          }
+          # Copy the packages to the dist directory
+          Copy-Item -Path *.zip -Destination ../dist/
+          Copy-Item -Path *.msi -Destination ../dist/
+      
+      - name: Upload MSVC artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc-packages
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    needs: [build, build-windows-msvc]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -79,10 +145,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download Docker build artifacts
         uses: actions/download-artifact@v4
         with:
           name: release-packages
+          path: dist
+          
+      - name: Download MSVC build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-msvc-packages
           path: dist
 
       - name: Get version and check branch

@@ -58,19 +58,18 @@ NOTE:
         - [x] Publish artifacts to GitHub artifacts
         - [x] Add Git tag for that version
         - [x] Create a release and Publish artifacts as a release package.
-        - [ ] Only runnable in main and release branch
-        - [ ] If the branch is not release, append the version with "-snapshot"
-        - [ ] If the branch is not release, do not publish the release.
+        - [x] Only runnable in main and release branch
+        - [x] If the branch is not release, append the version with "-snapshot"
+        - [x] If the branch is not release, do not publish the release.
 
 ### Phase 3: Testing & Verification
 - [ ] Verify builds
     - [ ] Smoke tests for each platform
-    - [ ] Library load tests
     - [ ] Version information check
-- [ ] CI/CD Integration
-    - [ ] GitHub Actions workflow
-    - [ ] Build matrix for all targets
-    - [ ] Artifact publishing
+- [x] CI/CD Integration
+    - [x] GitHub Actions workflow
+    - [x] Build matrix for all targets
+    - [x] Artifact publishing
 
 ### Phase 4: Organization
 - [x] Root level

@@ -1,7 +1,6 @@
-#ifndef SIMPLE_STRING_COMPARE_RESULT_HPP
-#define SIMPLE_STRING_COMPARE_RESULT_HPP
+#pragma once
 
-namespace simple_string {
+namespace simple {
 
 /**
  * CompareResult - A wrapper for string comparison results that provides
@@ -63,6 +62,4 @@ private:
     int value_;  // The raw comparison result
 };
 
-} // namespace simple_string
-
-#endif // SIMPLE_STRING_COMPARE_RESULT_HPP
+} // namespace simple

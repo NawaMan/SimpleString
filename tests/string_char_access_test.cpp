@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include "sstring.hpp"
 
-using namespace simple_string;
+#include "../include/string.hpp"
+
+using namespace simple;
 
 class SStringCharAccessTest : public ::testing::Test {
 protected:
@@ -12,29 +13,29 @@ protected:
     }
 
     // Test strings that will be used across multiple tests
-    SString empty{""};
-    SString ascii{"Hello"};
-    SString utf8{"Hello, 世界!"};  // Mixed ASCII and UTF-8
-    SString emoji{"🌟⭐"};         // Non-BMP characters (surrogate pairs)
-    SString mixed{"Hello 🌟 世界"}; // Mix of ASCII, surrogate pairs, and BMP
+    String empty{""};
+    String ascii{"Hello"};
+    String utf8{"Hello, 世界!"};  // Mixed ASCII and UTF-8
+    String emoji{"🌟⭐"};         // Non-BMP characters (surrogate pairs)
+    String mixed{"Hello 🌟 世界"}; // Mix of ASCII, surrogate pairs, and BMP
 
     // Invalid UTF-8 sequences
-    SString invalid1{make_raw_string<1>({0xFF})};
-    SString invalid2{make_raw_string<2>({0xC0, 0xAF})};
-    SString invalid3{make_raw_string<3>({0xE0, 0x80, 0xAF})};
-    SString invalid4{make_raw_string<4>({0xF0, 0x80, 0x80, 0xAF})};
+    String invalid1{make_raw_string<1>({0xFF})};
+    String invalid2{make_raw_string<2>({0xC0, 0xAF})};
+    String invalid3{make_raw_string<3>({0xE0, 0x80, 0xAF})};
+    String invalid4{make_raw_string<4>({0xF0, 0x80, 0x80, 0xAF})};
     // Incomplete UTF-8 sequences
-    SString incomplete1{make_raw_string<1>({0xC2})};
-    SString incomplete2{make_raw_string<2>({0xE2, 0x82})};
-    SString incomplete3{make_raw_string<3>({0xF0, 0x9F, 0x8C})};
+    String incomplete1{make_raw_string<1>({0xC2})};
+    String incomplete2{make_raw_string<2>({0xE2, 0x82})};
+    String incomplete3{make_raw_string<3>({0xF0, 0x9F, 0x8C})};
     // Overlong encodings
-    SString overlong1{make_raw_string<2>({0xC0, 0x80})};
-    SString overlong2{make_raw_string<3>({0xE0, 0x80, 0x80})};
-    SString overlong3{make_raw_string<4>({0xF0, 0x80, 0x80, 0x80})};
+    String overlong1{make_raw_string<2>({0xC0, 0x80})};
+    String overlong2{make_raw_string<3>({0xE0, 0x80, 0x80})};
+    String overlong3{make_raw_string<4>({0xF0, 0x80, 0x80, 0x80})};
     // Surrogate range in UTF-8
-    SString surrogate{make_raw_string<3>({0xED, 0xA0, 0x80})};
+    String surrogate{make_raw_string<3>({0xED, 0xA0, 0x80})};
     // Out of Unicode range
-    SString outOfRange{make_raw_string<4>({0xF4, 0x90, 0x80, 0x80})};
+    String outOfRange{make_raw_string<4>({0xF4, 0x90, 0x80, 0x80})};
 };
 
 // Test empty string access

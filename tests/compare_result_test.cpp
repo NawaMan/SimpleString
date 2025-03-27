@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "compare_result.hpp"
+#include "../include/compare_result.hpp"
 
 // Task-003: String Sharing Optimization
 
-using namespace simple_string;
+using namespace simple;
 
 TEST(CompareResultTest, StaticConstants) {
     // Test static constant values

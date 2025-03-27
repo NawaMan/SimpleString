@@ -1,14 +1,14 @@
 #include <gtest/gtest.h>
-#include "sstring.hpp"
-#include "char.hpp"
+#include "../include/string.hpp"
+#include "../include/char.hpp"
 
 // Task-005: Character and Code Point Support
 
-using namespace simple_string;
+using namespace simple;
 
-TEST(SStringCharTest, CharacterAccess) {
+TEST(StringCharTest, CharacterAccess) {
     // ASCII string
-    SString ascii("Hello");
+    String ascii("Hello");
     EXPECT_EQ(ascii.char_at(0).value(), u'H');
     EXPECT_EQ(ascii[1].value(), u'e');
     EXPECT_EQ(ascii.char_value(2), u'l');
@@ -18,9 +18,9 @@ TEST(SStringCharTest, CharacterAccess) {
     EXPECT_THROW(ascii[-1], StringIndexOutOfBoundsException);
 }
 
-TEST(SStringCharTest, UTF8Characters) {
+TEST(StringCharTest, UTF8Characters) {
     // String with various UTF-8 sequences
-    SString utf8("Hello 世界");  // Mix of ASCII and CJK
+    String utf8("Hello 世界");  // Mix of ASCII and CJK
     
     // ASCII part
     EXPECT_EQ(utf8.char_at(0).value(), u'H');
@@ -31,9 +31,9 @@ TEST(SStringCharTest, UTF8Characters) {
     EXPECT_EQ(utf8[7].value(), 0x754C);         // 界
 }
 
-TEST(SStringCharTest, SurrogatePairs) {
+TEST(StringCharTest, SurrogatePairs) {
     // String with surrogate pairs (🌍 = U+1F30D)
-    SString emoji("Hello 🌍");
+    String emoji("Hello 🌍");
     
     // ASCII part
     EXPECT_EQ(emoji.char_at(0).value(), u'H');
@@ -51,16 +51,16 @@ TEST(SStringCharTest, SurrogatePairs) {
     EXPECT_EQ(emoji.char_at(6).to_code_point(emoji.char_at(7)), 0x1F30D);
 }
 
-TEST(SStringCharTest, CombiningCharacters) {
+TEST(StringCharTest, CombiningCharacters) {
     // String with combining characters (e + ◌́ = é)
-    SString combined("e\u0301");  // e + COMBINING ACUTE ACCENT
+    String combined("e\u0301");  // e + COMBINING ACUTE ACCENT
     
     // Should be two separate UTF-16 code units
     EXPECT_EQ(combined.char_at(0).value(), u'e');
     EXPECT_EQ(combined[1].value(), 0x0301);
     
     // Precomposed form (é as single character)
-    SString precomposed("\u00E9");
+    String precomposed("\u00E9");
     EXPECT_EQ(precomposed.char_at(0).value(), 0x00E9);
     
     // Verify they have different lengths (as per memory 200223b4)
@@ -71,9 +71,9 @@ TEST(SStringCharTest, CombiningCharacters) {
     EXPECT_NE(combined, precomposed);
 }
 
-TEST(SStringCharTest, NullCharacters) {
+TEST(StringCharTest, NullCharacters) {
     // String with embedded null characters
-    SString withNull("Hello\0World", 11);
+    String withNull("Hello\0World", 11);
     
     // Access around null character
     EXPECT_EQ(withNull.char_at(4).value(), u'o');

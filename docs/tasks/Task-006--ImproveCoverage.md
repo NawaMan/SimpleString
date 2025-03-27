@@ -1,7 +1,7 @@
 # Task-006: Improve Test Coverage
 
 ## Objective
-Improve branch coverage of the SString class by adding comprehensive test cases for invalid UTF-8 sequences, edge cases, and UTF-16 specific scenarios.
+Improve branch coverage of the String class by adding comprehensive test cases for invalid UTF-8 sequences, edge cases, and UTF-16 specific scenarios.
 
 ## Implementation Details
 

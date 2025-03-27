@@ -1,12 +1,9 @@
-#ifndef SIMPLE_STRING_CHAR_HPP
-#define SIMPLE_STRING_CHAR_HPP
+#pragma once
 
-#include <cstdint>
 #include <string>
-#include <optional>
 
-namespace simple_string {
-
+namespace simple {
+    
 /**
  * Char - A class representing a UTF-16 code unit, similar to Java's Character.
  * 
@@ -20,31 +17,37 @@ class Char {
 public:
     // Special values
     static constexpr char32_t INVALID_CODEPOINT = 0xFFFFFFFF;
-    static constexpr char16_t REPLACEMENT_CHAR = 0xFFFD;
+    static constexpr char16_t REPLACEMENT_CHAR  = 0xFFFD;
 
     // Constructors
-    constexpr Char() noexcept : value_(0) {}
-    constexpr explicit Char(char c) noexcept : value_(static_cast<char16_t>(c)) {}
+    constexpr Char()                    noexcept : value_(0) {}
+    constexpr explicit Char(char c)     noexcept : value_(static_cast<char16_t>(c)) {}
     constexpr explicit Char(char16_t c) noexcept : value_(c) {}
-    constexpr explicit Char(char32_t c) noexcept 
+    constexpr Char(char32_t c) noexcept 
         : value_(c <= 0xFFFF ? 
                  static_cast<char16_t>(c) : 
-                 (is_supplementary_code_point(c) ? REPLACEMENT_CHAR : static_cast<char16_t>(c))) {}
+                 REPLACEMENT_CHAR) {}
 
     // Value accessors
     constexpr char16_t value() const noexcept { return value_; }
     
-    // Surrogate pair checks
-    constexpr bool is_high_surrogate() const noexcept {
-        return value_ >= 0xD800 && value_ <= 0xDBFF;
+    // Null check
+    constexpr bool is_null() const noexcept {
+        return value_ == 0;
     }
     
+    // Surrogate pair checks
+    constexpr bool is_high_surrogate() const noexcept {
+        return value_ >= 0xD800
+            && value_ <= 0xDBFF;
+    }
     constexpr bool is_low_surrogate() const noexcept {
-        return value_ >= 0xDC00 && value_ <= 0xDFFF;
+        return value_ >= 0xDC00
+            && value_ <= 0xDFFF;
     }
     
     constexpr bool is_surrogate() const noexcept {
-        return value_ >= 0xD800 && value_ <= 0xDFFF;
+        return is_high_surrogate() || is_low_surrogate();
     }
 
     // Code point conversion
@@ -61,41 +64,14 @@ public:
     }
 
     // Comparison operators
-    constexpr bool operator==(const Char& other) const noexcept { return value_ == other.value_; }
-    constexpr bool operator!=(const Char& other) const noexcept { return value_ != other.value_; }
-    constexpr bool operator< (const Char& other) const noexcept { return value_ <  other.value_; }
-    constexpr bool operator<=(const Char& other) const noexcept { return value_ <= other.value_; }
-    constexpr bool operator> (const Char& other) const noexcept { return value_ >  other.value_; }
-    constexpr bool operator>=(const Char& other) const noexcept { return value_ >= other.value_; }
+    constexpr bool operator==(Char other) const noexcept { return value_ == other.value_; }
+    constexpr bool operator!=(Char other) const noexcept { return value_ != other.value_; }
+    constexpr bool operator< (Char other) const noexcept { return value_ <  other.value_; }
+    constexpr bool operator> (Char other) const noexcept { return value_ >  other.value_; }
+    constexpr bool operator<=(Char other) const noexcept { return value_ <= other.value_; }
+    constexpr bool operator>=(Char other) const noexcept { return value_ >= other.value_; }
 
-    // Static utility methods
-    static constexpr char16_t high_surrogate_of(char32_t code_point) noexcept {
-        return static_cast<char16_t>(((code_point - 0x10000) >> 10) + 0xD800);
-    }
-    
-    static constexpr char16_t low_surrogate_of(char32_t code_point) noexcept {
-        return static_cast<char16_t>(((code_point - 0x10000) & 0x3FF) + 0xDC00);
-    }
-    
-    static constexpr bool is_supplementary_code_point(char32_t code_point) noexcept {
-        return code_point >= 0x10000 && code_point <= 0x10FFFF;
-    }
-
-    // Create a surrogate pair from a code point
-    static constexpr std::optional<std::pair<Char, Char>> from_code_point(char32_t code_point) noexcept {
-        if (!is_supplementary_code_point(code_point)) {
-            return std::nullopt;
-        }
-        return std::make_pair(
-            Char(high_surrogate_of(code_point)),
-            Char(low_surrogate_of(code_point))
-        );
-    }
-
-private:
     char16_t value_;  // UTF-16 code unit
 };
 
-} // namespace simple_string
-
-#endif // SIMPLE_STRING_CHAR_HPP
+} // namespace simple

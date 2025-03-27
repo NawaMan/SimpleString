@@ -1,14 +1,17 @@
 #include <gtest/gtest.h>
-#include "char.hpp"
+#include "../include/char.hpp"
+#include "../include/code_point.hpp"
+#include "../include/unicode_util.hpp"
 
 // Task-005: Character and Code Point Support
 
-using namespace simple_string;
+using namespace simple;
 
 TEST(CharTest, Construction) {
     // Default constructor
     Char c1;
     EXPECT_EQ(c1.value(), 0);
+    EXPECT_TRUE(c1.is_null());
     
     // From char
     Char c2('A');
@@ -28,7 +31,7 @@ TEST(CharTest, Construction) {
     
     // From invalid code point (> 0x10FFFF)
     Char c6(static_cast<char32_t>(0x110000));
-    EXPECT_EQ(c6.value(), static_cast<char16_t>(0x110000 & 0xFFFF));
+    EXPECT_EQ(c6.value(), Char::REPLACEMENT_CHAR);
 }
 
 TEST(CharTest, SurrogatePairs) {
@@ -54,30 +57,47 @@ TEST(CharTest, SurrogatePairs) {
 TEST(CharTest, CodePointConversion) {
     // BMP character (U+0041 LATIN CAPITAL LETTER A)
     char32_t bmpChar = 0x0041;
-    EXPECT_FALSE(Char::is_supplementary_code_point(bmpChar));
-    EXPECT_FALSE(Char::from_code_point(bmpChar).has_value());
+    EXPECT_FALSE(simple::UnicodeUtil::is_supplementary_code_point(bmpChar));
     
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
-    EXPECT_TRUE(Char::is_supplementary_code_point(supplementary));
+    EXPECT_TRUE(simple::UnicodeUtil::is_supplementary_code_point(supplementary));
+}
+
+TEST(CharTest, NullCharacterConversion) {
+    // Create a null Char
+    Char nullChar;
+    EXPECT_TRUE(nullChar.is_null());
     
-    // Convert supplementary to surrogate pair using new static method
-    auto maybePair = Char::from_code_point(supplementary);
-    EXPECT_TRUE(maybePair.has_value());
+    // Convert Char to CodePoint
+    CodePoint nullPoint(nullChar.value());
+    EXPECT_EQ(nullPoint.value(), 0);
     
-    const auto& [high, low] = *maybePair;
+    // Convert CodePoint back to Char
+    Char convertedChar(static_cast<char16_t>(nullPoint.value()));
+    EXPECT_TRUE(convertedChar.is_null());
     
-    // Verify surrogate pair
-    EXPECT_TRUE(high.is_high_surrogate());
-    EXPECT_TRUE(low.is_low_surrogate());
+    // Test explicit construction
+    Char explicitNull(static_cast<char16_t>(0));
+    EXPECT_TRUE(explicitNull.is_null());
     
-    // Convert back to code point
-    char32_t roundTrip = high.to_code_point(low);
-    EXPECT_EQ(roundTrip, supplementary);
+    // Test char32_t constructor
+    Char char32Null(static_cast<char32_t>(0));
+    EXPECT_TRUE(char32Null.is_null());
     
-    // Invalid surrogate pair should return INVALID_CODEPOINT
-    Char regular('A');
-    EXPECT_EQ(regular.to_code_point(low), Char::INVALID_CODEPOINT);
+    // Test non-null cases
+    Char nonNull('A');
+    EXPECT_FALSE(nonNull.is_null());
+    
+    // Test CodePoint with null high surrogate but non-null low surrogate
+    CodePoint highNullPoint(0xDC00);  // Just a low surrogate
+    EXPECT_EQ(highNullPoint.high_surrogate(), 0);
+    EXPECT_NE(highNullPoint.low_surrogate(), 0);
+    
+    // Test CodePoint with null low surrogate but non-null high surrogate
+    CodePoint lowNullPoint(0xD800);  // Just a high surrogate
+    EXPECT_NE(lowNullPoint.high_surrogate(), 0);
+    EXPECT_EQ(lowNullPoint.low_surrogate(), 0);
 }
 
 TEST(CharTest, StringConversion) {
