@@ -20,7 +20,7 @@ Implement Java's String substring operations for the SString class, matching Jav
 
 1. Public Interface
    ```cpp
-   class SString {
+   class String {
    public:
        /**
         * Returns a string that is a substring of this string.
@@ -30,7 +30,7 @@ Implement Java's String substring operations for the SString class, matching Jav
         * @return the substring
         * @throws StringIndexOutOfBoundsException if beginIndex is negative or larger than length()
         */
-       SString substring(std::size_t beginIndex) const;
+        String substring(std::size_t beginIndex) const;
        
        /**
         * Returns a string that is a substring of this string.
@@ -44,7 +44,7 @@ Implement Java's String substring operations for the SString class, matching Jav
         *         endIndex is larger than length()
         *         beginIndex is larger than endIndex
         */
-       SString substring(std::size_t beginIndex, std::size_t endIndex) const;
+       String substring(std::size_t beginIndex, std::size_t endIndex) const;
        
    };
    ```
@@ -81,7 +81,7 @@ Implement Java's String substring operations for the SString class, matching Jav
 
 1. Memory Management
    ```cpp
-   class SString {
+   class String {
    private:
        std::shared_ptr<const std::string> data_;    // Shared string data
        std::size_t offset_{0};                      // Start offset in data_
