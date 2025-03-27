@@ -2,7 +2,7 @@
 #include <array>
 #include "unicode_category_enum.hpp"
 
-namespace mosaic {
+namespace simple {
 namespace unicode_data {
 
 struct CodePointRange {
@@ -75,4 +75,4 @@ constexpr std::array<CodePointRange, 32> UNICODE_RANGES {{
 }};
 
 } // namespace unicode_data
-} // namespace simple_string
+} // namespace simple

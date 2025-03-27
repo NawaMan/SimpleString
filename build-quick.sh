@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build-quick.sh: Quick development build script for SString library
+# build-quick.sh: Quick development build script for Simple String library
 #
 # Purpose:
 #   - Fast build for development and testing
@@ -174,7 +174,7 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
                     --output-directory ../coverage_report \
                     --branch-coverage \
                     --legend \
-                    --title "SString Coverage Report" \
+                    --title "Simple String Coverage Report" \
                     --prefix $(pwd)/.. \
                     --rc branch_coverage=1
             echo -e "Coverage report generated at: ${BLUE}$(pwd)/../coverage_report/index.html${NC}"
@@ -191,8 +191,8 @@ echo -e "Build Type: ${BLUE}Debug${NC}"
 echo -e "Tests: ${BLUE}${BUILD_TESTS}${NC}"
 echo -e "Coverage: ${BLUE}${ENABLE_COVERAGE}${NC}"
 echo -e "\nOutput files:"
-echo -e "  - Library: ${BLUE}$(pwd)/../dist/libsstring_lib.a${NC}"
+echo -e "  - Library: ${BLUE}$(pwd)/../dist/libsimple_string_lib.a${NC}"
 if [ "${BUILD_TESTS}" = "ON" ]; then
-    echo -e "  - Test executable: ${BLUE}$(pwd)/sstring_tests${NC}"
+    echo -e "  - Test executable: ${BLUE}$(pwd)/../sstring_tests${NC}"
 fi
 echo -e "  - Compile Commands: ${BLUE}$(pwd)/../compile_commands.json${NC}"

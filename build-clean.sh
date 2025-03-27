@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build-clean.sh: Cleanup script for SString library build artifacts
+# build-clean.sh: Cleanup script for Simple String library build artifacts
 #
 # Purpose:
 #   - Removes all build directories

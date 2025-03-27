@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "../include/sstring.hpp"
+#include "../include/string.hpp"
 #include "../include/char.hpp"
 
 // Task-005: Character and Code Point Support
 
-using namespace mosaic;
+using namespace simple;
 
 TEST(StringCharTest, CharacterAccess) {
     // ASCII string

@@ -1,5 +1,4 @@
-#ifndef SIMPLE_STRING_HPP
-#define SIMPLE_STRING_HPP
+#pragma once
 
 #include <string>
 #include <memory>
@@ -9,7 +8,7 @@
 #include "char.hpp"
 #include "code_point.hpp"
 
-namespace mosaic {
+namespace simple {
 
 namespace detail {
 
@@ -106,7 +105,7 @@ inline int compare_utf8_strings(const std::string& str1, const std::string& str2
 } // namespace detail
 
 /**
- * SString - A simple string class that provides Java String-like functionality
+ * Simple String - A simple string class that provides Java String-like functionality
  *
  * Unicode Handling:
  * - Strings are stored internally as UTF-8
@@ -192,17 +191,17 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    mosaic::CompareResult compare_to(const String& other) const {
+    simple::CompareResult compare_to(const String& other) const {
         // Fast path: check if strings share data
         if (shares_data_with(other)) {
-            return mosaic::CompareResult::EQUAL;
+            return simple::CompareResult::EQUAL;
         }
         
         // Otherwise do byte-by-byte comparison
         int result = detail::compare_utf8_strings(*data_, *other.data_);
-        if (result < 0) return mosaic::CompareResult::LESS;
-        if (result > 0) return mosaic::CompareResult::GREATER;
-        return mosaic::CompareResult::EQUAL;
+        if (result < 0) return simple::CompareResult::LESS;
+        if (result > 0) return simple::CompareResult::GREATER;
+        return simple::CompareResult::EQUAL;
     }
 
     /**
@@ -240,7 +239,7 @@ public:
      * @return The Unicode code point at the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    mosaic::CodePoint code_point_at(std::size_t index) const {
+    simple::CodePoint code_point_at(std::size_t index) const {
         const auto& utf16 = get_utf16();
         if (index >= utf16.length()) {
             throw StringIndexOutOfBoundsException("Index out of bounds");
@@ -262,7 +261,7 @@ public:
      * @return The Unicode code point before the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or > length()
      */
-    mosaic::CodePoint code_point_before(std::size_t index) const {
+    simple::CodePoint code_point_before(std::size_t index) const {
         const auto& utf16 = get_utf16();
         if (index == 0 || index > utf16.length()) {
             throw StringIndexOutOfBoundsException("Index out of bounds");
@@ -426,9 +425,7 @@ private:
 
     // Allow test fixtures to access private members
     friend class StringTest;
-    friend class SStringSharing;  // Test fixture for string sharing tests
+    friend class StringSharing;  // Test fixture for string sharing tests
 };
 
-} // namespace mosaic
-
-#endif // SIMPLE_STRING_HPP
+} // namespace simple

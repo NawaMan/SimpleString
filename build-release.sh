@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build-release.sh: Release build script for SString library
+# build-release.sh: Release build script for Simple String library
 # Builds release packages for multiple platforms using Docker
 
 set -e  # Exit on error

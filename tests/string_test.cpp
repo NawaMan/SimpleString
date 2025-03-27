@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
-#include "../include/sstring.hpp"
+#include "../include/string.hpp"
 
 // Task-003: String Sharing Optimization
 
-using namespace mosaic;
+using namespace simple;
 
-TEST(SStringTest, ConstructFromLiteral) {
+TEST(StringTest, ConstructFromLiteral) {
     String s("Hello");
     EXPECT_EQ(s.length(), 5);
 }
 
-TEST(SStringTest, ConstructFromUTF8) {
+TEST(StringTest, ConstructFromUTF8) {
     // In Java, String.length() returns the number of UTF-16 code units
     // "Hello, " = 7 chars
     // "世界" = 2 chars (each is a single code point requiring 1 UTF-16 code unit)
@@ -20,12 +20,12 @@ TEST(SStringTest, ConstructFromUTF8) {
     EXPECT_EQ(s.length(), 10);
 }
 
-TEST(SStringTest, EmptyString) {
+TEST(StringTest, EmptyString) {
     String s("");
     EXPECT_EQ(s.length(), 0);
 }
 
-TEST(SStringTest, IsEmpty) {
+TEST(StringTest, IsEmpty) {
     // Empty string returns true
     String empty("");
     EXPECT_TRUE(empty.is_empty());
@@ -43,7 +43,7 @@ TEST(SStringTest, IsEmpty) {
     EXPECT_FALSE(nullChar.is_empty());
 }
 
-TEST(SStringTest, EmptyStringComparisons) {
+TEST(StringTest, EmptyStringComparisons) {
     // Test empty string equality
     String empty1("");
     String empty2("");
@@ -71,7 +71,7 @@ TEST(SStringTest, EmptyStringComparisons) {
     EXPECT_FALSE(empty1 >= nonEmpty);
 }
 
-TEST(SStringTest, SurrogatePairs) {
+TEST(StringTest, SurrogatePairs) {
     // "🌟" is outside the BMP and requires a surrogate pair in UTF-16
     // It's encoded as U+1F31F which becomes the surrogate pair U+D83C U+DF1F
     String s("🌟");
@@ -82,7 +82,7 @@ TEST(SStringTest, SurrogatePairs) {
     EXPECT_EQ(s2.length(), 10);  // 6 for "Hello " + 2*2 for the emojis
 }
 
-TEST(SStringTest, CombiningCharacters) {
+TEST(StringTest, CombiningCharacters) {
     // "é" can be represented two ways:
     // 1. Single code point U+00E9 (Latin small letter e with acute)
     // 2. Two code points: U+0065 (Latin small letter e) + U+0301 (combining acute accent)
@@ -104,7 +104,7 @@ TEST(SStringTest, CombiningCharacters) {
     // Using Boost.Locale or ICU for proper Unicode normalization would make s1.equals(s2) return true
 }
 
-TEST(SStringTest, Equals) {
+TEST(StringTest, Equals) {
     // Test ASCII string equality
     String s1("Hello");
     String s2("Hello");
@@ -126,7 +126,7 @@ TEST(SStringTest, Equals) {
     EXPECT_FALSE(s1 != s2);
 }
 
-TEST(SStringTest, CompareTo) {
+TEST(StringTest, CompareTo) {
     // Test ASCII string comparison
     String s1("Hello");
     String s2("Hello");
@@ -150,7 +150,7 @@ TEST(SStringTest, CompareTo) {
     EXPECT_TRUE(s2 >= s1);
 }
 
-TEST(SStringTest, InvalidUtf8Handling) {
+TEST(StringTest, InvalidUtf8Handling) {
     // Test various types of invalid UTF-8 sequences
     
     // Invalid continuation byte
@@ -197,7 +197,7 @@ TEST(SStringTest, InvalidUtf8Handling) {
     EXPECT_EQ(s8.compare_to(s1).value(), -cmp.value());  // Comparison should be symmetric
 }
 
-TEST(SStringTest, Immutability) {
+TEST(StringTest, Immutability) {
     // Test immutability with std::string constructor
     std::string mutableStr = "Hello";
     String s1(mutableStr);
@@ -230,7 +230,7 @@ TEST(SStringTest, Immutability) {
               std::string(expected, 5));
 }
 
-TEST(SStringTest, NullCharacterHandling) {
+TEST(StringTest, NullCharacterHandling) {
     // Test strings with embedded null characters
     const char str1[] = {'h', 'e', 'l', '\0', 'o', '!'};
     const char str2[] = {'h', 'e', 'l', '\0', 'o', '!'};
@@ -271,7 +271,7 @@ TEST(SStringTest, NullCharacterHandling) {
     EXPECT_TRUE (s1 >= s2);
 }
 
-TEST(SStringTest, CodePointAt) {
+TEST(StringTest, CodePointAt) {
     // Test BMP characters
     String bmp("Hello");
     EXPECT_EQ(bmp.code_point_at(0).value(), U'H');
@@ -289,7 +289,7 @@ TEST(SStringTest, CodePointAt) {
     EXPECT_THROW({ bmp.code_point_at(100); }, StringIndexOutOfBoundsException);
 }
 
-TEST(SStringTest, CodePointBefore) {
+TEST(StringTest, CodePointBefore) {
     // Test BMP characters
     String bmp("Hello");
     EXPECT_EQ(bmp.code_point_before(1).value(), U'H');
@@ -308,7 +308,7 @@ TEST(SStringTest, CodePointBefore) {
     EXPECT_THROW({ bmp.code_point_before(100); }, StringIndexOutOfBoundsException);
 }
 
-TEST(SStringTest, CodePointCount) {
+TEST(StringTest, CodePointCount) {
     // Test BMP characters
     String bmp("Hello");
     EXPECT_EQ(bmp.code_point_count(0, 5), 5);

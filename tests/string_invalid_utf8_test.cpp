@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../include/sstring.hpp"
+#include "../include/string.hpp"
 #include <array>
 
-using namespace mosaic;
+using namespace simple;
 
 namespace {
 // Helper function to create strings with raw bytes

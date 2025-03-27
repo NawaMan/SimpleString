@@ -1,7 +1,8 @@
 #pragma once
+
 #include "unicode_category.hpp"
 
-namespace mosaic {
+namespace simple {
 
 /**
  * @brief A class representing a Unicode code point with category information
@@ -37,8 +38,8 @@ public:
      * @brief Gets the Unicode category of this code point
      * @return The UnicodeCategory for this code point
      */
-    constexpr mosaic::UnicodeCategory category() const noexcept {
-        return mosaic::UnicodeCategory::from_code_point(value_);
+    constexpr simple::UnicodeCategory category() const noexcept {
+        return simple::UnicodeCategory::from_code_point(value_);
     }
     
     /**
@@ -46,7 +47,7 @@ public:
      * @param cat The category to check against
      * @return true if this code point belongs to the specified category
      */
-    constexpr bool is_category(mosaic::UnicodeCategory cat) const noexcept {
+    constexpr bool is_category(simple::UnicodeCategory cat) const noexcept {
         return category() == cat;
     }
     
@@ -106,4 +107,4 @@ private:
     char32_t value_;
 };
 
-} // namespace simple_string
+} // namespace simple

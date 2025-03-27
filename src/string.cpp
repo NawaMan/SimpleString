@@ -1,7 +1,7 @@
-#include "../include/sstring.hpp"
+#include "../include/string.hpp"
 #include <boost/locale/encoding.hpp>
 
-namespace mosaic {
+namespace simple {
 
 auto String::char_at(std::size_t index) const -> Char {
     const auto& utf16 = get_utf16();
@@ -15,4 +15,4 @@ auto String::char_value(std::size_t index) const -> char16_t {
     return char_at(index).value();
 }
 
-} // namespace mosaic
+} // namespace simple

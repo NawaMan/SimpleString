@@ -2,7 +2,7 @@
 #include "../include/code_point.hpp"
 #include "../include/unicode_category.hpp"     
 
-using namespace mosaic;
+using namespace simple;
 
 TEST(CodePointTest, BasicProperties) {
     CodePoint a(U'A');

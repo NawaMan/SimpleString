@@ -1,7 +1,6 @@
-#ifndef MOSAIC_COMPARE_RESULT_HPP
-#define MOSAIC_COMPARE_RESULT_HPP
+#pragma once
 
-namespace mosaic {
+namespace simple {
 
 /**
  * CompareResult - A wrapper for string comparison results that provides
@@ -63,6 +62,4 @@ private:
     int value_;  // The raw comparison result
 };
 
-} // namespace mosaic
-
-#endif // MOSAIC_COMPARE_RESULT_HPP
+} // namespace simple

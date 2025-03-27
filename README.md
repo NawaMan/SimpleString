@@ -1,6 +1,6 @@
-# SString Library (Simple String)
+# Simple String Library
 
-A modern C++ string library with robust Unicode support and efficient memory management. SString provides a safe and performant way to handle text in C++, with full UTF-8 and UTF-16 support.
+A modern C++ string library with robust Unicode support and efficient memory management. Simple String provides a safe and performance way to handle text in C++, with full UTF-8 and UTF-16 support.
 
 ## Features
 - Full Unicode support (UTF-8/UTF-16)
@@ -57,19 +57,19 @@ Download the appropriate package for your system from the releases:
 
 ## Usage
 ```cpp
-#include "sstring.hpp"
+#include "string.hpp"
 
-using namespace simple_string;
+using namespace simple;
 
 // Create strings
-SString str1{"Hello, 世界!"};
-SString str2{"🌟 Stars"};  // Emoji support
+String str1{"Hello, 世界!"};
+String str2{"🌟 Stars"};  // Emoji support
 
 // Access characters
 auto ch = str1.char_at(7);  // Gets '世'
 
 // Safe handling of invalid UTF-8
-SString invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
+String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
 // Automatically replaced with U+FFFD (replacement character)
 ```
 

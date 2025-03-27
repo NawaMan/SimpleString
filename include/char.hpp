@@ -1,10 +1,8 @@
-#ifndef MOSAIC_CHAR_HPP
-#define MOSAIC_CHAR_HPP
+#pragma once
 
 #include <string>
-#include "unicode_util.hpp"
 
-namespace mosaic {
+namespace simple {
     
 /**
  * Char - A class representing a UTF-16 code unit, similar to Java's Character.
@@ -76,6 +74,4 @@ public:
     char16_t value_;  // UTF-16 code unit
 };
 
-} // namespace mosaic
-
-#endif // MOSAIC_CHAR_HPP
+} // namespace simple

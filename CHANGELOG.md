@@ -11,7 +11,7 @@ Add the check to ensure that changelog entry exists for the release -- Failed.
 
 ## [0.1.0] - 2025-03-24
 
-Initial release of the SString library, providing a Java String-like implementation for C++.
+Initial release of the Simple String library, providing a Java String-like implementation for C++.
 
 ### Features
 

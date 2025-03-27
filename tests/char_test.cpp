@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include "../include/char.hpp"
 #include "../include/code_point.hpp"
+#include "../include/unicode_util.hpp"
 
 // Task-005: Character and Code Point Support
 
-using namespace mosaic;
+using namespace simple;
 
 TEST(CharTest, Construction) {
     // Default constructor
@@ -56,11 +57,11 @@ TEST(CharTest, SurrogatePairs) {
 TEST(CharTest, CodePointConversion) {
     // BMP character (U+0041 LATIN CAPITAL LETTER A)
     char32_t bmpChar = 0x0041;
-    EXPECT_FALSE(UnicodeUtil::is_supplementary_code_point(bmpChar));
+    EXPECT_FALSE(simple::UnicodeUtil::is_supplementary_code_point(bmpChar));
     
     // Supplementary character (U+1F600 GRINNING FACE)
     char32_t supplementary = 0x1F600;
-    EXPECT_TRUE(UnicodeUtil::is_supplementary_code_point(supplementary));
+    EXPECT_TRUE(simple::UnicodeUtil::is_supplementary_code_point(supplementary));
 }
 
 TEST(CharTest, NullCharacterConversion) {

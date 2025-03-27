@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace mosaic {
+namespace simple {
 
 /**
  * @brief Enumeration of Unicode General Categories
@@ -57,4 +57,4 @@ enum class UnicodeCategoryEnum : std::uint8_t {
     UNKNOWN            = 0    // Not a valid Unicode category
 };
 
-} // namespace simple_string
+} // namespace simple

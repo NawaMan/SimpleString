@@ -3,7 +3,7 @@
 
 // Task-003: String Sharing Optimization
 
-using namespace mosaic;
+using namespace simple;
 
 TEST(CompareResultTest, StaticConstants) {
     // Test static constant values

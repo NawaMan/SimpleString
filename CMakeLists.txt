@@ -81,7 +81,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Add the library
 add_library(sstring_lib
     src/compare_result.cpp
-    src/sstring.cpp
+    src/string.cpp
 )
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -106,12 +106,12 @@ if(BUILD_TESTING)
 
     # Add tests
     add_executable(sstring_tests
-        tests/sstring_test.cpp
+        tests/string_test.cpp
         tests/compare_result_test.cpp
-        tests/sstring_sharing_test.cpp
+        tests/string_sharing_test.cpp
         tests/char_test.cpp
-        tests/sstring_char_test.cpp
-        tests/sstring_invalid_utf8_test.cpp
+        tests/string_char_test.cpp
+        tests/string_invalid_utf8_test.cpp
         tests/unicode_category_test.cpp
         tests/code_point_test.cpp
     )
@@ -125,11 +125,11 @@ if(BUILD_TESTING)
 endif()
 
 # CPack configuration - set variables before including CPack
-
+    
 # Basic package information
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "SString - A smart string library")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple String - A smart string library")
 set(CPACK_PACKAGE_VENDOR "NawaMan")
 set(CPACK_PACKAGE_CONTACT "nawa@nawaman.net")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
