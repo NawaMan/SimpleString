@@ -191,8 +191,8 @@ echo -e "Build Type: ${BLUE}Debug${NC}"
 echo -e "Tests: ${BLUE}${BUILD_TESTS}${NC}"
 echo -e "Coverage: ${BLUE}${ENABLE_COVERAGE}${NC}"
 echo -e "\nOutput files:"
-echo -e "  - Library: ${BLUE}$(pwd)/../dist/libsimple_string_lib.a${NC}"
+echo -e "  - Library: ${BLUE}$(pwd)/../dist/libsstring_lib.a${NC}"
 if [ "${BUILD_TESTS}" = "ON" ]; then
-    echo -e "  - Test executable: ${BLUE}$(pwd)/../sstring_tests${NC}"
+    echo -e "  - Test executable: ${BLUE}$(pwd)/sstring_tests${NC}"
 fi
 echo -e "  - Compile Commands: ${BLUE}$(pwd)/../compile_commands.json${NC}"

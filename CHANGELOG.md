@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0] - 2025-03-27
+
+Rename many things.
+- The name of the library is changed from SString to Simple String. (project artifacts like lib name still sstring).
+- SString class is now String.
+- simple_string namespace is now simple.
+
 ## [0.3.0] - 2025-03-24
 
 Foundational functionalities and build infrastructure is completed and tidy.
@@ -11,7 +18,7 @@ Add the check to ensure that changelog entry exists for the release -- Failed.
 
 ## [0.1.0] - 2025-03-24
 
-Initial release of the Simple String library, providing a Java String-like implementation for C++.
+Initial release of the SString library, providing a Java String-like implementation for C++.
 
 ### Features
 

@@ -245,7 +245,7 @@ WXSEOF
         # Create PKG package
         mkdir -p pkg_root/usr/local/{lib,include}
         cp /build/dist/libsstring_lib.a pkg_root/usr/local/lib/
-        cp /build/include/sstring.hpp pkg_root/usr/local/include/
+        cp /build/include/string.hpp pkg_root/usr/local/include/
         cp /build/include/char.hpp pkg_root/usr/local/include/
         cp /build/include/compare_result.hpp pkg_root/usr/local/include/
 
@@ -261,7 +261,7 @@ WXSEOF
             --prefix / \
             -C pkg_root \
             usr/local/lib/libsstring_lib.a \
-            usr/local/include/sstring.hpp \
+            usr/local/include/string.hpp \
             usr/local/include/char.hpp \
             usr/local/include/compare_result.hpp
         gzip -f sstring*.tar
