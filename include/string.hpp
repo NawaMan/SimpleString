@@ -131,11 +131,17 @@ class String {
 public:
     // Constructor from C++ string literal
     explicit String(const std::string& str)
-        : data_(std::make_shared<const std::string>(str)), utf16_cache_() {}
+        : data_(std::make_shared<const std::string>(str)), 
+          offset_(0), 
+          length_(str.length()), 
+          utf16_cache_() {}
     
     // Constructor from C string with explicit length (for strings with null chars)
     String(const char* str, std::size_t length)
-        : data_(std::make_shared<const std::string>(str, length)), utf16_cache_() {}
+        : data_(std::make_shared<const std::string>(str, length)), 
+          offset_(0), 
+          length_(length), 
+          utf16_cache_() {}
     
     // Get the length of the string in UTF-16 code units
     std::size_t length() const {
@@ -147,8 +153,14 @@ public:
             return utf16_cache_->length();
         }
         
-        // Otherwise count UTF-16 code units from UTF-8
-        return detail::count_utf16_code_units(*data_);
+        // Otherwise count UTF-16 code units from UTF-8, considering offset and length
+        if (length_ == 0) {
+            return 0;
+        }
+        
+        // Create a substring view for counting
+        std::string_view view(data_->c_str() + offset_, length_);
+        return detail::count_utf16_code_units(std::string(view));
     }
 
     /**
@@ -158,7 +170,7 @@ public:
      * @return true if the string is empty, false otherwise
      */
     bool is_empty() const {
-        return data_->empty();
+        return length_ == 0;
     }
 
     /**
@@ -170,13 +182,30 @@ public:
      * @return true if the strings are exactly equal, false otherwise
      */
     bool equals(const String& other) const {
-        // Fast path: check if strings share data
-        if (shares_data_with(other)) {
+        // Fast path: check if strings share data and have same offset/length
+        if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
             return true;
         }
         
-        // Otherwise do byte-by-byte comparison
-        return *data_ == *other.data_;
+        // Otherwise do a byte-by-byte comparison of the substrings
+        // This is more efficient than creating full string copies with to_string()
+        const char* this_data = data_->c_str() + offset_;
+        const char* other_data = other.data_->c_str() + other.offset_;
+        std::size_t min_length = std::min(length_, other.length_);
+        
+        // First check if lengths are different
+        if (length_ != other.length_) {
+            return false;
+        }
+        
+        // Compare bytes until we find a difference or reach the end
+        for (std::size_t i = 0; i < min_length; ++i) {
+            if (this_data[i] != other_data[i]) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     /**
@@ -192,13 +221,15 @@ public:
      *         - isGreater() is true if this > other
      */
     simple::CompareResult compare_to(const String& other) const {
-        // Fast path: check if strings share data
-        if (shares_data_with(other)) {
+        // Fast path: check if strings share data and have same offset/length
+        if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
             return simple::CompareResult::EQUAL;
         }
         
-        // Otherwise do byte-by-byte comparison
-        int result = detail::compare_utf8_strings(*data_, *other.data_);
+        // Otherwise compare the actual substrings
+        std::string this_str = to_string();
+        std::string other_str = other.to_string();
+        int result = detail::compare_utf8_strings(this_str, other_str);
         if (result < 0) return simple::CompareResult::LESS;
         if (result > 0) return simple::CompareResult::GREATER;
         return simple::CompareResult::EQUAL;
@@ -305,7 +336,171 @@ public:
     }
 
     // Get the underlying string data
-    const std::string& to_string() const { return *data_; }
+    // For substrings, returns a new string with just the substring portion
+    // For full strings (offset_=0, length_=data_->length()), returns a reference to the original data
+    const std::string& to_string() const { 
+        if (offset_ == 0 && length_ == data_->length()) {
+            return *data_;  // Return reference to original for full strings
+        }
+        // For substrings, create a new string with just the substring portion
+        static thread_local std::string result;
+        result = data_->substr(offset_, length_);
+        return result;
+    }
+
+    /**
+     * Returns a string that is a substring of this string.
+     * The substring begins with the character at the specified index and extends to the end.
+     *
+     * @param beginIndex the beginning index, inclusive
+     * @return the substring
+     * @throws StringIndexOutOfBoundsException if beginIndex is negative or larger than length()
+     */
+    String substring(std::size_t beginIndex) const {
+        return substring(beginIndex, length());
+    }
+    
+    /**
+     * Returns a string that is a substring of this string.
+     * The substring begins at beginIndex and extends to endIndex - 1.
+     *
+     * @param beginIndex the beginning index, inclusive
+     * @param endIndex the ending index, exclusive
+     * @return the substring
+     * @throws StringIndexOutOfBoundsException if:
+     *         beginIndex is negative
+     *         endIndex is larger than length()
+     *         beginIndex is larger than endIndex
+     */
+    String substring(std::size_t beginIndex, std::size_t endIndex) const {
+        // Validate indices
+        const auto& utf16 = get_utf16();
+        if (beginIndex > endIndex || endIndex > utf16.length()) {
+            throw StringIndexOutOfBoundsException("Invalid substring indices");
+        }
+        
+        // If we're requesting the entire string, return this
+        if (beginIndex == 0 && endIndex == utf16.length()) {
+            return *this;
+        }
+        
+        // If empty substring, return empty string
+        if (beginIndex == endIndex) {
+            return String("");
+        }
+        
+        // Convert UTF-16 indices to UTF-8 byte offsets
+        // We need to find the UTF-8 byte offsets that correspond to the UTF-16 indices
+        std::size_t utf8_begin = 0;
+        std::size_t utf8_end = 0;
+        
+        // Find the UTF-8 byte offset for beginIndex
+        if (beginIndex > 0) {
+            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+            const unsigned char* end = str + length_;
+            std::size_t utf16_index = 0;
+            
+            while (str < end && utf16_index < beginIndex) {
+                if (*str < 0x80) {
+                    // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
+                    str++;
+                    utf16_index++;
+                } else if ((*str & 0xE0) == 0xC0) {
+                    // 2-byte UTF-8 sequence
+                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 2;
+                    utf16_index++;
+                } else if ((*str & 0xF0) == 0xE0) {
+                    // 3-byte UTF-8 sequence
+                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 3;
+                    utf16_index++;
+                } else if ((*str & 0xF8) == 0xF0) {
+                    // 4-byte UTF-8 sequence (surrogate pair in UTF-16)
+                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || 
+                        (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 4;
+                    utf16_index += 2;  // Surrogate pair counts as 2 UTF-16 code units
+                } else {
+                    // Invalid UTF-8 byte
+                    str++;
+                    utf16_index++;
+                }
+            }
+            
+            utf8_begin = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+        }
+        
+        // Find the UTF-8 byte offset for endIndex
+        if (endIndex > 0) {
+            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+            const unsigned char* end = str + length_;
+            std::size_t utf16_index = 0;
+            
+            while (str < end && utf16_index < endIndex) {
+                if (*str < 0x80) {
+                    // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
+                    str++;
+                    utf16_index++;
+                } else if ((*str & 0xE0) == 0xC0) {
+                    // 2-byte UTF-8 sequence
+                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 2;
+                    utf16_index++;
+                } else if ((*str & 0xF0) == 0xE0) {
+                    // 3-byte UTF-8 sequence
+                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 3;
+                    utf16_index++;
+                } else if ((*str & 0xF8) == 0xF0) {
+                    // 4-byte UTF-8 sequence (surrogate pair in UTF-16)
+                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || 
+                        (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
+                        // Invalid sequence, treat as 1 byte
+                        str++;
+                        utf16_index++;
+                        continue;
+                    }
+                    str += 4;
+                    utf16_index += 2;  // Surrogate pair counts as 2 UTF-16 code units
+                } else {
+                    // Invalid UTF-8 byte
+                    str++;
+                    utf16_index++;
+                }
+            }
+            
+            utf8_end = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+        }
+        
+        // Create a new String with the same data but adjusted offset and length
+        return String(data_, offset_ + utf8_begin, utf8_end - utf8_begin);
+    }
 
     // C++ operator overloads for comparison
     bool operator==(const String& other) const { return  equals(other);                          }
@@ -316,7 +511,13 @@ public:
     bool operator>=(const String& other) const { return compare_to(other).is_greater_or_equal(); }
 
 private:
+    // Private constructor for creating substrings with shared data
+    String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
+        : data_(std::move(data)), offset_(offset), length_(length), utf16_cache_() {}
+
     std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
+    std::size_t offset_{0};                      // Start offset in data_ (in bytes)
+    std::size_t length_{0};                      // Length of this substring (in bytes)
     mutable std::shared_ptr<const std::u16string> utf16_cache_;  // Cached UTF-16 representation
     
     // Get or create UTF-16 representation
@@ -326,8 +527,8 @@ private:
         if (!cache) {
             // First check failed, acquire the data and create cache
             std::u16string result;
-            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str());
-            const unsigned char* end = str + data_->length();
+            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+            const unsigned char* end = str + length_;
             
             while (str < end) {
                 if (*str < 0x80) {
