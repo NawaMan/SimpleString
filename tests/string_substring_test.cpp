@@ -116,10 +116,27 @@ TEST_F(StringSubstringTest, SubstringWithSurrogatePairs) {
 }
 
 TEST_F(StringSubstringTest, SubstringExceptions) {
-    // Test invalid indices
-    EXPECT_THROW(ascii.substring(14), StringIndexOutOfBoundsException);  // beginIndex > length
-    EXPECT_THROW(ascii.substring(5, 14), StringIndexOutOfBoundsException);  // endIndex > length
-    EXPECT_THROW(ascii.substring(10, 5), StringIndexOutOfBoundsException);  // beginIndex > endIndex
+    // Test invalid indices with specific error messages
+    try {
+        ascii.substring(14);
+        FAIL() << "Expected StringIndexOutOfBoundsException for beginIndex > length";
+    } catch (const StringIndexOutOfBoundsException& e) {
+        EXPECT_STREQ("beginIndex is out of bounds", e.what());
+    }
+    
+    try {
+        ascii.substring(5, 14);
+        FAIL() << "Expected StringIndexOutOfBoundsException for endIndex > length";
+    } catch (const StringIndexOutOfBoundsException& e) {
+        EXPECT_STREQ("endIndex is out of bounds", e.what());
+    }
+    
+    try {
+        ascii.substring(10, 5);
+        FAIL() << "Expected StringIndexOutOfBoundsException for beginIndex > endIndex";
+    } catch (const StringIndexOutOfBoundsException& e) {
+        EXPECT_STREQ("beginIndex cannot be larger than endIndex", e.what());
+    }
 }
 
 TEST_F(StringSubstringTest, NestedSubstrings) {
@@ -138,4 +155,17 @@ TEST_F(StringSubstringTest, NestedSubstrings) {
     String s5 = s4.substring(0, 1);     // "世"
     EXPECT_EQ(s5.to_string(), "世");
     EXPECT_EQ(s5.length(), 1);
+}
+
+TEST_F(StringSubstringTest, SubstringEdgeCases) {
+    // Attempt to substring using size_t max value
+    size_t max_size_t = std::numeric_limits<size_t>::max();
+
+    // Ensure out-of-bounds access throws an exception
+    EXPECT_THROW(ascii.substring(max_size_t), StringIndexOutOfBoundsException);
+    EXPECT_THROW(ascii.substring(max_size_t, max_size_t), StringIndexOutOfBoundsException);
+    EXPECT_THROW(ascii.substring(ascii.length(), ascii.length() + 1), StringIndexOutOfBoundsException);
+
+    // Ensure no overflow occurs in end = begin + length
+    EXPECT_THROW(ascii.substring(ascii.length() - 1, ascii.length() + 1), StringIndexOutOfBoundsException);
 }

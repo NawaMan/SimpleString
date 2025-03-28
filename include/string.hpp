@@ -354,10 +354,15 @@ public:
      *
      * @param beginIndex the beginning index, inclusive
      * @return the substring
-     * @throws StringIndexOutOfBoundsException if beginIndex is negative or larger than length()
+     * @throws StringIndexOutOfBoundsException if beginIndex is larger than length()
      */
     String substring(std::size_t beginIndex) const {
-        return substring(beginIndex, length());
+        const auto len = length();
+        // Check if beginIndex is out of bounds
+        if (beginIndex > len) {
+            throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
+        }
+        return substring(beginIndex, len);
     }
     
     /**
@@ -368,15 +373,24 @@ public:
      * @param endIndex the ending index, exclusive
      * @return the substring
      * @throws StringIndexOutOfBoundsException if:
-     *         beginIndex is negative
+     *         beginIndex is larger than length()
      *         endIndex is larger than length()
      *         beginIndex is larger than endIndex
      */
     String substring(std::size_t beginIndex, std::size_t endIndex) const {
         // Validate indices
         const auto& utf16 = get_utf16();
-        if (beginIndex > endIndex || endIndex > utf16.length()) {
-            throw StringIndexOutOfBoundsException("Invalid substring indices");
+        const auto len = utf16.length();
+        
+        // Check for out of bounds conditions with more specific error messages
+        if (beginIndex > len) {
+            throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
+        }
+        if (endIndex > len) {
+            throw StringIndexOutOfBoundsException("endIndex is out of bounds");
+        }
+        if (beginIndex > endIndex) {
+            throw StringIndexOutOfBoundsException("beginIndex cannot be larger than endIndex");
         }
         
         // If we're requesting the entire string, return this

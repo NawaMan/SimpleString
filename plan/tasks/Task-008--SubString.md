@@ -1,4 +1,4 @@
-# Task-009: Implement Java String Substring Methods
+# Task-008: Implement Java String Substring Methods [COMPLETED]
 
 ## Objective
 Implement Java's String substring operations for the SString class, matching Java's behavior exactly.
@@ -6,15 +6,15 @@ Implement Java's String substring operations for the SString class, matching Jav
 ## Requirements
 
 1. Core Methods (Java API)
-   - [ ] `substring(int beginIndex)`: Returns a string that is a substring of this string, starting with the character at the specified index and extending to the end
-   - [ ] `substring(int beginIndex, int endIndex)`: Returns a string that contains a subsequence of characters currently contained in this string, starting at beginIndex and extending to endIndex - 1
-   - [ ] `subSequence(int beginIndex, int endIndex)`: Returns a new character sequence that is a subsequence of this sequence (part of CharSequence interface)
+   - [x] `substring(std::size_t beginIndex)`: Returns a string that is a substring of this string, starting with the character at the specified index and extending to the end
+   - [x] `substring(std::size_t beginIndex, std::size_t endIndex)`: Returns a string that contains a subsequence of characters currently contained in this string, starting at beginIndex and extending to endIndex - 1
+   - [-] `subSequence(int beginIndex, int endIndex)`: Returns a new character sequence that is a subsequence of this sequence (part of CharSequence interface) - *Not implemented as it's part of the CharSequence interface which is not included in this implementation*
 
 2. Behavior Requirements
-   - [ ] Match Java's UTF-16 code unit indexing
-   - [ ] Throw StringIndexOutOfBoundsException for invalid indices
-   - [ ] Handle surrogate pairs correctly at boundaries
-   - [ ] Maintain string immutability
+   - [x] Match Java's UTF-16 code unit indexing
+   - [x] Throw StringIndexOutOfBoundsException for invalid indices
+   - [x] Handle surrogate pairs correctly at boundaries
+   - [x] Maintain string immutability
 
 ## Implementation Plan
 

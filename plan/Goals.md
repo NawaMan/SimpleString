@@ -15,7 +15,7 @@ Java String Replication in C++ Requirements
 1.1 [X] Immutable type (like Java's String): Ensure the string is immutable, meaning once created, it cannot be modified.
 1.2 [X] Creation from char arrays, C-strings, or other strings: Allow initialization from various types like const char*, std::string, and std::wstring.
 1.3 [X] Concatenation using + operator: Enable efficient string concatenation via the + operator, ensuring immutability.
-1.4 [ ] Substring extraction: Provide a way to extract parts of the string based on indices, similar to Java’s substring().
+1.4 [X] Substring extraction: Provide a way to extract parts of the string based on indices, similar to Java’s substring().
 1.5 [X] Comparison (equals, compareTo): Implement methods to compare strings for equality and lexicographical order.
 1.6 [X] Case conversion (toUpperCase, toLowerCase): Support transforming the string to either uppercase or lowercase.
 1.7 [ ] Trimming (trim, trimStart, trimEnd): Implement methods to remove leading and/or trailing whitespace from the string.

@@ -28,6 +28,8 @@ String(const char* str, std::size_t length);
 #### String Operations
 - `const std::string& to_string() const`: Get underlying UTF-8 string
 - `operator[](std::size_t index)`: Array-style character access
+- `String substring(std::size_t beginIndex) const`: Extract substring from beginIndex to end
+- `String substring(std::size_t beginIndex, std::size_t endIndex) const`: Extract substring from beginIndex to endIndex-1
 
 ### `Char`
 Represents a UTF-16 code unit, similar to Java's Character.
