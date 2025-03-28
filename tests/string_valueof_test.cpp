@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 #include <limits>
 #include <cmath>
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <variant>
 #include "../include/string.hpp"
 
 using namespace simple;
@@ -123,4 +129,126 @@ TEST_F(StringValueOfTest, ValueOfCustomTypes) {
     
     EXPECT_EQ("CustomStringable", fromStringable.to_string());
     EXPECT_EQ("CustomStreamable", fromStreamable.to_string());
+}
+
+// Test valueOf with vector container
+TEST_F(StringValueOfTest, ValueOfVector) {
+    std::vector<int> emptyVector;
+    std::vector<int> intVector = {1, 2, 3, 4, 5};
+    std::vector<String> stringVector = {String("hello"), String("world")};
+    std::vector<std::vector<int>> nestedVector = {{1, 2}, {3, 4, 5}};
+    
+    String emptyStr = String::valueOf(emptyVector);
+    String intStr = String::valueOf(intVector);
+    String stringStr = String::valueOf(stringVector);
+    String nestedStr = String::valueOf(nestedVector);
+    
+    EXPECT_EQ("[]", emptyStr.to_string());
+    EXPECT_EQ("[1, 2, 3, 4, 5]", intStr.to_string());
+    EXPECT_EQ("[hello, world]", stringStr.to_string());
+    EXPECT_EQ("[[1, 2], [3, 4, 5]]", nestedStr.to_string());
+}
+
+// Test valueOf with list container
+TEST_F(StringValueOfTest, ValueOfList) {
+    std::list<int> intList = {10, 20, 30};
+    String listStr = String::valueOf(intList);
+    EXPECT_EQ("[10, 20, 30]", listStr.to_string());
+}
+
+// Test valueOf with set container
+TEST_F(StringValueOfTest, ValueOfSet) {
+    std::set<int> intSet = {5, 2, 8, 1};  // Will be ordered as {1, 2, 5, 8}
+    String setStr = String::valueOf(intSet);
+    EXPECT_EQ("[1, 2, 5, 8]", setStr.to_string());
+}
+
+// Test valueOf with map container
+TEST_F(StringValueOfTest, ValueOfMap) {
+    std::map<String, int> scores;
+    scores[String("Alice")] = 95;
+    scores[String("Bob")] = 87;
+    scores[String("Charlie")] = 92;
+    
+    String scoresStr = String::valueOf(scores);
+    EXPECT_EQ("{Alice=95, Bob=87, Charlie=92}", scoresStr.to_string());
+    
+    // Test empty map
+    std::map<int, int> emptyMap;
+    String emptyMapStr = String::valueOf(emptyMap);
+    EXPECT_EQ("{}", emptyMapStr.to_string());
+}
+
+// Test valueOf with unordered_map container
+TEST_F(StringValueOfTest, ValueOfUnorderedMap) {
+    std::unordered_map<int, String> idToName;
+    idToName.insert({1, String("One")});
+    idToName.insert({2, String("Two")});
+    idToName.insert({3, String("Three")});
+    
+    String idMapStr = String::valueOf(idToName);
+    
+    // Since unordered_map doesn't guarantee order, we can't check the exact string
+    // Instead, check that it starts with '{', ends with '}', and contains all key-value pairs
+    std::string result = idMapStr.to_string();
+    EXPECT_TRUE(result[0] == '{' && result[result.length()-1] == '}');
+    EXPECT_TRUE(result.find("1=One") != std::string::npos);
+    EXPECT_TRUE(result.find("2=Two") != std::string::npos);
+    EXPECT_TRUE(result.find("3=Three") != std::string::npos);
+}
+
+// Test valueOf with nested containers
+TEST_F(StringValueOfTest, ValueOfNestedContainers) {
+    std::map<String, std::vector<int>> userData;
+    userData[String("Alice")] = {90, 85, 95};
+    userData[String("Bob")] = {70, 80, 75};
+    
+    String nestedStr = String::valueOf(userData);
+    EXPECT_EQ("{Alice=[90, 85, 95], Bob=[70, 80, 75]}", nestedStr.to_string());
+}
+
+// Test valueOf with std::variant
+TEST_F(StringValueOfTest, ValueOfVariant) {
+    // Basic variant with primitive types
+    std::variant<int, double, String> v1 = 42;
+    std::variant<int, double, String> v2 = 3.14;
+    std::variant<int, double, String> v3 = String("hello");
+    
+    String s1 = String::valueOf(v1);
+    String s2 = String::valueOf(v2);
+    String s3 = String::valueOf(v3);
+    
+    EXPECT_EQ("42", s1.to_string());
+    EXPECT_EQ("3.140000", s2.to_string());  // Double formatting from std::to_string
+    EXPECT_EQ("hello", s3.to_string());
+    
+    // Variant containing containers
+    using VariantType = std::variant<int, std::vector<int>, std::map<String, int>>;
+    
+    VariantType v4 = std::vector<int>{1, 2, 3};
+    String s4 = String::valueOf(v4);
+    EXPECT_EQ("[1, 2, 3]", s4.to_string());
+    
+    std::map<String, int> scores;
+    scores[String("Alice")] = 95;
+    scores[String("Bob")] = 87;
+    
+    VariantType v5 = scores;
+    String s5 = String::valueOf(v5);
+    EXPECT_EQ("{Alice=95, Bob=87}", s5.to_string());
+    
+    // Nested variant
+    std::variant<int, std::variant<double, String>> nested1 = 42;
+    std::variant<int, std::variant<double, String>> nested2;
+    nested2 = std::variant<double, String>(3.14);
+    std::variant<int, std::variant<double, String>> nested3;
+    nested3 = std::variant<double, String>(String("nested"));
+    
+    String ns1 = String::valueOf(nested1);
+    String ns2 = String::valueOf(nested2);
+    String ns3 = String::valueOf(nested3);
+    
+    EXPECT_EQ("42", ns1.to_string());
+    EXPECT_EQ("3.140000", ns2.to_string());
+    EXPECT_EQ("nested", ns3.to_string());
 }

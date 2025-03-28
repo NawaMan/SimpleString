@@ -3,6 +3,10 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <sstream>
+#include <iterator>
+#include <concepts>
+#include <variant>
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
@@ -142,6 +146,13 @@ public:
     static String valueOf(const T& obj) {
         return String(to_string_helper(obj));
     }
+    
+    // Default constructor - creates an empty string
+    String()
+        : data_(std::make_shared<const std::string>("")),
+          offset_(0),
+          length_(0),
+          utf16_cache_() {}
     
     // Constructor from C++ string literal
     explicit String(const std::string& str)
@@ -662,6 +673,29 @@ private:
     struct always_false : std::false_type {};
 
 #if __cplusplus >= 202002L  // C++20 or later
+    // Concept for container types
+    template<typename T>
+    static constexpr bool is_container = requires(T t) {
+        { t.begin() } -> std::input_or_output_iterator;
+        { t.end() } -> std::input_or_output_iterator;
+        { t.size() } -> std::convertible_to<std::size_t>;
+    };
+
+    // Concept for map-like types
+    template<typename T>
+    static constexpr bool is_map_like = is_container<T> && requires(T t) {
+        typename T::key_type;
+        typename T::mapped_type;
+        { t.begin()->first } -> std::convertible_to<typename T::key_type>;
+        { t.begin()->second } -> std::convertible_to<typename T::mapped_type>;
+    };
+    
+    // Concept for variant types
+    template<typename T>
+    static constexpr bool is_variant = requires {
+        typename std::variant_size<std::remove_cvref_t<T>>::type;
+    };
+
     // Helper function to convert any type to string
     template<typename T>
     static std::string to_string_helper(const T& obj) {
@@ -669,6 +703,39 @@ private:
             return std::to_string(obj);
         } else if constexpr (requires { obj.to_string(); }) {
             return obj.to_string();
+        } else if constexpr (is_variant<T>) {
+            // Special handling for std::variant
+            return std::visit([](const auto& value) -> std::string {
+                return to_string_helper(value);
+            }, obj);
+        } else if constexpr (is_map_like<T>) {
+            // Special handling for map-like containers (map, unordered_map, etc.)
+            std::ostringstream oss;
+            oss << "{";
+            auto it = obj.begin();
+            if (it != obj.end()) {
+                oss << to_string_helper(it->first) << "=" << to_string_helper(it->second);
+                ++it;
+            }
+            for (; it != obj.end(); ++it) {
+                oss << ", " << to_string_helper(it->first) << "=" << to_string_helper(it->second);
+            }
+            oss << "}";
+            return oss.str();
+        } else if constexpr (is_container<T>) {
+            // General handling for container types (vector, list, set, etc.)
+            std::ostringstream oss;
+            oss << "[";
+            auto it = obj.begin();
+            if (it != obj.end()) {
+                oss << to_string_helper(*it);
+                ++it;
+            }
+            for (; it != obj.end(); ++it) {
+                oss << ", " << to_string_helper(*it);
+            }
+            oss << "]";
+            return oss.str();
         } else if constexpr (requires(std::ostringstream& oss) { oss << obj; }) {
             std::ostringstream oss;
             oss << obj;
