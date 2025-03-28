@@ -14,6 +14,62 @@
 
 namespace simple {
 
+// Type traits for C++20 features
+namespace traits {
+    // Check if a type has a to_string() method
+    template<typename T, typename = void>
+    struct is_to_string_available : std::false_type {};
+    
+    template<typename T>
+    struct is_to_string_available<T, std::void_t<
+        decltype(std::declval<T>().to_string())
+    >> : std::true_type {};
+    
+    template<typename T>
+    inline constexpr bool is_to_string_available_v = is_to_string_available<T>::value;
+    
+    // Check if T is a container type
+    template<typename T, typename = void>
+    struct is_container : std::false_type {};
+    
+    template<typename T>
+    struct is_container<T, std::void_t<
+        decltype(std::declval<T>().begin()),
+        decltype(std::declval<T>().end()),
+        decltype(std::declval<T>().size())
+    >> : std::true_type {};
+    
+    template<typename T>
+    inline constexpr bool is_container_v = is_container<T>::value;
+    
+    // Check if T is a map-like type
+    template<typename T, typename = void>
+    struct is_map_like : std::false_type {};
+    
+    template<typename T>
+    struct is_map_like<T, std::void_t<
+        typename T::key_type,
+        typename T::mapped_type,
+        decltype(std::declval<T>().begin()->first),
+        decltype(std::declval<T>().begin()->second)
+    >> : is_container<T> {};
+    
+    template<typename T>
+    inline constexpr bool is_map_like_v = is_map_like<T>::value;
+    
+    // Check if T is a variant type
+    template<typename T, typename = void>
+    struct is_variant : std::false_type {};
+    
+    template<typename T>
+    struct is_variant<T, std::void_t<
+        typename std::variant_size<std::remove_cv_t<std::remove_reference_t<T>>>::type
+    >> : std::true_type {};
+    
+    template<typename T>
+    inline constexpr bool is_variant_v = is_variant<T>::value;
+}
+
 namespace detail {
 
 // One-time initialization of Boost Locale
@@ -169,24 +225,7 @@ public:
           utf16_cache_() {}
     
     // Get the length of the string in UTF-16 code units
-    std::size_t length() const {
-        // Initialize locale if needed
-        detail::init_locale();
-        
-        // Use cached UTF-16 representation if available
-        if (utf16_cache_) {
-            return utf16_cache_->length();
-        }
-        
-        // Otherwise count UTF-16 code units from UTF-8, considering offset and length
-        if (length_ == 0) {
-            return 0;
-        }
-        
-        // Create a substring view for counting
-        std::string_view view(data_->c_str() + offset_, length_);
-        return detail::count_utf16_code_units(std::string(view));
-    }
+    std::size_t length() const;
 
     /**
      * Returns true if this string is empty (length() == 0).
@@ -194,9 +233,7 @@ public:
      * 
      * @return true if the string is empty, false otherwise
      */
-    bool is_empty() const {
-        return length_ == 0;
-    }
+    bool is_empty() const;
 
     /**
      * Compares this string with another for equality using byte-by-byte comparison.
@@ -206,32 +243,7 @@ public:
      * @param other The string to compare with
      * @return true if the strings are exactly equal, false otherwise
      */
-    bool equals(const String& other) const {
-        // Fast path: check if strings share data and have same offset/length
-        if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
-            return true;
-        }
-        
-        // Otherwise do a byte-by-byte comparison of the substrings
-        // This is more efficient than creating full string copies with to_string()
-        const char* this_data = data_->c_str() + offset_;
-        const char* other_data = other.data_->c_str() + other.offset_;
-        std::size_t min_length = std::min(length_, other.length_);
-        
-        // First check if lengths are different
-        if (length_ != other.length_) {
-            return false;
-        }
-        
-        // Compare bytes until we find a difference or reach the end
-        for (std::size_t i = 0; i < min_length; ++i) {
-            if (this_data[i] != other_data[i]) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
+    bool equals(const String& other) const;
 
     /**
      * Compares this string with another lexicographically using byte-by-byte comparison.
@@ -245,20 +257,7 @@ public:
      *         - isEqual() is true if this == other
      *         - isGreater() is true if this > other
      */
-    simple::CompareResult compare_to(const String& other) const {
-        // Fast path: check if strings share data and have same offset/length
-        if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
-            return simple::CompareResult::EQUAL;
-        }
-        
-        // Otherwise compare the actual substrings
-        std::string this_str = to_string();
-        std::string other_str = other.to_string();
-        int result = detail::compare_utf8_strings(this_str, other_str);
-        if (result < 0) return simple::CompareResult::LESS;
-        if (result > 0) return simple::CompareResult::GREATER;
-        return simple::CompareResult::EQUAL;
-    }
+    simple::CompareResult compare_to(const String& other) const;
 
     /**
      * Returns the character at the specified index as a Char.
@@ -277,7 +276,7 @@ public:
      * @return The character at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    Char operator[](std::size_t index) const { return char_at(index); }
+    Char operator[](std::size_t index) const;
 
     /**
      * Returns the raw UTF-16 code unit at the specified index.
@@ -295,20 +294,7 @@ public:
      * @return The Unicode code point at the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    simple::CodePoint code_point_at(std::size_t index) const {
-        const auto& utf16 = get_utf16();
-        if (index >= utf16.length()) {
-            throw StringIndexOutOfBoundsException("Index out of bounds");
-        }
-        char16_t first = utf16[index];
-        if (first >= 0xD800 && first <= 0xDBFF && index + 1 < utf16.length()) {
-            char16_t second = utf16[index + 1];
-            if (second >= 0xDC00 && second <= 0xDFFF) {
-                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
-            }
-        }
-        return CodePoint(first);
-    }
+    simple::CodePoint code_point_at(std::size_t index) const;
 
     /**
      * Returns the Unicode code point before the specified index.
@@ -317,20 +303,7 @@ public:
      * @return The Unicode code point before the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or > length()
      */
-    simple::CodePoint code_point_before(std::size_t index) const {
-        const auto& utf16 = get_utf16();
-        if (index == 0 || index > utf16.length()) {
-            throw StringIndexOutOfBoundsException("Index out of bounds");
-        }
-        char16_t second = utf16[index - 1];
-        if (second >= 0xDC00 && second <= 0xDFFF && index >= 2) {
-            char16_t first = utf16[index - 2];
-            if (first >= 0xD800 && first <= 0xDBFF) {
-                return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
-            }
-        }
-        return CodePoint(second);
-    }
+    simple::CodePoint code_point_before(std::size_t index) const;
 
     /**
      * Returns the number of Unicode code points in the specified text range.
@@ -341,37 +314,12 @@ public:
      * @throws StringIndexOutOfBoundsException if begin_index is negative or > end_index,
      *         or end_index is > length()
      */
-    std::size_t code_point_count(std::size_t begin_index, std::size_t end_index) const {
-        const auto& utf16 = get_utf16();
-        if (begin_index > end_index || end_index > utf16.length()) {
-            throw StringIndexOutOfBoundsException("Invalid range");
-        }
-        std::size_t count = 0;
-        for (std::size_t i = begin_index; i < end_index; ++i) {
-            char16_t ch = utf16[i];
-            if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < end_index) {
-                char16_t next = utf16[i + 1];
-                if (next >= 0xDC00 && next <= 0xDFFF) {
-                    ++i;  // Skip low surrogate
-                }
-            }
-            ++count;
-        }
-        return count;
-    }
+    std::size_t code_point_count(std::size_t begin_index, std::size_t end_index) const;
 
     // Get the underlying string data
     // For substrings, returns a new string with just the substring portion
     // For full strings (offset_=0, length_=data_->length()), returns a reference to the original data
-    const std::string& to_string() const { 
-        if (offset_ == 0 && length_ == data_->length()) {
-            return *data_;  // Return reference to original for full strings
-        }
-        // For substrings, create a new string with just the substring portion
-        static thread_local std::string result;
-        result = data_->substr(offset_, length_);
-        return result;
-    }
+    const std::string& to_string() const;
 
     /**
      * Returns a string that is a substring of this string.
@@ -381,14 +329,7 @@ public:
      * @return the substring
      * @throws StringIndexOutOfBoundsException if beginIndex is larger than length()
      */
-    String substring(std::size_t beginIndex) const {
-        const auto len = length();
-        // Check if beginIndex is out of bounds
-        if (beginIndex > len) {
-            throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
-        }
-        return substring(beginIndex, len);
-    }
+    String substring(std::size_t beginIndex) const;
     
     /**
      * Returns a string that is a substring of this string.
@@ -402,152 +343,15 @@ public:
      *         endIndex is larger than length()
      *         beginIndex is larger than endIndex
      */
-    String substring(std::size_t beginIndex, std::size_t endIndex) const {
-        // Validate indices
-        const auto& utf16 = get_utf16();
-        const auto len = utf16.length();
-        
-        // Check for out of bounds conditions with more specific error messages
-        if (beginIndex > len) {
-            throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
-        }
-        if (endIndex > len) {
-            throw StringIndexOutOfBoundsException("endIndex is out of bounds");
-        }
-        if (beginIndex > endIndex) {
-            throw StringIndexOutOfBoundsException("beginIndex cannot be larger than endIndex");
-        }
-        
-        // If we're requesting the entire string, return this
-        if (beginIndex == 0 && endIndex == utf16.length()) {
-            return *this;
-        }
-        
-        // If empty substring, return empty string
-        if (beginIndex == endIndex) {
-            return String("");
-        }
-        
-        // Convert UTF-16 indices to UTF-8 byte offsets
-        // We need to find the UTF-8 byte offsets that correspond to the UTF-16 indices
-        std::size_t utf8_begin = 0;
-        std::size_t utf8_end = 0;
-        
-        // Find the UTF-8 byte offset for beginIndex
-        if (beginIndex > 0) {
-            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-            const unsigned char* end = str + length_;
-            std::size_t utf16_index = 0;
-            
-            while (str < end && utf16_index < beginIndex) {
-                if (*str < 0x80) {
-                    // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
-                    str++;
-                    utf16_index++;
-                } else if ((*str & 0xE0) == 0xC0) {
-                    // 2-byte UTF-8 sequence
-                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 2;
-                    utf16_index++;
-                } else if ((*str & 0xF0) == 0xE0) {
-                    // 3-byte UTF-8 sequence
-                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 3;
-                    utf16_index++;
-                } else if ((*str & 0xF8) == 0xF0) {
-                    // 4-byte UTF-8 sequence (surrogate pair in UTF-16)
-                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || 
-                        (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 4;
-                    utf16_index += 2;  // Surrogate pair counts as 2 UTF-16 code units
-                } else {
-                    // Invalid UTF-8 byte
-                    str++;
-                    utf16_index++;
-                }
-            }
-            
-            utf8_begin = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-        }
-        
-        // Find the UTF-8 byte offset for endIndex
-        if (endIndex > 0) {
-            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-            const unsigned char* end = str + length_;
-            std::size_t utf16_index = 0;
-            
-            while (str < end && utf16_index < endIndex) {
-                if (*str < 0x80) {
-                    // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
-                    str++;
-                    utf16_index++;
-                } else if ((*str & 0xE0) == 0xC0) {
-                    // 2-byte UTF-8 sequence
-                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 2;
-                    utf16_index++;
-                } else if ((*str & 0xF0) == 0xE0) {
-                    // 3-byte UTF-8 sequence
-                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 3;
-                    utf16_index++;
-                } else if ((*str & 0xF8) == 0xF0) {
-                    // 4-byte UTF-8 sequence (surrogate pair in UTF-16)
-                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || 
-                        (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
-                        // Invalid sequence, treat as 1 byte
-                        str++;
-                        utf16_index++;
-                        continue;
-                    }
-                    str += 4;
-                    utf16_index += 2;  // Surrogate pair counts as 2 UTF-16 code units
-                } else {
-                    // Invalid UTF-8 byte
-                    str++;
-                    utf16_index++;
-                }
-            }
-            
-            utf8_end = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-        }
-        
-        // Create a new String with the same data but adjusted offset and length
-        return String(data_, offset_ + utf8_begin, utf8_end - utf8_begin);
-    }
+    String substring(std::size_t beginIndex, std::size_t endIndex) const;
 
     // C++ operator overloads for comparison
-    bool operator==(const String& other) const { return  equals(other);                          }
-    bool operator!=(const String& other) const { return !equals(other);                          }
-    bool operator< (const String& other) const { return compare_to(other).is_less();             }
-    bool operator<=(const String& other) const { return compare_to(other).is_less_or_equal();    }
-    bool operator> (const String& other) const { return compare_to(other).is_greater();          }
-    bool operator>=(const String& other) const { return compare_to(other).is_greater_or_equal(); }
+    bool operator==(const String& other) const;
+    bool operator!=(const String& other) const;
+    bool operator< (const String& other) const;
+    bool operator<=(const String& other) const;
+    bool operator> (const String& other) const;
+    bool operator>=(const String& other) const;
 
 private:
     // Private constructor for creating substrings with shared data
@@ -560,96 +364,7 @@ private:
     mutable std::shared_ptr<const std::u16string> utf16_cache_;  // Cached UTF-16 representation
     
     // Get or create UTF-16 representation
-    const std::u16string& get_utf16() const {
-        // Double-checked locking pattern with atomic operations
-        auto cache = utf16_cache_;
-        if (!cache) {
-            // First check failed, acquire the data and create cache
-            std::u16string result;
-            const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-            const unsigned char* end = str + length_;
-            
-            while (str < end) {
-                if (*str < 0x80) {
-                    // ASCII character
-                    result.push_back(*str);
-                    str++;
-                } else if ((*str & 0xE0) == 0xC0) {
-                    // 2-byte UTF-8 sequence
-                    if (str + 1 >= end || (str[1] & 0xC0) != 0x80) {
-                        // Invalid or incomplete sequence
-                        result.push_back(0xFFFD);
-                        str++;
-                        continue;
-                    }
-                    // Check for overlong encoding
-                    unsigned int codepoint = ((str[0] & 0x1F) << 6) | (str[1] & 0x3F);
-                    if (codepoint < 0x80) {
-                        // Overlong encoding
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        str += 2;
-                        continue;
-                    }
-                    result.push_back(codepoint);
-                    str += 2;
-                } else if ((*str & 0xF0) == 0xE0) {
-                    // 3-byte UTF-8 sequence
-                    if (str + 2 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80) {
-                        // Invalid or incomplete sequence
-                        result.push_back(0xFFFD);
-                        str++;
-                        continue;
-                    }
-                    // Check for overlong encoding and surrogate range
-                    unsigned int codepoint = ((str[0] & 0x0F) << 12) | ((str[1] & 0x3F) << 6) | (str[2] & 0x3F);
-                    if (codepoint < 0x800 || (codepoint >= 0xD800 && codepoint <= 0xDFFF)) {
-                        // Overlong encoding or surrogate range
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        str += 3;
-                        continue;
-                    }
-                    result.push_back(codepoint);
-                    str += 3;
-                } else if ((*str & 0xF8) == 0xF0) {
-                    // 4-byte UTF-8 sequence
-                    if (str + 3 >= end || (str[1] & 0xC0) != 0x80 || (str[2] & 0xC0) != 0x80 || (str[3] & 0xC0) != 0x80) {
-                        // Invalid or incomplete sequence
-                        result.push_back(0xFFFD);
-                        str++;
-                        continue;
-                    }
-                    // Check for overlong encoding and valid Unicode range
-                    unsigned int codepoint = ((str[0] & 0x07) << 18) | ((str[1] & 0x3F) << 12) |
-                                            ((str[2] & 0x3F) << 6)  | (str[3] & 0x3F);
-                    if (codepoint < 0x10000 || codepoint > 0x10FFFF) {
-                        // Overlong encoding or outside Unicode range
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        result.push_back(0xFFFD);
-                        str += 4;
-                        continue;
-                    }
-                    // Convert to surrogate pair
-                    codepoint -= 0x10000;
-                    result.push_back(0xD800 + (codepoint >> 10));
-                    result.push_back(0xDC00 + (codepoint & 0x3FF));
-                    str += 4;
-                } else {
-                    // Invalid UTF-8 byte
-                    result.push_back(0xFFFD);
-                    str++;
-                }
-            }
-            
-            cache = std::make_shared<const std::u16string>(std::move(result));
-            utf16_cache_ = cache;
-        }
-        return *cache;
-    }
+    const std::u16string& get_utf16() const;
 
     /**
      * Check if this string shares the same underlying data with another string.
@@ -661,7 +376,7 @@ private:
      * @param other The string to compare with
      * @return true if both strings share the same underlying data, false otherwise
      */
-    bool shares_data_with(const String& other) const { return data_ == other.data_; }
+    bool shares_data_with(const String& other) const;
 
     // Allow test fixtures to access private members
     friend class StringTest;
@@ -672,44 +387,31 @@ private:
     template<typename T>
     struct always_false : std::false_type {};
 
-#if __cplusplus >= 202002L  // C++20 or later
-    // Concept for container types
-    template<typename T>
-    static constexpr bool is_container = requires(T t) {
-        { t.begin() } -> std::input_or_output_iterator;
-        { t.end() } -> std::input_or_output_iterator;
-        { t.size() } -> std::convertible_to<std::size_t>;
-    };
-
-    // Concept for map-like types
-    template<typename T>
-    static constexpr bool is_map_like = is_container<T> && requires(T t) {
-        typename T::key_type;
-        typename T::mapped_type;
-        { t.begin()->first } -> std::convertible_to<typename T::key_type>;
-        { t.begin()->second } -> std::convertible_to<typename T::mapped_type>;
-    };
-    
-    // Concept for variant types
-    template<typename T>
-    static constexpr bool is_variant = requires {
-        typename std::variant_size<std::remove_cvref_t<T>>::type;
-    };
+    // Using the always_false from namespace scope
 
     // Helper function to convert any type to string
     template<typename T>
     static std::string to_string_helper(const T& obj) {
-        if constexpr (requires { std::to_string(obj); }) {
+        // For arithmetic types (int, float, etc.), use std::to_string
+        if constexpr (std::is_arithmetic_v<T>) {
             return std::to_string(obj);
-        } else if constexpr (requires { obj.to_string(); }) {
+        } 
+        // For std::string, return as is
+        else if constexpr (std::is_same_v<T, std::string>) {
+            return obj;
+        }
+        // For types with a to_string() method (SFINAE approach)
+        else if constexpr (simple::traits::is_to_string_available<T>::value) {
             return obj.to_string();
-        } else if constexpr (is_variant<T>) {
-            // Special handling for std::variant
+        }
+        // For variant types
+        else if constexpr (simple::traits::is_variant_v<T>) {
             return std::visit([](const auto& value) -> std::string {
                 return to_string_helper(value);
             }, obj);
-        } else if constexpr (is_map_like<T>) {
-            // Special handling for map-like containers (map, unordered_map, etc.)
+        }
+        // For map-like containers (map, unordered_map, etc.)
+        else if constexpr (simple::traits::is_map_like_v<T>) {
             std::ostringstream oss;
             oss << "{";
             auto it = obj.begin();
@@ -722,8 +424,9 @@ private:
             }
             oss << "}";
             return oss.str();
-        } else if constexpr (is_container<T>) {
-            // General handling for container types (vector, list, set, etc.)
+        }
+        // For container types (vector, list, set, etc.)
+        else if constexpr (simple::traits::is_container_v<T>) {
             std::ostringstream oss;
             oss << "[";
             auto it = obj.begin();
@@ -736,23 +439,14 @@ private:
             }
             oss << "]";
             return oss.str();
-        } else if constexpr (requires(std::ostringstream& oss) { oss << obj; }) {
+        }
+        // Default case: try to use operator<< if available
+        else {
             std::ostringstream oss;
             oss << obj;
             return oss.str();
-        } else {
-            static_assert(always_false<T>::value, "No conversion to string available for this type");
-            return ""; // Unreachable, but needed to avoid compiler warnings
         }
     }
-#else  // Before C++20
-    // Helper function to convert any type to string (fallback for pre-C++20)
-    template<typename T>
-    static std::string to_string_helper(const T& obj) {
-        // Use SFINAE or other pre-C++20 techniques if needed
-        return std::to_string(obj);  // This will only work for numeric types
-    }
-#endif
 };
 
 } // namespace simple
