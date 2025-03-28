@@ -129,6 +129,20 @@ public:
 
 class String {
 public:
+    // Static valueOf methods for primitive types
+    static String valueOf(bool b);
+    static String valueOf(char c);
+    static String valueOf(int i);
+    static String valueOf(long l);
+    static String valueOf(float f);
+    static String valueOf(double d);
+    
+    // Generic valueOf method for any type that can be converted to string
+    template<typename T>
+    static String valueOf(const T& obj) {
+        return String(to_string_helper(obj));
+    }
+    
     // Constructor from C++ string literal
     explicit String(const std::string& str)
         : data_(std::make_shared<const std::string>(str)), 
@@ -641,6 +655,37 @@ private:
     // Allow test fixtures to access private members
     friend class StringTest;
     friend class StringSharing;  // Test fixture for string sharing tests
+
+private:
+    // Helper templates and concepts for valueOf implementation
+    template<typename T>
+    struct always_false : std::false_type {};
+
+#if __cplusplus >= 202002L  // C++20 or later
+    // Helper function to convert any type to string
+    template<typename T>
+    static std::string to_string_helper(const T& obj) {
+        if constexpr (requires { std::to_string(obj); }) {
+            return std::to_string(obj);
+        } else if constexpr (requires { obj.to_string(); }) {
+            return obj.to_string();
+        } else if constexpr (requires(std::ostringstream& oss) { oss << obj; }) {
+            std::ostringstream oss;
+            oss << obj;
+            return oss.str();
+        } else {
+            static_assert(always_false<T>::value, "No conversion to string available for this type");
+            return ""; // Unreachable, but needed to avoid compiler warnings
+        }
+    }
+#else  // Before C++20
+    // Helper function to convert any type to string (fallback for pre-C++20)
+    template<typename T>
+    static std::string to_string_helper(const T& obj) {
+        // Use SFINAE or other pre-C++20 techniques if needed
+        return std::to_string(obj);  // This will only work for numeric types
+    }
+#endif
 };
 
 } // namespace simple

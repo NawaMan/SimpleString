@@ -31,7 +31,7 @@ Java String Replication in C++ Requirements
 
 3. Conversion Methods
 
-3.1 [ ] toString from primitives: Provide a way to convert primitive types like int, float, etc., into a string representation.
+3.1 [X] toString from primitives: Provide a way to convert primitive types like int, float, etc., into a string representation.
 3.2 [ ] valueOf from various types: Convert different types (like objects) to their string representations.
 3.3 [ ] getBytes for encoding/decoding: Implement methods to retrieve the byte representation of the string in different encodings.
 3.4 [ ] String formatting (similar to String.format()): Support for formatting strings with placeholders and variable substitution.

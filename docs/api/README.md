@@ -31,6 +31,15 @@ String(const char* str, std::size_t length);
 - `String substring(std::size_t beginIndex) const`: Extract substring from beginIndex to end
 - `String substring(std::size_t beginIndex, std::size_t endIndex) const`: Extract substring from beginIndex to endIndex-1
 
+#### Static valueOf Methods
+- `static String valueOf(bool b)`: Returns a String representation of the boolean argument
+- `static String valueOf(char c)`: Returns a String representation of the char argument
+- `static String valueOf(int i)`: Returns a String representation of the int argument
+- `static String valueOf(long l)`: Returns a String representation of the long argument
+- `static String valueOf(float f)`: Returns a String representation of the float argument
+- `static String valueOf(double d)`: Returns a String representation of the double argument
+- `template<typename T> static String valueOf(const T& obj)`: Generic method to convert any type to a String
+
 ### `Char`
 Represents a UTF-16 code unit, similar to Java's Character.
 
