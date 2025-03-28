@@ -22,7 +22,7 @@ Java String Replication in C++ Requirements
 
 2. Search and Manipulation
 
-2.1 [ ] Character access by index: Provide functionality to access individual characters by their index in the string.
+2.1 [X] Character access by index: Provide functionality to access individual characters by their index in the string.
 2.2 [ ] Index functions (indexOf, lastIndexOf): Implement methods for finding the first or last occurrence of a substring or character.
 2.3 [ ] Methods like contains, startsWith, endsWith: Implement methods to check if the string contains, starts with, or ends with a specified substring.
 2.4 [ ] Replace (replace, replaceAll): Enable character or substring replacement within the string.
@@ -38,12 +38,12 @@ Java String Replication in C++ Requirements
 
 4. Unicode Support
 
-4.1 [ ] Full Unicode support, code point handling (like Java's codePointAt): Implement support for multi-byte characters and handling Unicode code points.
-4.2 [ ] UTF-16 surrogate pair handling: Ensure that characters encoded as surrogate pairs are correctly managed (particularly for code points beyond the Basic Multilingual Plane).
+4.1 [X] Full Unicode support, code point handling (like Java's codePointAt): Implement support for multi-byte characters and handling Unicode code points.
+4.2 [X] UTF-16 surrogate pair handling: Ensure that characters encoded as surrogate pairs are correctly managed (particularly for code points beyond the Basic Multilingual Plane).
 
 5. Performance Considerations
 
-5.1 [ ] Efficient memory management: Optimize memory usage to handle large strings or frequent string manipulations efficiently.
+5.1 [X] Efficient memory management: Optimize memory usage to handle large strings or frequent string manipulations efficiently.
 5.2 [ ] String interning: Implement string interning to avoid duplication of identical strings in memory.
 5.3 [ ] StringBuilder/mutable string operations: Provide a mutable string class for efficient concatenation or modification, similar to Java’s StringBuilder/StringBuffer.
 
