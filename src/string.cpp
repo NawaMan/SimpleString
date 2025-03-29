@@ -4,15 +4,15 @@
 
 namespace simple {
 
-auto String::char_at(std::size_t index) const -> Char {
+auto String::char_at(Index index) const -> Char {
     const auto& utf16 = get_utf16();
-    if (index >= utf16.length()) {
+    if (index.value() >= utf16.length()) {
         throw StringIndexOutOfBoundsException("Index out of bounds");
     }
-    return Char(utf16[index]);
+    return Char(utf16[index.value()]);
 }
 
-auto String::char_value(std::size_t index) const -> char16_t {
+auto String::char_value(Index index) const -> char16_t {
     return char_at(index).value();
 }
 
@@ -117,18 +117,18 @@ simple::CompareResult String::compare_to(const String& other) const {
     return simple::CompareResult::EQUAL;
 }
 
-Char String::operator[](std::size_t index) const { 
+Char String::operator[](Index index) const { 
     return char_at(index); 
 }
 
-simple::CodePoint String::code_point_at(std::size_t index) const {
+simple::CodePoint String::code_point_at(Index index) const {
     const auto& utf16 = get_utf16();
-    if (index >= utf16.length()) {
+    if (index.value() >= utf16.length()) {
         throw StringIndexOutOfBoundsException("Index out of bounds");
     }
-    char16_t first = utf16[index];
-    if (first >= 0xD800 && first <= 0xDBFF && index + 1 < utf16.length()) {
-        char16_t second = utf16[index + 1];
+    char16_t first = utf16[index.value()];
+    if (first >= 0xD800 && first <= 0xDBFF && index.value() + 1 < utf16.length()) {
+        char16_t second = utf16[index.value() + 1];
         if (second >= 0xDC00 && second <= 0xDFFF) {
             return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
         }
@@ -136,14 +136,14 @@ simple::CodePoint String::code_point_at(std::size_t index) const {
     return CodePoint(first);
 }
 
-simple::CodePoint String::code_point_before(std::size_t index) const {
+simple::CodePoint String::code_point_before(Index index) const {
     const auto& utf16 = get_utf16();
-    if (index == 0 || index > utf16.length()) {
+    if (index.value() == 0 || index.value() > utf16.length()) {
         throw StringIndexOutOfBoundsException("Index out of bounds");
     }
-    char16_t second = utf16[index - 1];
-    if (second >= 0xDC00 && second <= 0xDFFF && index >= 2) {
-        char16_t first = utf16[index - 2];
+    char16_t second = utf16[index.value() - 1];
+    if (second >= 0xDC00 && second <= 0xDFFF && index.value() >= 2) {
+        char16_t first = utf16[index.value() - 2];
         if (first >= 0xD800 && first <= 0xDBFF) {
             return CodePoint(0x10000 + ((first - 0xD800) << 10) + (second - 0xDC00));
         }
@@ -151,15 +151,15 @@ simple::CodePoint String::code_point_before(std::size_t index) const {
     return CodePoint(second);
 }
 
-std::size_t String::code_point_count(std::size_t begin_index, std::size_t end_index) const {
+std::size_t String::code_point_count(Index begin_index, Index end_index) const {
     const auto& utf16 = get_utf16();
-    if (begin_index > end_index || end_index > utf16.length()) {
+    if (begin_index.value() > end_index.value() || end_index.value() > utf16.length()) {
         throw StringIndexOutOfBoundsException("Invalid range");
     }
     std::size_t count = 0;
-    for (std::size_t i = begin_index; i < end_index; ++i) {
+    for (std::size_t i = begin_index.value(); i < end_index.value(); ++i) {
         char16_t ch = utf16[i];
-        if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < end_index) {
+        if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < end_index.value()) {
             char16_t next = utf16[i + 1];
             if (next >= 0xDC00 && next <= 0xDFFF) {
                 ++i;  // Skip low surrogate
@@ -180,28 +180,28 @@ const std::string& String::to_string() const {
     return result;
 }
 
-String String::substring(std::size_t beginIndex) const {
+String String::substring(Index beginIndex) const {
     const auto len = length();
     // Check if beginIndex is out of bounds
-    if (beginIndex > len) {
+    if (beginIndex.value() > len) {
         throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
     }
-    return substring(beginIndex, len);
+    return substring(beginIndex, Index(len));
 }
 
-String String::substring(std::size_t beginIndex, std::size_t endIndex) const {
+String String::substring(Index beginIndex, Index endIndex) const {
     // Validate indices
     const auto& utf16 = get_utf16();
     const auto len = utf16.length();
     
     // Check for out of bounds conditions with more specific error messages
-    if (beginIndex > len) {
+    if (beginIndex.value() > len) {
         throw StringIndexOutOfBoundsException("beginIndex is out of bounds");
     }
-    if (endIndex > len) {
+    if (endIndex.value() > len) {
         throw StringIndexOutOfBoundsException("endIndex is out of bounds");
     }
-    if (beginIndex > endIndex) {
+    if (beginIndex.value() > endIndex.value()) {
         throw StringIndexOutOfBoundsException("beginIndex cannot be larger than endIndex");
     }
     
@@ -226,7 +226,7 @@ String String::substring(std::size_t beginIndex, std::size_t endIndex) const {
         const unsigned char* end = str + length_;
         std::size_t utf16_index = 0;
         
-        while (str < end && utf16_index < beginIndex) {
+        while (str < end && utf16_index < beginIndex.value()) {
             if (*str < 0x80) {
                 // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
                 str++;
@@ -278,7 +278,7 @@ String String::substring(std::size_t beginIndex, std::size_t endIndex) const {
         const unsigned char* end = str + length_;
         std::size_t utf16_index = 0;
         
-        while (str < end && utf16_index < endIndex) {
+        while (str < end && utf16_index < endIndex.value()) {
             if (*str < 0x80) {
                 // ASCII character (1 byte in UTF-8, 1 unit in UTF-16)
                 str++;
@@ -447,6 +447,136 @@ const std::u16string& String::get_utf16() const {
 
 bool String::shares_data_with(const String& other) const { 
     return data_ == other.data_; 
+}
+
+// Implementation of indexOf methods
+Index String::indexOf(Char ch) const {
+    return indexOf(ch, Index(0));
+}
+
+Index String::indexOf(Char ch, Index fromIndex) const {
+    const auto& utf16 = get_utf16();
+    const std::size_t len = utf16.length();
+    
+    // Check if fromIndex is out of bounds
+    if (fromIndex.value() >= len) {
+        return Index::invalid;
+    }
+    
+    // Search for the character
+    for (std::size_t i = fromIndex.value(); i < len; ++i) {
+        if (utf16[i] == ch.value()) {
+            return Index(i);
+        }
+    }
+    
+    return Index::invalid;
+}
+
+Index String::indexOf(const String& str) const {
+    return indexOf(str, Index(0));
+}
+
+Index String::indexOf(const String& str, Index fromIndex) const {
+    const auto& utf16 = get_utf16();
+    const auto& str_utf16 = str.get_utf16();
+    const std::size_t len = utf16.length();
+    const std::size_t str_len = str_utf16.length();
+    
+    // Empty string case - always matches at fromIndex if within bounds
+    if (str_len == 0) {
+        return (fromIndex.value() <= len) ? fromIndex : Index::invalid;
+    }
+    
+    // If fromIndex is out of bounds or the substring is longer than the remaining string
+    if (fromIndex.value() >= len || fromIndex.value() + str_len > len) {
+        return Index::invalid;
+    }
+    
+    // Search for the substring
+    for (std::size_t i = fromIndex.value(); i <= len - str_len; ++i) {
+        bool found = true;
+        for (std::size_t j = 0; j < str_len; ++j) {
+            if (utf16[i + j] != str_utf16[j]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            return Index(i);
+        }
+    }
+    
+    return Index::invalid;
+}
+
+// Implementation of lastIndexOf methods
+Index String::lastIndexOf(Char ch) const {
+    const auto& utf16 = get_utf16();
+    return lastIndexOf(ch, Index(utf16.length() - 1));
+}
+
+Index String::lastIndexOf(Char ch, Index fromIndex) const {
+    const auto& utf16 = get_utf16();
+    const std::size_t len = utf16.length();
+    
+    // If string is empty or fromIndex is out of bounds
+    if (len == 0 || fromIndex.value() >= len) {
+        fromIndex = len > 0 ? Index(len - 1) : Index(0);
+    }
+    
+    // Search backward from fromIndex
+    for (std::size_t i = fromIndex.value() + 1; i > 0; --i) {
+        if (utf16[i - 1] == ch.value()) {
+            return Index(i - 1);
+        }
+    }
+    
+    return Index::invalid;
+}
+
+Index String::lastIndexOf(const String& str) const {
+    const auto& utf16 = get_utf16();
+    return lastIndexOf(str, Index(utf16.length()));
+}
+
+Index String::lastIndexOf(const String& str, Index fromIndex) const {
+    const auto& utf16 = get_utf16();
+    const auto& str_utf16 = str.get_utf16();
+    const std::size_t len = utf16.length();
+    const std::size_t str_len = str_utf16.length();
+    
+    // Empty string case
+    if (str_len == 0) {
+        return (fromIndex.value() <= len) ? fromIndex : Index(len);
+    }
+    
+    // If string is empty or substring is longer than the string
+    if (len == 0 || str_len > len) {
+        return Index::invalid;
+    }
+    
+    // Adjust fromIndex if it's out of bounds
+    if (fromIndex.value() >= len) {
+        fromIndex = Index(len - str_len);
+    } else if (fromIndex.value() + str_len > len) {
+        fromIndex = Index(len - str_len);
+    }  // Search backward from fromIndex
+    for (std::size_t i = fromIndex.value() + 1; i > 0; --i) {
+        std::size_t start = i - 1;
+        bool found = true;
+        for (std::size_t j = 0; j < str_len; ++j) {
+            if (start + j >= len || utf16[start + j] != str_utf16[j]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            return Index(start);
+        }
+    }
+    
+    return Index::invalid;
 }
 
 } // namespace simple

@@ -23,7 +23,7 @@ Java String Replication in C++ Requirements
 2. Search and Manipulation
 
 2.1 [X] Character access by index: Provide functionality to access individual characters by their index in the string.
-2.2 [ ] Index functions (indexOf, lastIndexOf): Implement methods for finding the first or last occurrence of a substring or character.
+2.2 [X] Index functions (indexOf, lastIndexOf): Implement methods for finding the first or last occurrence of a substring or character.
 2.3 [ ] Methods like contains, startsWith, endsWith: Implement methods to check if the string contains, starts with, or ends with a specified substring.
 2.4 [ ] Replace (replace, replaceAll): Enable character or substring replacement within the string.
 2.5 [ ] Split by delimiter, Join with delimiter: Provide methods for splitting the string based on a delimiter and joining multiple strings with a delimiter.
@@ -32,7 +32,7 @@ Java String Replication in C++ Requirements
 3. Conversion Methods
 
 3.1 [X] toString from primitives: Provide a way to convert primitive types like int, float, etc., into a string representation.
-3.2 [ ] valueOf from various types: Convert different types (like objects) to their string representations.
+3.2 [X] valueOf from various types: Convert different types (like objects) to their string representations.
 3.3 [ ] getBytes for encoding/decoding: Implement methods to retrieve the byte representation of the string in different encodings.
 3.4 [ ] String formatting (similar to String.format()): Support for formatting strings with placeholders and variable substitution.
 

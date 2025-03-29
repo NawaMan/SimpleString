@@ -14,6 +14,9 @@ namespace simple {
  * 4. Value comparison operators
  */
 class Char {
+    
+    char16_t value_;  // UTF-16 code unit
+
 public:
     // Special values
     static constexpr char32_t INVALID_CODEPOINT = 0xFFFFFFFF;
@@ -70,8 +73,6 @@ public:
     constexpr bool operator> (Char other) const noexcept { return value_ >  other.value_; }
     constexpr bool operator<=(Char other) const noexcept { return value_ <= other.value_; }
     constexpr bool operator>=(Char other) const noexcept { return value_ >= other.value_; }
-
-    char16_t value_;  // UTF-16 code unit
 };
 
 } // namespace simple

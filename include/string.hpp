@@ -4,13 +4,12 @@
 #include <memory>
 #include <stdexcept>
 #include <sstream>
-#include <iterator>
-#include <concepts>
 #include <variant>
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
 #include "code_point.hpp"
+#include "index.hpp"
 
 namespace simple {
 
@@ -267,7 +266,7 @@ public:
      * @return The character at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()B
      */
-    Char char_at(std::size_t index) const;
+    Char char_at(Index index) const;
 
     /**
      * Array-style access to characters. Equivalent to charAt().
@@ -276,7 +275,7 @@ public:
      * @return The character at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    Char operator[](std::size_t index) const;
+    Char operator[](Index index) const;
 
     /**
      * Returns the raw UTF-16 code unit at the specified index.
@@ -285,7 +284,7 @@ public:
      * @return The UTF-16 code unit at the specified index
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    char16_t char_value(std::size_t index) const;
+    char16_t char_value(Index index) const;
 
     /**
      * Returns the Unicode code point at the specified index.
@@ -294,7 +293,7 @@ public:
      * @return The Unicode code point at the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or >= length()
      */
-    simple::CodePoint code_point_at(std::size_t index) const;
+    simple::CodePoint code_point_at(Index index) const;
 
     /**
      * Returns the Unicode code point before the specified index.
@@ -303,7 +302,7 @@ public:
      * @return The Unicode code point before the specified index as a CodePoint object
      * @throws StringIndexOutOfBoundsException if index is negative or > length()
      */
-    simple::CodePoint code_point_before(std::size_t index) const;
+    simple::CodePoint code_point_before(Index index) const;
 
     /**
      * Returns the number of Unicode code points in the specified text range.
@@ -314,7 +313,7 @@ public:
      * @throws StringIndexOutOfBoundsException if begin_index is negative or > end_index,
      *         or end_index is > length()
      */
-    std::size_t code_point_count(std::size_t begin_index, std::size_t end_index) const;
+    std::size_t code_point_count(Index begin_index, Index end_index) const;
 
     // Get the underlying string data
     // For substrings, returns a new string with just the substring portion
@@ -329,7 +328,7 @@ public:
      * @return the substring
      * @throws StringIndexOutOfBoundsException if beginIndex is larger than length()
      */
-    String substring(std::size_t beginIndex) const;
+    String substring(Index beginIndex) const;
     
     /**
      * Returns a string that is a substring of this string.
@@ -343,7 +342,7 @@ public:
      *         endIndex is larger than length()
      *         beginIndex is larger than endIndex
      */
-    String substring(std::size_t beginIndex, std::size_t endIndex) const;
+    String substring(Index beginIndex, Index endIndex) const;
 
     // C++ operator overloads for comparison
     bool operator==(const String& other) const;
@@ -352,6 +351,86 @@ public:
     bool operator<=(const String& other) const;
     bool operator> (const String& other) const;
     bool operator>=(const String& other) const;
+
+    /**
+     * Returns the index within this string of the first occurrence of the specified character.
+     * 
+     * @param ch a character
+     * @return the index of the first occurrence of the character in the string,
+     *         or Index::invalid if the character does not occur
+     */
+    Index indexOf(Char ch) const;
+    
+    /**
+     * Returns the index within this string of the first occurrence of the specified character,
+     * starting the search at the specified index.
+     *
+     * @param ch a character
+     * @param fromIndex the index to start the search from
+     * @return the index of the first occurrence of the character in the string,
+     *         or Index::invalid if the character does not occur
+     */
+    Index indexOf(Char ch, Index fromIndex) const;
+    
+    /**
+     * Returns the index within this string of the first occurrence of the specified substring.
+     *
+     * @param str the substring to search for
+     * @return the index of the first occurrence of the specified substring,
+     *         or Index::invalid if there is no such occurrence
+     */
+    Index indexOf(const String& str) const;
+    
+    /**
+     * Returns the index within this string of the first occurrence of the specified substring,
+     * starting at the specified index.
+     *
+     * @param str the substring to search for
+     * @param fromIndex the index to start the search from
+     * @return the index of the first occurrence of the specified substring,
+     *         starting at the specified index, or Index::invalid if there is no such occurrence
+     */
+    Index indexOf(const String& str, Index fromIndex) const;
+    
+    /**
+     * Returns the index within this string of the last occurrence of the specified character.
+     *
+     * @param ch a character
+     * @return the index of the last occurrence of the character in the string,
+     *         or Index::invalid if the character does not occur
+     */
+    Index lastIndexOf(Char ch) const;
+    
+    /**
+     * Returns the index within this string of the last occurrence of the specified character,
+     * searching backward starting at the specified index.
+     *
+     * @param ch a character
+     * @param fromIndex the index to start the search from
+     * @return the index of the last occurrence of the character in the string,
+     *         or Index::invalid if the character does not occur
+     */
+    Index lastIndexOf(Char ch, Index fromIndex) const;
+    
+    /**
+     * Returns the index within this string of the last occurrence of the specified substring.
+     *
+     * @param str the substring to search for
+     * @return the index of the last occurrence of the specified substring,
+     *         or Index::invalid if there is no such occurrence
+     */
+    Index lastIndexOf(const String& str) const;
+    
+    /**
+     * Returns the index within this string of the last occurrence of the specified substring,
+     * searching backward starting at the specified index.
+     *
+     * @param str the substring to search for
+     * @param fromIndex the index to start the search from
+     * @return the index of the last occurrence of the specified substring,
+     *         starting at the specified index, or Index::invalid if there is no such occurrence
+     */
+    Index lastIndexOf(const String& str, Index fromIndex) const;
 
 private:
     // Private constructor for creating substrings with shared data

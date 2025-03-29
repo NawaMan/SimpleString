@@ -116,6 +116,8 @@ if(BUILD_TESTING)
         tests/code_point_test.cpp
         tests/string_substring_test.cpp
         tests/string_valueof_test.cpp
+        tests/string_indexof_test.cpp
+        tests/index_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE
