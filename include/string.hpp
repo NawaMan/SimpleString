@@ -432,6 +432,43 @@ public:
      */
     Index lastIndexOf(const String& str, Index fromIndex) const;
 
+    /**
+     * Returns true if and only if this string contains the specified sequence of char values.
+     * 
+     * @param str the sequence to search for
+     * @return true if this string contains the specified sequence, false otherwise
+     */
+    bool contains(const String& str) const;
+    
+    /**
+     * Tests if this string starts with the specified prefix.
+     * 
+     * @param prefix the prefix
+     * @return true if the character sequence represented by the argument is a prefix of the
+     *         character sequence represented by this string; false otherwise
+     */
+    bool startsWith(const String& prefix) const;
+    
+    /**
+     * Tests if the substring of this string beginning at the specified index starts with the specified prefix.
+     * 
+     * @param prefix the prefix
+     * @param offset where to begin looking in this string
+     * @return true if the character sequence represented by the argument is a prefix of the
+     *         substring of this object starting at index offset; false otherwise
+     * @throws StringIndexOutOfBoundsException if offset is negative or greater than the length of this string
+     */
+    bool startsWith(const String& prefix, Index offset) const;
+    
+    /**
+     * Tests if this string ends with the specified suffix.
+     * 
+     * @param suffix the suffix
+     * @return true if the character sequence represented by the argument is a suffix of the
+     *         character sequence represented by this object; false otherwise
+     */
+    bool endsWith(const String& suffix) const;
+
 private:
     // Private constructor for creating substrings with shared data
     String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)

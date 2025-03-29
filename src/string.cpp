@@ -579,4 +579,75 @@ Index String::lastIndexOf(const String& str, Index fromIndex) const {
     return Index::invalid;
 }
 
+// Implementation of string matching methods
+bool String::contains(const String& str) const {
+    // Leverage the existing indexOf method
+    return indexOf(str) != Index::invalid;
+}
+
+bool String::startsWith(const String& prefix) const {
+    // Delegate to the offset version with offset 0
+    return startsWith(prefix, Index(0));
+}
+
+bool String::startsWith(const String& prefix, Index offset) const {
+    const auto& utf16 = get_utf16();
+    const auto& prefix_utf16 = prefix.get_utf16();
+    const std::size_t len = utf16.length();
+    const std::size_t prefix_len = prefix_utf16.length();
+    
+    // Check if offset is out of bounds
+    if (offset.value() > len) {
+        throw StringIndexOutOfBoundsException("offset is out of bounds");
+    }
+    
+    // Empty prefix is always a prefix of any string
+    if (prefix_len == 0) {
+        return true;
+    }
+    
+    // If the remaining string is shorter than the prefix, it can't start with the prefix
+    if (len - offset.value() < prefix_len) {
+        return false;
+    }
+    
+    // Compare characters directly
+    for (std::size_t i = 0; i < prefix_len; ++i) {
+        if (utf16[offset.value() + i] != prefix_utf16[i]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool String::endsWith(const String& suffix) const {
+    const auto& utf16 = get_utf16();
+    const auto& suffix_utf16 = suffix.get_utf16();
+    const std::size_t len = utf16.length();
+    const std::size_t suffix_len = suffix_utf16.length();
+    
+    // Empty suffix is always a suffix of any string
+    if (suffix_len == 0) {
+        return true;
+    }
+    
+    // If the string is shorter than the suffix, it can't end with the suffix
+    if (len < suffix_len) {
+        return false;
+    }
+    
+    // Calculate the starting position for comparison
+    const std::size_t start = len - suffix_len;
+    
+    // Compare characters directly
+    for (std::size_t i = 0; i < suffix_len; ++i) {
+        if (utf16[start + i] != suffix_utf16[i]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 } // namespace simple

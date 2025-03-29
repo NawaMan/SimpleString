@@ -6,17 +6,17 @@ Implement Java-like string matching methods (contains, startsWith, endsWith) for
 ## Requirements
 
 1. Core Methods (Java API)
-   - [ ] `bool contains(const String& str) const`: Returns true if and only if this string contains the specified sequence of char values
-   - [ ] `bool startsWith(const String& prefix) const`: Tests if this string starts with the specified prefix
-   - [ ] `bool startsWith(const String& prefix, Index offset) const`: Tests if the substring of this string beginning at the specified index starts with the specified prefix
-   - [ ] `bool endsWith(const String& suffix) const`: Tests if this string ends with the specified suffix
+   - [x] `bool contains(const String& str) const`: Returns true if and only if this string contains the specified sequence of char values
+   - [x] `bool startsWith(const String& prefix) const`: Tests if this string starts with the specified prefix
+   - [x] `bool startsWith(const String& prefix, Index offset) const`: Tests if the substring of this string beginning at the specified index starts with the specified prefix
+   - [x] `bool endsWith(const String& suffix) const`: Tests if this string ends with the specified suffix
 
 2. Behavior Requirements
-   - [ ] Match Java's UTF-16 code unit indexing for all operations
-   - [ ] Properly handle empty strings and empty search strings
-   - [ ] Handle surrogate pairs correctly
-   - [ ] Maintain consistent behavior with Java's String implementation
-   - [ ] Optimize for performance where possible
+   - [x] Match Java's UTF-16 code unit indexing for all operations
+   - [x] Properly handle empty strings and empty search strings
+   - [x] Handle surrogate pairs correctly
+   - [x] Maintain consistent behavior with Java's String implementation
+   - [x] Optimize for performance where possible
 
 ## Implementation Plan
 
