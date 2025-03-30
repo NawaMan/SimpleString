@@ -18,7 +18,7 @@ Java String Replication in C++ Requirements
 1.4 [X] Substring extraction: Provide a way to extract parts of the string based on indices, similar to Java’s substring().
 1.5 [X] Comparison (equals, compareTo): Implement methods to compare strings for equality and lexicographical order.
 1.6 [X] Case conversion (toUpperCase, toLowerCase): Support transforming the string to either uppercase or lowercase.
-1.7 [ ] Trimming (trim, trimStart, trimEnd): Implement methods to remove leading and/or trailing whitespace from the string.
+1.7 [X] Trimming (trim, trimStart, trimEnd): Implement methods to remove leading and/or trailing whitespace from the string.
 
 2. Search and Manipulation
 
