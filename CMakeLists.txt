@@ -118,6 +118,7 @@ if(BUILD_TESTING)
         tests/string_valueof_test.cpp
         tests/string_indexof_test.cpp
         tests/string_matching_test.cpp
+        tests/string_trimming_test.cpp
         tests/index_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})

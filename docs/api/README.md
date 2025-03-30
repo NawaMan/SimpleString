@@ -31,6 +31,13 @@ String(const char* str, std::size_t length);
 - `String substring(std::size_t beginIndex) const`: Extract substring from beginIndex to end
 - `String substring(std::size_t beginIndex, std::size_t endIndex) const`: Extract substring from beginIndex to endIndex-1
 
+#### String Trimming Methods
+- `String trim() const`: Removes ASCII whitespace from both ends of the string
+- `String strip() const`: Removes Unicode whitespace from both ends of the string
+- `String stripLeading() const`: Removes Unicode whitespace from the beginning of the string
+- `String stripTrailing() const`: Removes Unicode whitespace from the end of the string
+- `bool isStripped() const`: Returns true if the string has no leading or trailing Unicode whitespace
+
 #### Static valueOf Methods
 - `static String valueOf(bool b)`: Returns a String representation of the boolean argument
 - `static String valueOf(char c)`: Returns a String representation of the char argument
@@ -116,5 +123,19 @@ if (str1.equals(str2)) {
 CompareResult result = str1.compare_to(str2);
 if (result.is_less()) {
     // str1 comes before str2
+}
+
+// String trimming
+String text = "  Hello, world!  ";
+String trimmed = text.trim();      // Removes ASCII whitespace: "Hello, world!"
+String stripped = text.strip();    // Removes Unicode whitespace: "Hello, world!"
+
+// Remove only leading or trailing whitespace
+String noLeading = text.stripLeading();    // "Hello, world!  "
+String noTrailing = text.stripTrailing();  // "  Hello, world!"
+
+// Check if a string has no leading/trailing whitespace
+if (trimmed.isStripped()) {
+    // String has no leading or trailing whitespace
 }
 ```

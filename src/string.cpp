@@ -650,4 +650,418 @@ bool String::endsWith(const String& suffix) const {
     return true;
 }
 
+// Implementation of string trimming methods
+
+String String::trim() const {
+    // Fast path: if string is empty, return this
+    if (is_empty()) {
+        return *this;
+    }
+    
+    // Get UTF-16 representation for proper indexing
+    const auto& utf16 = get_utf16();
+    
+    // Find start index (first non-ASCII whitespace character)
+    std::size_t start = 0;
+    while (start < utf16.length()) {
+        char16_t ch = utf16[start];
+        // Only trim ASCII whitespace (ch <= 0x20)
+        // But make sure it's actually whitespace and not null or control characters
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            ++start;
+        } else {
+            break;
+        }
+    }
+    
+    // If the entire string is whitespace, return empty string
+    if (start == utf16.length()) {
+        return String();
+    }
+    
+    // Find end index (last non-ASCII whitespace character)
+    std::size_t end = utf16.length() - 1;
+    while (end > start) {
+        char16_t ch = utf16[end];
+        // Only trim ASCII whitespace (ch <= 0x20)
+        // But make sure it's actually whitespace and not null or control characters
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            --end;
+        } else {
+            break;
+        }
+    }
+    
+    // If no trimming needed, return the original string
+    if (start == 0 && end == utf16.length() - 1) {
+        return *this;
+    }
+    
+    // Return the trimmed substring
+    return substring(Index(start), Index(end + 1));
+}
+
+String String::strip() const {
+    // Fast path: if string is empty, return this
+    if (is_empty()) {
+        return *this;
+    }
+    
+    // Get UTF-16 representation for proper indexing
+    const auto& utf16 = get_utf16();
+    
+    // Find start index (first non-whitespace character)
+    std::size_t start = 0;
+    while (start < utf16.length()) {
+        char16_t ch = utf16[start];
+        // Convert to UTF-32 for proper Unicode character classification
+        uint32_t codepoint;
+        if (ch >= 0xD800 && ch <= 0xDBFF && start + 1 < utf16.length()) {
+            char16_t low = utf16[start + 1];
+            if (low >= 0xDC00 && low <= 0xDFFF) {
+                // Surrogate pair
+                codepoint = 0x10000 + ((ch - 0xD800) << 10) + (low - 0xDC00);
+            } else {
+                codepoint = ch;
+            }
+        } else {
+            codepoint = ch;
+        }
+        
+        // Check if the character is whitespace
+        bool is_whitespace = false;
+        // ASCII whitespace
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            is_whitespace = true;
+        } 
+        // Unicode whitespace
+        else if ((ch >= 0x2000 && ch <= 0x200B) || // Various spaces including ZWSP (0x200B)
+                 ch == 0x200C ||                   // Zero width non-joiner
+                 ch == 0x200D ||                   // Zero width joiner
+                 ch == 0x3000 ||                   // Ideographic space
+                 ch == 0xFEFF ||                   // Zero width no-break space
+                 ch == 0x00A0 ||                   // Non-breaking space
+                 ch == 0x2028 ||                   // Line separator
+                 ch == 0x2029) {                  // Paragraph separator
+            is_whitespace = true;
+        }
+        
+        if (!is_whitespace) {
+            break;
+        }
+        
+        // Advance by 1 or 2 code units depending on surrogate pair
+        if (codepoint > 0xFFFF) {
+            start += 2;  // Surrogate pair
+        } else {
+            start += 1;
+        }
+    }
+    
+    // If the entire string is whitespace, return empty string
+    if (start == utf16.length()) {
+        return String();
+    }
+    
+    // Find end index (last non-whitespace character)
+    std::size_t end = utf16.length() - 1;
+    while (end > start) {
+        char16_t ch = utf16[end];
+        // Check for surrogate pair at the end
+        uint32_t codepoint;
+        if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
+            char16_t high = utf16[end - 1];
+            if (high >= 0xD800 && high <= 0xDBFF) {
+                // Surrogate pair
+                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
+                
+                // Check if the surrogate pair is whitespace
+                // For surrogate pairs, we don't have specific whitespace checks
+                // Just assume they're not whitespace for now
+                break;
+            }
+        }
+        
+        // Regular code unit
+        codepoint = ch;
+        
+        // Check if the character is whitespace
+        bool is_whitespace = false;
+        // ASCII whitespace
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            is_whitespace = true;
+        } 
+        // Unicode whitespace
+        else if ((ch >= 0x2000 && ch <= 0x200B) || // Various spaces including ZWSP (0x200B)
+                 ch == 0x200C ||                   // Zero width non-joiner
+                 ch == 0x200D ||                   // Zero width joiner
+                 ch == 0x3000 ||                   // Ideographic space
+                 ch == 0xFEFF ||                   // Zero width no-break space
+                 ch == 0x00A0 ||                   // Non-breaking space
+                 ch == 0x2028 ||                   // Line separator
+                 ch == 0x2029) {                  // Paragraph separator
+            is_whitespace = true;
+        }
+        
+        if (!is_whitespace) {
+            break;
+        }
+        --end;
+    }
+    
+    // If no trimming needed, return the original string
+    if (start == 0 && end == utf16.length() - 1) {
+        return *this;
+    }
+    
+    // Return the trimmed substring
+    return substring(Index(start), Index(end + 1));
+}
+
+String String::stripLeading() const {
+    // Fast path: if string is empty, return this
+    if (is_empty()) {
+        return *this;
+    }
+    
+    // Get UTF-16 representation for proper indexing
+    const auto& utf16 = get_utf16();
+    
+    // Find start index (first non-whitespace character)
+    std::size_t start = 0;
+    while (start < utf16.length()) {
+        char16_t ch = utf16[start];
+        // Convert to UTF-32 for proper Unicode character classification
+        uint32_t codepoint;
+        if (ch >= 0xD800 && ch <= 0xDBFF && start + 1 < utf16.length()) {
+            char16_t low = utf16[start + 1];
+            if (low >= 0xDC00 && low <= 0xDFFF) {
+                // Surrogate pair
+                codepoint = 0x10000 + ((ch - 0xD800) << 10) + (low - 0xDC00);
+            } else {
+                codepoint = ch;
+            }
+        } else {
+            codepoint = ch;
+        }
+        
+        // Check if the character is whitespace
+        bool is_whitespace = false;
+        // ASCII whitespace
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            is_whitespace = true;
+        } 
+        // Unicode whitespace
+        else if ((ch >= 0x2000 && ch <= 0x200B) || // Various spaces including ZWSP (0x200B)
+                 ch == 0x200C ||                   // Zero width non-joiner
+                 ch == 0x200D ||                   // Zero width joiner
+                 ch == 0x3000 ||                   // Ideographic space
+                 ch == 0xFEFF ||                   // Zero width no-break space
+                 ch == 0x00A0 ||                   // Non-breaking space
+                 ch == 0x2028 ||                   // Line separator
+                 ch == 0x2029) {                  // Paragraph separator
+            is_whitespace = true;
+        }
+        
+        if (!is_whitespace) {
+            break;
+        }
+        
+        // Advance by 1 or 2 code units depending on surrogate pair
+        if (codepoint > 0xFFFF) {
+            start += 2;  // Surrogate pair
+        } else {
+            start += 1;
+        }
+    }
+    
+    // If the entire string is whitespace, return empty string
+    if (start == utf16.length()) {
+        return String();
+    }
+    
+    // If no trimming needed, return the original string
+    if (start == 0) {
+        return *this;
+    }
+    
+    // Return the trimmed substring
+    return substring(Index(start));
+}
+
+String String::stripTrailing() const {
+    // Fast path: if string is empty, return this
+    if (is_empty()) {
+        return *this;
+    }
+    
+    // Get UTF-16 representation for proper indexing
+    const auto& utf16 = get_utf16();
+    
+    // Find end index (last non-whitespace character)
+    std::size_t end = utf16.length() - 1;
+    while (end < utf16.length()) {  // Using < to handle potential underflow when end is 0
+        char16_t ch = utf16[end];
+        // Check for surrogate pair at the end
+        uint32_t codepoint;
+        if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
+            char16_t high = utf16[end - 1];
+            if (high >= 0xD800 && high <= 0xDBFF) {
+                // Surrogate pair
+                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
+                // For surrogate pairs, we don't have specific whitespace checks
+                // Just assume they're not whitespace for now
+                break;
+            }
+        }
+        
+        // Regular code unit
+        codepoint = ch;
+        
+        // Check if the character is whitespace
+        bool is_whitespace = false;
+        // ASCII whitespace
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            is_whitespace = true;
+        } 
+        // Unicode whitespace
+        else if ((ch >= 0x2000 && ch <= 0x200B) || // Various spaces including ZWSP (0x200B)
+                 ch == 0x200C ||                   // Zero width non-joiner
+                 ch == 0x200D ||                   // Zero width joiner
+                 ch == 0x3000 ||                   // Ideographic space
+                 ch == 0xFEFF ||                   // Zero width no-break space
+                 ch == 0x00A0 ||                   // Non-breaking space
+                 ch == 0x2028 ||                   // Line separator
+                 ch == 0x2029) {                  // Paragraph separator
+            is_whitespace = true;
+        }
+        
+        if (!is_whitespace) {
+            break;
+        }
+        
+        if (end == 0) {  // Prevent underflow
+            break;
+        }
+        --end;
+    }
+    
+    // If the entire string is whitespace, return empty string
+    if (end == 0) {
+        char16_t ch = utf16[0];
+        bool is_whitespace = false;
+        // ASCII whitespace
+        if (ch <= 0x20 && (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\v')) {
+            is_whitespace = true;
+        } 
+        // Unicode whitespace
+        else if ((ch >= 0x2000 && ch <= 0x200B) || // Various spaces
+                 ch == 0x3000 ||                   // Ideographic space
+                 ch == 0xFEFF ||                   // Zero width no-break space
+                 ch == 0x00A0 ||                   // Non-breaking space
+                 ch == 0x2028 ||                   // Line separator
+                 ch == 0x2029) {                  // Paragraph separator
+            is_whitespace = true;
+        }
+        
+        if (is_whitespace) {
+            return String();
+        }
+    }
+    
+    // If no trimming needed, return the original string
+    if (end == utf16.length() - 1) {
+        return *this;
+    }
+    
+    // Return the trimmed substring
+    return substring(Index(0), Index(end + 1));
+}
+
+bool String::isStripped() const {
+    // Fast path: if string is empty, it's already stripped
+    if (is_empty()) {
+        return true;
+    }
+    
+    // Get UTF-16 representation for proper indexing
+    const auto& utf16 = get_utf16();
+    
+    // Check first character
+    char16_t first = utf16[0];
+    uint32_t first_codepoint;
+    if (first >= 0xD800 && first <= 0xDBFF && utf16.length() > 1) {
+        char16_t low = utf16[1];
+        if (low >= 0xDC00 && low <= 0xDFFF) {
+            // Surrogate pair
+            first_codepoint = 0x10000 + ((first - 0xD800) << 10) + (low - 0xDC00);
+        } else {
+            first_codepoint = first;
+        }
+    } else {
+        first_codepoint = first;
+    }
+    
+    // Check if the first character is whitespace
+    bool is_first_whitespace = false;
+    // ASCII whitespace
+    if (first <= 0x20 && (first == ' ' || first == '\t' || first == '\n' || first == '\r' || first == '\f' || first == '\v')) {
+        is_first_whitespace = true;
+    } 
+    // Unicode whitespace
+    else if ((first >= 0x2000 && first <= 0x200B) || // Various spaces including ZWSP (0x200B)
+             first == 0x200C ||                   // Zero width non-joiner
+             first == 0x200D ||                   // Zero width joiner
+             first == 0x3000 ||                   // Ideographic space
+             first == 0xFEFF ||                   // Zero width no-break space
+             first == 0x00A0 ||                   // Non-breaking space
+             first == 0x2028 ||                   // Line separator
+             first == 0x2029) {                  // Paragraph separator
+        is_first_whitespace = true;
+    }
+    
+    if (is_first_whitespace) {
+        return false;  // Leading whitespace found
+    }
+    
+    // Check last character
+    char16_t last = utf16[utf16.length() - 1];
+    uint32_t last_codepoint;
+    if (last >= 0xDC00 && last <= 0xDFFF && utf16.length() > 1) {
+        char16_t high = utf16[utf16.length() - 2];
+        if (high >= 0xD800 && high <= 0xDBFF) {
+            // Surrogate pair
+            last_codepoint = 0x10000 + ((high - 0xD800) << 10) + (last - 0xDC00);
+        } else {
+            last_codepoint = last;
+        }
+    } else {
+        last_codepoint = last;
+    }
+    
+    // Check if the last character is whitespace
+    bool is_last_whitespace = false;
+    // ASCII whitespace
+    if (last <= 0x20 && (last == ' ' || last == '\t' || last == '\n' || last == '\r' || last == '\f' || last == '\v')) {
+        is_last_whitespace = true;
+    } 
+    // Unicode whitespace
+    else if ((last >= 0x2000 && last <= 0x200B) || // Various spaces including ZWSP (0x200B)
+             last == 0x200C ||                   // Zero width non-joiner
+             last == 0x200D ||                   // Zero width joiner
+             last == 0x3000 ||                   // Ideographic space
+             last == 0xFEFF ||                   // Zero width no-break space
+             last == 0x00A0 ||                   // Non-breaking space
+             last == 0x2028 ||                   // Line separator
+             last == 0x2029) {                  // Paragraph separator
+        is_last_whitespace = true;
+    }
+    
+    if (is_last_whitespace) {
+        return false;  // Trailing whitespace found
+    }
+    
+    return true;  // No leading or trailing whitespace
+}
+
 } // namespace simple

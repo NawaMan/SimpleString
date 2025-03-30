@@ -469,6 +469,46 @@ public:
      */
     bool endsWith(const String& suffix) const;
 
+    /**
+     * Returns a string with all leading and trailing ASCII whitespace removed.
+     * This method is equivalent to Java's String.trim() method.
+     * 
+     * @return A new string with leading and trailing ASCII whitespace removed
+     */
+    String trim() const;
+
+    /**
+     * Returns a string with all leading and trailing Unicode whitespace removed.
+     * This method is equivalent to Java 11's String.strip() method.
+     * 
+     * @return A new string with leading and trailing Unicode whitespace removed
+     */
+    String strip() const;
+
+    /**
+     * Returns a string with all leading Unicode whitespace removed.
+     * This method is equivalent to Java 11's String.stripLeading() method.
+     * 
+     * @return A new string with leading Unicode whitespace removed
+     */
+    String stripLeading() const;
+
+    /**
+     * Returns a string with all trailing Unicode whitespace removed.
+     * This method is equivalent to Java 11's String.stripTrailing() method.
+     * 
+     * @return A new string with trailing Unicode whitespace removed
+     */
+    String stripTrailing() const;
+
+    /**
+     * Returns true if this string has no leading or trailing whitespace.
+     * Useful for optimization and testing.
+     *
+     * @return true if the string has no leading or trailing whitespace
+     */
+    bool isStripped() const;
+
 private:
     // Private constructor for creating substrings with shared data
     String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
