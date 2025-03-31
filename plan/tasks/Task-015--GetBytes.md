@@ -28,27 +28,27 @@ Implement methods to retrieve the byte representation of a string in different e
 
 ## Acceptance Criteria
 
-- [ ] Implement `getBytes()` method that returns the UTF-8 encoded bytes (default encoding)
-- [ ] Implement `getBytes(Encoding encoding)` method that returns bytes in the specified encoding
-- [ ] Implement `getBytes(Encoding encoding, ErrorHandling errorHandling)` for customized error handling
-- [ ] Add static `String::fromBytes(byte[] bytes)` method that creates a String from UTF-8 encoded bytes
-- [ ] Add static `String::fromBytes(byte[] bytes, Encoding encoding)` method for specified encoding
-- [ ] Add static `String::fromBytes(byte[] bytes, Encoding encoding, ErrorHandling errorHandling)` method
-- [ ] Create an `Encoding` enum or class to represent different character encodings
-- [ ] Create an `ErrorHandling` enum to represent different error handling strategies
-- [ ] Create a `BOMPolicy` enum to control Byte Order Mark handling for UTF-16/UTF-32
-- [ ] Add convenience methods for std::string interoperability:
-  - [ ] `toStdString(Encoding encoding = Encoding::UTF_8)` method
-  - [ ] Static `fromStdString(const std::string& str, Encoding encoding = Encoding::UTF_8)` method
-- [ ] Add comprehensive unit tests:
-  - [ ] Converting strings to bytes in different encodings
-  - [ ] Creating strings from bytes in different encodings
-  - [ ] Handling of invalid byte sequences
-  - [ ] Round-trip conversion tests
-  - [ ] BOM handling tests for UTF-16/UTF-32
-  - [ ] Edge cases (empty strings, strings with null characters, etc.)
-  - [ ] Error handling tests with different strategies
-- [ ] Update documentation to include the new encoding/decoding methods
+- [x] Implement `getBytes()` method that returns the UTF-8 encoded bytes (default encoding)
+- [x] Implement `getBytes(Encoding encoding)` method that returns bytes in the specified encoding
+- [x] Implement `getBytes(Encoding encoding, ErrorHandling errorHandling)` for customized error handling
+- [x] Add static `String::fromBytes(byte[] bytes)` method that creates a String from UTF-8 encoded bytes
+- [x] Add static `String::fromBytes(byte[] bytes, Encoding encoding)` method for specified encoding
+- [x] Add static `String::fromBytes(byte[] bytes, Encoding encoding, ErrorHandling errorHandling)` method
+- [x] Create an `Encoding` enum or class to represent different character encodings
+- [x] Create an `ErrorHandling` enum to represent different error handling strategies
+- [x] Create a `BOMPolicy` enum to control Byte Order Mark handling for UTF-16/UTF-32
+- [x] Add convenience methods for std::string interoperability:
+  - [x] `toStdString(Encoding encoding = Encoding::UTF_8)` method
+  - [x] Static `fromStdString(const std::string& str, Encoding encoding = Encoding::UTF_8)` method
+- [x] Add comprehensive unit tests:
+  - [x] Converting strings to bytes in different encodings
+  - [x] Creating strings from bytes in different encodings
+  - [x] Handling of invalid byte sequences
+  - [x] Round-trip conversion tests
+  - [x] BOM handling tests for UTF-16/UTF-32
+  - [x] Edge cases (empty strings, strings with null characters, etc.)
+  - [x] Error handling tests with different strategies
+- [x] Update documentation to include the new encoding/decoding methods
 
 ## Implementation Details
 
