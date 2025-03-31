@@ -83,6 +83,7 @@ add_library(sstring_lib
     src/compare_result.cpp
     src/string.cpp
     src/regex.cpp
+    src/encoding.cpp
 )
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -124,6 +125,7 @@ if(BUILD_TESTING)
         tests/string_replace_test.cpp
         tests/index_test.cpp
         tests/regex_test.cpp
+        tests/string_encoding_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE
