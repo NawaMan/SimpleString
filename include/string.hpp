@@ -344,6 +344,26 @@ public:
      */
     String substring(Index beginIndex, Index endIndex) const;
 
+    /**
+     * Returns a string resulting from replacing all occurrences of oldChar in this
+     * string with newChar.
+     *
+     * @param oldChar the old character
+     * @param newChar the new character
+     * @return a string derived from this string by replacing every occurrence of oldChar with newChar
+     */
+    String replace(Char oldChar, Char newChar) const;
+    
+    /**
+     * Returns a string resulting from replacing all occurrences of the target substring with
+     * the replacement substring.
+     *
+     * @param target the sequence of char values to be replaced
+     * @param replacement the replacement sequence of char values
+     * @return a string derived from this string by replacing every occurrence of target with replacement
+     */
+    String replace(const String& target, const String& replacement) const;
+
     // C++ operator overloads for comparison
     bool operator==(const String& other) const;
     bool operator!=(const String& other) const;

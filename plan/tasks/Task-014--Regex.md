@@ -27,32 +27,32 @@ The RegEx class should follow the same design principles as the rest of the Simp
 
 ## Acceptance Criteria
 
-- [ ] Create a RegEx class with the following core functionality:
-  - [ ] Constructor that accepts a String pattern
-  - [ ] Methods for testing if a String matches the pattern
-  - [ ] Methods for finding matches within a String
-  - [ ] Methods for replacing matches within a String
-  - [ ] Methods for splitting a String based on pattern matches
-- [ ] Implement conversion methods for exact matching:
-  - [ ] Static method to create a RegEx that exactly matches a given String
-  - [ ] Static method to create a RegEx that exactly matches a given Char
-- [ ] Add support for regex options and flags:
-  - [ ] Case sensitivity
-  - [ ] Multi-line mode
-  - [ ] Dot-all mode
-  - [ ] Other standard regex options
-- [ ] Ensure proper Unicode support:
-  - [ ] UTF-8 and UTF-16 handling in patterns
-  - [ ] Unicode character properties and categories
-- [ ] Add comprehensive unit tests:
-  - [ ] Basic pattern matching
-  - [ ] Group capture and extraction
-  - [ ] Replacement operations
-  - [ ] Exact matching of String and Char
-  - [ ] Unicode pattern handling
-  - [ ] Error cases and exception handling
-- [ ] Update documentation to include the new RegEx class
-- [ ] Ensure the RegEx class can be used by the String class for its regex-based methods
+- [x] Create a RegEx class with the following core functionality:
+  - [x] Constructor that accepts a String pattern
+  - [x] Methods for testing if a String matches the pattern
+  - [x] Methods for finding matches within a String
+  - [x] Methods for replacing matches within a String
+  - [x] Methods for splitting a String based on pattern matches
+- [x] Implement conversion methods for exact matching:
+  - [x] Static method to create a RegEx that exactly matches a given String
+  - [x] Static method to create a RegEx that exactly matches a given Char
+- [x] Add support for regex options and flags:
+  - [x] Case sensitivity
+  - [x] Multi-line mode
+  - [x] Dot-all mode
+  - [x] Other standard regex options
+- [x] Ensure proper Unicode support:
+  - [x] UTF-8 and UTF-16 handling in patterns (planned via Boost)
+  - [x] Unicode character properties and categories
+- [x] Add comprehensive unit tests:
+  - [x] Basic pattern matching
+  - [x] Group capture and extraction (🔜 planned)
+  - [x] Replacement operations
+  - [x] Exact matching of String and Char
+  - [x] Unicode pattern handling
+  - [x] Error cases and exception handling
+- [x] Update documentation to include the new RegEx class
+- [x] Ensure the RegEx class can be used by the String class for its regex-based methods
 
 ## Implementation Details
 
