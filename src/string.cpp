@@ -353,6 +353,93 @@ bool String::operator>=(const String& other) const {
     return compare_to(other).is_greater_or_equal(); 
 }
 
+// Implementation of string replace methods
+String String::replace(Char oldChar, Char newChar) const {
+    // If the characters are the same, return the original string
+    if (oldChar == newChar) {
+        return *this;
+    }
+    
+    // Get the UTF-16 representation
+    const auto& utf16 = get_utf16();
+    if (utf16.empty()) {
+        return *this;
+    }
+    
+    // Create a copy of the UTF-16 string
+    std::u16string result = utf16;
+    bool modified = false;
+    
+    // Replace all occurrences
+    for (std::size_t i = 0; i < result.length(); ++i) {
+        if (result[i] == oldChar.value()) {
+            result[i] = newChar.value();
+            modified = true;
+        }
+    }
+    
+    // If no replacements were made, return the original string
+    if (!modified) {
+        return *this;
+    }
+    
+    // Convert back to UTF-8
+    std::string utf8 = boost::locale::conv::utf_to_utf<char>(result);
+    return String(utf8);
+}
+
+String String::replace(const String& target, const String& replacement) const {
+    // If the target is empty, insert the replacement between each character
+    if (target.is_empty()) {
+        if (is_empty()) {
+            return replacement;
+        }
+        
+        const auto& utf16 = get_utf16();
+        std::u16string result;
+        result.reserve(utf16.length() * (replacement.length() + 1));
+        
+        // Add replacement at the beginning
+        const auto& repl_utf16 = replacement.get_utf16();
+        result.append(repl_utf16);
+        
+        // Add each character with replacement after it
+        for (std::size_t i = 0; i < utf16.length(); ++i) {
+            result.push_back(utf16[i]);
+            result.append(repl_utf16);
+        }
+        
+        std::string utf8 = boost::locale::conv::utf_to_utf<char>(result);
+        return String(utf8);
+    }
+    
+    // If the target is the same as this string, return the replacement
+    if (equals(target)) {
+        return replacement;
+    }
+    
+    // If the target is not found, return the original string
+    Index index = indexOf(target);
+    if (index.is_invalid()) {
+        return *this;
+    }
+    
+    // Build the result string by replacing all occurrences
+    std::string result = to_string();
+    std::string target_str = target.to_string();
+    std::string replacement_str = replacement.to_string();
+    
+    std::size_t pos = 0;
+    std::size_t target_len = target_str.length();
+    
+    while ((pos = result.find(target_str, pos)) != std::string::npos) {
+        result.replace(pos, target_len, replacement_str);
+        pos += replacement_str.length();
+    }
+    
+    return String(result);
+}
+
 // Private methods
 const std::u16string& String::get_utf16() const {
     // Double-checked locking pattern with atomic operations
@@ -360,6 +447,7 @@ const std::u16string& String::get_utf16() const {
     if (!cache) {
         // First check failed, acquire the data and create cache
         std::u16string result;
+        
         const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
         const unsigned char* end = str + length_;
         
@@ -561,7 +649,9 @@ Index String::lastIndexOf(const String& str, Index fromIndex) const {
         fromIndex = Index(len - str_len);
     } else if (fromIndex.value() + str_len > len) {
         fromIndex = Index(len - str_len);
-    }  // Search backward from fromIndex
+    }
+    
+    // Search backward from fromIndex
     for (std::size_t i = fromIndex.value() + 1; i > 0; --i) {
         std::size_t start = i - 1;
         bool found = true;

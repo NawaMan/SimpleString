@@ -25,9 +25,9 @@ Java String Replication in C++ Requirements
 2.1 [X] Character access by index: Provide functionality to access individual characters by their index in the string.
 2.2 [X] Index functions (indexOf, lastIndexOf): Implement methods for finding the first or last occurrence of a substring or character.
 2.3 [X] Methods like contains, startsWith, endsWith: Implement methods to check if the string contains, starts with, or ends with a specified substring.
-2.4 [ ] Replace (replace, replaceAll): Enable character or substring replacement within the string.
-2.5 [ ] Split by delimiter, Join with delimiter: Provide methods for splitting the string based on a delimiter and joining multiple strings with a delimiter.
-2.6 [ ] Regular expressions support: Integrate Boost’s regex for pattern matching and substring replacement functionality.
+2.4 [X] Replace (replace, replaceAll): Enable character or substring replacement within the string.
+2.5 [X] Split by delimiter, Join with delimiter: Provide methods for splitting the string based on a delimiter and joining multiple strings with a delimiter.
+2.6 [X] Regular expressions support: Integrate Boost’s regex for pattern matching and substring replacement functionality.
 
 3. Conversion Methods
 

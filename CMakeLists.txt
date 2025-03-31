@@ -55,7 +55,7 @@ if(POLICY CMP0111)
 endif()
 
 # Find Boost
-find_package(Boost REQUIRED COMPONENTS locale)
+find_package(Boost REQUIRED COMPONENTS locale regex)
 
 # Set IMPORTED_LOCATION for Boost::locale
 if(TARGET Boost::locale)
@@ -82,12 +82,14 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_library(sstring_lib
     src/compare_result.cpp
     src/string.cpp
+    src/regex.cpp
 )
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(sstring_lib PUBLIC
     Boost::locale
+    Boost::regex
 )
 
 # Set library output directory to dist
@@ -119,7 +121,9 @@ if(BUILD_TESTING)
         tests/string_indexof_test.cpp
         tests/string_matching_test.cpp
         tests/string_trimming_test.cpp
+        tests/string_replace_test.cpp
         tests/index_test.cpp
+        tests/regex_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE
