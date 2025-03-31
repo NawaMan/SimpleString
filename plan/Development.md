@@ -9,12 +9,14 @@
 6. Only ONE task are to be developed at a time -- it is ok if some sub task cannot or should not be done altogether.
 7. A branch should be created for each task
 8. Comprehensive set of tests should be written for each task.
-9. All test must pass
-10. The tests should be review and revised.
-11. The implemented code should be check against the task spec (in the task file). Mark any that are done.
-12. Also mark the complete feature in Goals.md ... if anything left mention that in Goals.md.
-13. Create PR and ensure all validation pass.
-14. Merge PR
+9. Commit the task first --- See 12
+10. All test must pass
+11. The tests should be review and revised.
+12. It is ok if we start over  ... 
+13. The implemented code should be check against the task spec (in the task file). Mark any that are done.
+14. Also mark the complete feature in Goals.md ... if anything left mention that in Goals.md.
+15. Create PR and ensure all validation pass.
+16. Merge PR
 
 
 # Release Plan
