@@ -1,6 +1,7 @@
 #include "../include/string.hpp"
 #include <boost/locale/encoding.hpp>
 #include <cmath>
+#include <boost/format.hpp>
 
 namespace simple {
 

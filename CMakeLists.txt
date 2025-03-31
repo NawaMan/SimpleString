@@ -126,6 +126,7 @@ if(BUILD_TESTING)
         tests/index_test.cpp
         tests/regex_test.cpp
         tests/string_encoding_test.cpp
+        tests/string_format_test.cpp
     )
     target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(sstring_tests PRIVATE

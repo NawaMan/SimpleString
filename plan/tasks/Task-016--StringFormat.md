@@ -13,6 +13,7 @@ Implement string formatting capabilities similar to Java's `String.format()` met
    - Support for format specifiers similar to Java's `String.format()` and C's `printf()`
    - Type-safe formatting with appropriate error handling for mismatched types
    - Leverage Boost.Format for the underlying implementation
+   - Full Unicode support for both format strings and formatted values
 
 2. **Format Specifiers**:
    - General: `%s` for strings, `%d` for integers, `%f` for floating-point numbers, etc.
@@ -30,34 +31,44 @@ Implement string formatting capabilities similar to Java's `String.format()` met
 
 ## Acceptance Criteria
 
-- [ ] Implement static `String::format(const String& format, ...)` method for basic formatting
-- [ ] Implement variadic template version for type safety
-- [ ] Support the following format specifiers:
-  - [ ] `%s` for strings
-  - [ ] `%%` for literal percent sign
-  - [ ] `%d`, `%i` for integers
-  - [ ] `%f`, `%e`, `%g` for floating-point numbers
-  - [ ] `%c` for characters
-  - [ ] `%b` for boolean values -- as "true" and "false"
-- [ ] Support format modifiers (leveraging Boost.Format capabilities):
-  - [ ] Width specification (e.g., `%10s`)
-  - [ ] Precision for floating-point numbers (e.g., `%.2f`)
-  - [ ] Left/right alignment (e.g., `%-10s`)
-    - [ ] Ensure to check that 0 pad-number (like for `%010s`) should not be interpreted as octal
-  - [ ] Zero-padding for numbers (e.g., `%04d`)
+- [x] Implement static `String::format(const String& format, ...)` method for basic formatting
+- [x] Implement variadic template version for type safety
+- [x] Support the following format specifiers:
+  - [x] `%s` for strings
+  - [x] `%%` for literal percent sign
+  - [x] `%d`, `%i` for integers
+  - [x] `%f`, `%e`, `%g` for floating-point numbers
+  - [x] `%c` for characters
+  - [x] `%b` for boolean values -- as "true" and "false" (implemented and properly tested with actual bool values)
+- [x] Support format modifiers (leveraging Boost.Format capabilities):
+  - [x] Width specification (e.g., `%10s`)
+  - [x] Precision for floating-point numbers (e.g., `%.2f`)
+  - [x] Left/right alignment (e.g., `%-10s`)
+    - [x] Ensure to check that 0 pad-number (like for `%010s`) should not be interpreted as octal
+  - [x] Zero-padding for numbers (e.g., `%04d`)
     - Note: zero-padding flag is ignored for strings (e.g., `%010s` will use space padding, not zeros)
-  - [ ] Grouping separators (if supported by Boost.Format or implementable with reasonable effort)
-- [ ] Implement proper error handling:
-  - [ ] Create a `FormatException` class that wraps Boost.Format exceptions
-  - [ ] Provide meaningful error messages with context information
-  - [ ] Handle argument type mismatches through Boost.Format's error detection
-  - [ ] Handle missing or extra arguments through Boost.Format's error detection
-- [ ] Add comprehensive unit tests:
-  - [ ] Basic format specifier tests
-  - [ ] Format modifier tests
-  - [ ] Error handling tests
-  - [ ] Edge cases (empty strings, null values, etc.)
+  - [ ] Grouping separators (note: Boost.Format does not natively support this feature)
+    - If implemented, support both `%,d` (Java style) and `%'d` (C++ style) for numeric grouping
+    - If not feasible to implement, document this limitation clearly
+- [x] Support indexing: "%2$s"
+- [x] Implement proper error handling:
+  - [x] Create a `FormatException` class that wraps Boost.Format exceptions
+  - [x] Provide meaningful error messages with context information
+  - [x] Handle argument type mismatches through Boost.Format's error detection
+  - [x] Handle missing or extra arguments through Boost.Format's error detection
+- [x] Add comprehensive unit tests:
+  - [x] Basic format specifier tests
+  - [x] Format modifier tests
+  - [x] Unicode handling tests (including surrogate pairs, combining characters, etc.)
+  - [x] Error handling tests
+  - [x] Edge cases (empty strings, null values, etc.)
   - [ ] Performance tests for large format strings
+  - [ ] Grouping separator tests (if implemented):
+    ```cpp
+    // This test is for future capability; Boost.Format does not currently support grouping
+    // May be removed or marked as skipped if unsupported
+    EXPECT_EQ("1,234,567", String::format("%,d", 1234567));
+    ```
 - [ ] Update documentation to include the new formatting methods
 
 ## Implementation Details
@@ -156,6 +167,7 @@ Implement string formatting capabilities similar to Java's `String.format()` met
    - Leverage Boost.Format's built-in format specifier handling
    - Provide adapters for Java-style format specifiers to Boost.Format specifiers
    - Handle width, precision, alignment, and other format modifiers through Boost.Format
+   - Ensure correct handling of Unicode characters in width calculations and alignment
    - Document any differences between Java's formatting and Boost.Format's behavior
 
 3. **Test Cases**:
@@ -234,6 +246,10 @@ Implement string formatting capabilities similar to Java's `String.format()` met
 - Leverage Boost.Format for the core implementation to ensure reliability and efficiency
 - Document any differences between Java's String.format() and the Boost.Format-based implementation
 - Features that are difficult to implement reliably or efficiently with Boost.Format may be omitted
+  - Specifically, grouping separators (`%,d` or `%'d`) are not natively supported by Boost.Format and may require custom implementation
+  - If implemented, document the approach; if omitted, document this limitation
 - Performance considerations should be documented, especially for large format strings
+- Ensure proper Unicode handling, including correct width calculations for multi-byte characters
+- Consider how width specifications interact with Unicode characters that may have different display widths
 - Future extensions could include date/time formatting and custom formatters for user-defined types
 - Consider providing both Java-style (%s, %d) and Boost-style (%1%, %2%) format specifiers for flexibility

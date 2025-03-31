@@ -7,6 +7,7 @@
 #include <variant>
 #include <vector>
 #include <boost/locale.hpp>
+#include <boost/format.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
 #include "code_point.hpp"
@@ -186,6 +187,73 @@ class StringIndexOutOfBoundsException : public std::out_of_range {
 public:
     explicit StringIndexOutOfBoundsException(const std::string& msg)
         : std::out_of_range(msg) {}
+};
+
+/**
+ * Exception thrown when a formatting error occurs.
+ * This wraps Boost.Format exceptions to provide a consistent interface.
+ */
+class FormatException : public std::runtime_error {
+public:
+    explicit FormatException(const std::string& message)
+        : std::runtime_error(message), position_(0), formatString_(""), hasContext_(false) {}
+    
+    /**
+     * Creates a new FormatException with detailed context information.
+     * 
+     * @param message the error message
+     * @param position the position in the format string where the error occurred
+     * @param formatString the format string that caused the error
+     */
+    FormatException(const std::string& message, 
+                   std::size_t position, 
+                   const std::string& formatString)
+        : std::runtime_error(buildFullMessage(message, position, formatString)),
+          position_(position), 
+          formatString_(formatString),
+          hasContext_(true),
+          fullMessage_(buildFullMessage(message, position, formatString)) {}
+    
+    /**
+     * Gets the position in the format string where the error occurred.
+     * 
+     * @return the position
+     */
+    std::size_t getPosition() const {
+        return position_;
+    }
+    
+    /**
+     * Gets the format string that caused the error.
+     * 
+     * @return the format string
+     */
+    std::string getFormatString() const {
+        return formatString_;
+    }
+    
+    /**
+     * Gets the full error message including context information.
+     * 
+     * @return the full error message
+     */
+    const char* what() const noexcept override {
+        return hasContext_ ? fullMessage_.c_str() : std::runtime_error::what();
+    }
+    
+private:
+    std::size_t position_;
+    std::string formatString_;
+    bool hasContext_;
+    std::string fullMessage_;
+    
+    static std::string buildFullMessage(const std::string& message, 
+                                        std::size_t position,
+                                        const std::string& formatString) {
+        std::ostringstream oss;
+        oss << message << " at position " << position << " in format string: '" << formatString << "'";
+        return oss.str();
+    }
 };
 
 class String {
@@ -605,7 +673,39 @@ public:
      */
     static String fromStdString(const std::string& str);
 
+    /**
+     * Formats a string using the specified format string and arguments.
+     * This method uses Boost.Format internally but provides an interface
+     * similar to Java's String.format().
+     * 
+     * @param format the format string
+     * @param args the arguments to be formatted
+     * @return a formatted string
+     * @throws FormatException if the format string is invalid or if there is a type mismatch
+     */
+    template<typename... Args>
+    static String format(const String& format, Args&&... args) {
+        try {
+            boost::format fmt(format.toStdString());
+            return formatImpl(fmt, std::forward<Args>(args)...);
+        } catch (const boost::io::format_error& e) {
+            throw FormatException(e.what(), 0, format.toStdString());
+        }
+    }
+
 private:
+    // Helper method for recursive argument processing using Boost.Format
+    template<typename T, typename... Args>
+    static String formatImpl(boost::format& fmt, T&& value, Args&&... args) {
+        fmt % std::forward<T>(value);
+        return formatImpl(fmt, std::forward<Args>(args)...);
+    }
+    
+    // Base case for recursion
+    static String formatImpl(boost::format& fmt) {
+        return String(fmt.str());
+    }
+
     // Private constructor for creating substrings with shared data
     String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
         : data_(std::move(data)), offset_(offset), length_(length), utf16_cache_() {}
