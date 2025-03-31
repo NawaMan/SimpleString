@@ -5,11 +5,13 @@
 #include <stdexcept>
 #include <sstream>
 #include <variant>
+#include <vector>
 #include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
 #include "code_point.hpp"
 #include "index.hpp"
+#include "encoding.hpp"
 
 namespace simple {
 
@@ -528,6 +530,80 @@ public:
      * @return true if the string has no leading or trailing whitespace
      */
     bool isStripped() const;
+
+    /**
+     * Returns a byte array representation of this string in the specified encoding.
+     * 
+     * @param encoding the encoding to use, defaults to UTF_8
+     * @param errorHandling the error handling strategy to use, defaults to THROW
+     * @return a byte array containing the string encoded in the specified encoding
+     * @throws EncodingException if the string cannot be encoded in the specified encoding
+     *         and the error handling strategy is THROW
+     */
+    std::vector<uint8_t> getBytes(Encoding encoding = Encoding::UTF_8, 
+                                 EncodingErrorHandling errorHandling = EncodingErrorHandling::THROW) const;
+
+    /**
+     * Returns a byte array representation of this string in the specified encoding,
+     * with control over Byte Order Mark (BOM) handling.
+     * 
+     * @param encoding the encoding to use
+     * @param bomPolicy the BOM policy to use
+     * @param errorHandling the error handling strategy to use, defaults to THROW
+     * @return a byte array containing the string encoded in the specified encoding
+     * @throws EncodingException if the string cannot be encoded in the specified encoding
+     *         and the error handling strategy is THROW
+     */
+    std::vector<uint8_t> getBytes(Encoding encoding, BOMPolicy bomPolicy, 
+                                 EncodingErrorHandling errorHandling = EncodingErrorHandling::THROW) const;
+
+    /**
+     * Returns a standard C++ string representation of this string.
+     * This is a convenience method that uses UTF-8 encoding.
+     * 
+     * @return a standard C++ string containing this string encoded as UTF-8
+     */
+    std::string toStdString() const;
+
+    /**
+     * Creates a new String from a byte array using the specified encoding.
+     * 
+     * @param bytes the byte array to decode
+     * @param encoding the encoding to use, defaults to UTF_8
+     * @param errorHandling the error handling strategy to use, defaults to THROW
+     * @return a new String created from the byte array
+     * @throws EncodingException if the byte array cannot be decoded using the specified encoding
+     *         and the error handling strategy is THROW
+     */
+    static String fromBytes(const std::vector<uint8_t>& bytes, 
+                           Encoding encoding = Encoding::UTF_8,
+                           EncodingErrorHandling errorHandling = EncodingErrorHandling::THROW);
+
+    /**
+     * Creates a new String from a byte array using the specified encoding,
+     * with control over Byte Order Mark (BOM) handling.
+     * 
+     * @param bytes the byte array to decode
+     * @param encoding the encoding to use
+     * @param bomPolicy the BOM policy to use
+     * @param errorHandling the error handling strategy to use, defaults to THROW
+     * @return a new String created from the byte array
+     * @throws EncodingException if the byte array cannot be decoded using the specified encoding
+     *         and the error handling strategy is THROW
+     */
+    static String fromBytes(const std::vector<uint8_t>& bytes, 
+                           Encoding encoding, 
+                           BOMPolicy bomPolicy,
+                           EncodingErrorHandling errorHandling = EncodingErrorHandling::THROW);
+
+    /**
+     * Creates a new String from a standard C++ string.
+     * This is a convenience method that assumes UTF-8 encoding.
+     * 
+     * @param str the standard C++ string to convert
+     * @return a new String created from the standard C++ string
+     */
+    static String fromStdString(const std::string& str);
 
 private:
     // Private constructor for creating substrings with shared data
