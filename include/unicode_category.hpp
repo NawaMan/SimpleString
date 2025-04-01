@@ -1,8 +1,17 @@
 #pragma once
 
 #include <string_view>
+#include <array>
 #include "unicode_category_enum.hpp"
-#include "unicode_data.hpp"
+
+// Forward declare the unicode_data namespace and its contents
+// The full definition is included in the .cpp file
+namespace simple {
+namespace unicode_data {
+    struct CodePointRange;
+    extern const std::array<CodePointRange, 32> UNICODE_RANGES;
+}
+}
 
 namespace simple {
 
@@ -73,71 +82,54 @@ public:
     constexpr bool is_unassigned()  const noexcept { return value_ == simple::UnicodeCategoryEnum::UNASSIGNED; }
     constexpr bool is_unknown()     const noexcept { return value_ == simple::UnicodeCategoryEnum::UNKNOWN; }
 
-    // Group check methods
-    constexpr bool is_letter() const noexcept {
-        return is_uppercase_letter()
-            || is_lowercase_letter()
-            || is_titlecase_letter()
-            || is_modifier_letter()
-            || is_other_letter();
-    }
+    /**
+     * @brief Checks if the category represents any kind of letter
+     * @return true if the category is a letter category
+     */
+    bool is_letter() const noexcept;
 
-    constexpr bool is_mark() const noexcept {
-        return is_non_spacing_mark()
-            || is_spacing_mark()
-            || is_enclosing_mark();
-    }
+    /**
+     * @brief Checks if the category represents any kind of mark
+     * @return true if the category is a mark category
+     */
+    bool is_mark() const noexcept;
 
-    constexpr bool is_number() const noexcept {
-        return is_decimal_number()
-            || is_letter_number()
-            || is_other_number();
-    }
+    /**
+     * @brief Checks if the category represents any kind of number
+     * @return true if the category is a number category
+     */
+    bool is_number() const noexcept;
 
-    constexpr bool is_punctuation() const noexcept {
-        return is_connector_punctuation()
-            || is_dash_punctuation()
-            || is_open_punctuation()
-            || is_close_punctuation()
-            || is_initial_punctuation()
-            || is_final_punctuation()
-            || is_other_punctuation();
-    }
+    /**
+     * @brief Checks if the category represents any kind of punctuation
+     * @return true if the category is a punctuation category
+     */
+    bool is_punctuation() const noexcept;
 
-    constexpr bool is_symbol() const noexcept {
-        return is_math_symbol()
-            || is_currency_symbol()
-            || is_modifier_symbol()
-            || is_other_symbol();
-    }
+    /**
+     * @brief Checks if the category represents any kind of symbol
+     * @return true if the category is a symbol category
+     */
+    bool is_symbol() const noexcept;
 
-    constexpr bool is_separator() const noexcept {
-        return is_space_separator()
-            || is_line_separator()
-            || is_paragraph_separator();
-    }
+    /**
+     * @brief Checks if the category represents any kind of separator
+     * @return true if the category is a separator category
+     */
+    bool is_separator() const noexcept;
 
-    constexpr bool is_control_or_format() const noexcept {
-        return is_control()
-            || is_format()
-            || is_surrogate()
-            || is_private_use()
-            || is_unassigned();
-    }
+    /**
+     * @brief Checks if the category represents a control character or format
+     * @return true if the category is a control, format, surrogate, private use, or unassigned category
+     */
+    bool is_control_or_format() const noexcept;
 
     // Additional character properties
     /**
      * @brief Checks if the category represents any kind of whitespace
      * @return true if the category is a whitespace category
      */
-    constexpr bool is_whitespace() const noexcept {
-        return is_space_separator()
-            || is_line_separator()
-            || is_paragraph_separator()
-            || (is_control() 
-    		 && (value_ == simple::UnicodeCategoryEnum::FORMAT 
-			  || value_ == simple::UnicodeCategoryEnum::CONTROL));
-    }
+    bool is_whitespace() const noexcept;
 
     /**
      * @brief Checks if the category represents a letter or number
@@ -151,23 +143,13 @@ public:
      * @brief Checks if the category represents a printable character
      * @return true if the category represents a visible character
      */
-    constexpr bool is_printable() const noexcept {
-        return !is_control()
-            && !is_surrogate()
-            && !is_unassigned()
-            && !is_private_use();
-    }
+    bool is_printable() const noexcept;
 
     /**
      * @brief Checks if the category should be ignored in case conversions
      * @return true if the category should be ignored in case conversions
      */
-    constexpr bool is_case_ignorable() const noexcept {
-        return is_mark()
-            || is_format()
-            || is_connector_punctuation()
-            || is_dash_punctuation();
-    }
+    bool is_case_ignorable() const noexcept;
 
     // Comparison operators
     constexpr bool operator==(const UnicodeCategory& other) const noexcept { return value_ == other.value_; }
@@ -178,42 +160,7 @@ public:
      * @brief Gets a human-readable name for the Unicode category
      * @return A string view containing the category name
      */
-    constexpr std::string_view name() const noexcept {
-        switch (value_) {
-            case simple::UnicodeCategoryEnum::UPPERCASE_LETTER:      return "Uppercase Letter";
-            case simple::UnicodeCategoryEnum::LOWERCASE_LETTER:      return "Lowercase Letter";
-            case simple::UnicodeCategoryEnum::TITLECASE_LETTER:      return "Titlecase Letter";
-            case simple::UnicodeCategoryEnum::MODIFIER_LETTER:       return "Modifier Letter";
-            case simple::UnicodeCategoryEnum::OTHER_LETTER:          return "Other Letter";
-            case simple::UnicodeCategoryEnum::NON_SPACING_MARK:      return "Non-spacing Mark";
-            case simple::UnicodeCategoryEnum::SPACING_MARK:          return "Spacing Mark";
-            case simple::UnicodeCategoryEnum::ENCLOSING_MARK:        return "Enclosing Mark";
-            case simple::UnicodeCategoryEnum::DECIMAL_NUMBER:        return "Decimal Number";
-            case simple::UnicodeCategoryEnum::LETTER_NUMBER:         return "Letter Number";
-            case simple::UnicodeCategoryEnum::OTHER_NUMBER:          return "Other Number";
-            case simple::UnicodeCategoryEnum::CONNECTOR_PUNCTUATION: return "Connector Punctuation";
-            case simple::UnicodeCategoryEnum::DASH_PUNCTUATION:      return "Dash Punctuation";
-            case simple::UnicodeCategoryEnum::OPEN_PUNCTUATION:      return "Open Punctuation";
-            case simple::UnicodeCategoryEnum::CLOSE_PUNCTUATION:     return "Close Punctuation";
-            case simple::UnicodeCategoryEnum::INITIAL_PUNCTUATION:   return "Initial Punctuation";
-            case simple::UnicodeCategoryEnum::FINAL_PUNCTUATION:     return "Final Punctuation";
-            case simple::UnicodeCategoryEnum::OTHER_PUNCTUATION:     return "Other Punctuation";
-            case simple::UnicodeCategoryEnum::MATH_SYMBOL:           return "Math Symbol";
-            case simple::UnicodeCategoryEnum::CURRENCY_SYMBOL:       return "Currency Symbol";
-            case simple::UnicodeCategoryEnum::MODIFIER_SYMBOL:       return "Modifier Symbol";
-            case simple::UnicodeCategoryEnum::OTHER_SYMBOL:          return "Other Symbol";
-            case simple::UnicodeCategoryEnum::SPACE_SEPARATOR:       return "Space Separator";
-            case simple::UnicodeCategoryEnum::LINE_SEPARATOR:        return "Line Separator";
-            case simple::UnicodeCategoryEnum::PARAGRAPH_SEPARATOR:    return "Paragraph Separator";
-            case simple::UnicodeCategoryEnum::CONTROL:               return "Control";
-            case simple::UnicodeCategoryEnum::FORMAT:                return "Format";
-            case simple::UnicodeCategoryEnum::SURROGATE:             return "Surrogate";
-            case simple::UnicodeCategoryEnum::PRIVATE_USE:           return "Private Use";
-            case simple::UnicodeCategoryEnum::UNASSIGNED:            return "Unassigned";
-            case simple::UnicodeCategoryEnum::UNKNOWN:               return "Unknown";
-            default:                                         return "Invalid";
-        }
-    }
+    std::string_view name() const noexcept;
 
     // Create a UnicodeCategory from a code point
     /**
@@ -221,14 +168,7 @@ public:
      * @param code_point The Unicode code point to categorize
      * @return The UnicodeCategory for the given code point
      */
-    static constexpr UnicodeCategory from_code_point(char32_t code_point) noexcept {
-        for (const auto& range : unicode_data::UNICODE_RANGES) {
-            if (code_point >= range.start && code_point <= range.end) {
-                return UnicodeCategory(range.category);
-            }
-        }
-        return unknown();
-    }
+    static UnicodeCategory from_code_point(char32_t code_point) noexcept;
 
     // Static instances for each category
     // Letters (L)
