@@ -1,7 +1,7 @@
 # Simple String API Documentation
 
 ## Overview
-String is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization.
+String is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization. The library offers comprehensive Unicode handling with both UTF-8 and UTF-16 support.
 
 ## Core Classes
 
@@ -37,6 +37,8 @@ String(const char* str, std::size_t length);
 - `String stripLeading() const`: Removes Unicode whitespace from the beginning of the string
 - `String stripTrailing() const`: Removes Unicode whitespace from the end of the string
 - `bool isStripped() const`: Returns true if the string has no leading or trailing Unicode whitespace
+
+These methods properly handle all Unicode whitespace characters, including zero-width spaces and other special whitespace characters.
 
 #### Static valueOf Methods
 - `static String valueOf(bool b)`: Returns a String representation of the boolean argument
@@ -95,6 +97,8 @@ class StringIndexOutOfBoundsException : public std::out_of_range;
 - Automatic replacement of invalid UTF-8 sequences with U+FFFD
 - Byte-order-mark (BOM) handling
 - NFC normalization support via Boost.Locale
+- Comprehensive Unicode character categorization via the UnicodeCategory class
+- Efficient code point handling with UnicodeUtil
 
 ## Memory Management
 - Copy-on-write optimization using `std::shared_ptr`

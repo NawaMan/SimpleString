@@ -1,12 +1,14 @@
 # Simple String Library
 
-A modern C++ string library with robust Unicode support and efficient memory management. Simple String provides a safe and performance way to handle text in C++, with full UTF-8 and UTF-16 support.
+A modern C++ string library with robust Unicode support and efficient memory management. Simple String provides a safe and performant way to handle text in C++, with full UTF-8 and UTF-16 support and comprehensive Unicode character handling.
 
 ## Features
 - Full Unicode support (UTF-8/UTF-16)
 - Efficient memory management with copy-on-write
 - Comprehensive character access and manipulation
 - Robust handling of invalid UTF-8 sequences
+- Advanced Unicode whitespace handling in string trimming operations
+- Unicode character categorization and code point utilities
 - Cross-platform compatibility
 - Extensive test coverage
 
@@ -67,6 +69,10 @@ String str2{"🌟 Stars"};  // Emoji support
 
 // Access characters
 auto ch = str1.char_at(7);  // Gets '世'
+
+// Unicode whitespace handling
+String text = "  Hello, world!  ";
+String stripped = text.strip();  // Removes all Unicode whitespace
 
 // Safe handling of invalid UTF-8
 String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes

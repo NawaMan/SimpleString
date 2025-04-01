@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] - 2025-04-01
+
+Code improvements and documentation updates.
+- Improved Unicode whitespace handling in string trimming methods (trim(), strip(), stripLeading(), stripTrailing(), isStripped())
+- Refactored String class by moving method implementations from header to cpp file for better compilation efficiency
+- Enhanced Unicode support with improved UnicodeCategory implementation
+- Added comprehensive documentation for Unicode-related classes
+- Improved code organization and reduced header dependencies
+
 ## [0.4.0] - 2025-03-27
 
 Rename many things.
