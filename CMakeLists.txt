@@ -85,6 +85,7 @@ add_library(sstring_lib
     src/regex.cpp
     src/encoding.cpp
     src/char.cpp
+    src/code_point.cpp
 )
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
