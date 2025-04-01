@@ -5,7 +5,7 @@
 namespace simple {
 
 /**
- * Size - A class representing a size value, similar to Java's concept of size.
+ * @brief A class representing a size value, similar to Java's concept of size.
  * 
  * This class provides a type-safe wrapper around std::size_t for representing sizes
  * and indices in the String class. It helps maintain consistency with Java's
@@ -13,18 +13,25 @@ namespace simple {
  * size values like npos (-1).
  * 
  * This class is designed to be lightweight and efficient, with pass-by-value
- * semantics similar to the Char class.
+ * semantics similar to the Char class. All operations are constexpr and noexcept
+ * for optimal performance.
  */
 class Size {
     
-    std::size_t value_; // The underlying size value
+    std::size_t value_; ///< The underlying size value
 
 public:
-    // Special values
-    static constexpr std::size_t npos = static_cast<std::size_t>(-1); // Represents "not found" or "until the end"
+    /**
+     * @brief Special value representing "not found" or "until the end"
+     * 
+     * This value is equivalent to the maximum value of std::size_t (typically -1 when
+     * cast to std::size_t), which is used to indicate that an element was not found
+     * or that an operation should continue until the end of a sequence.
+     */
+    static constexpr std::size_t npos = static_cast<std::size_t>(-1);
     
     /**
-     * Constructs a Size object with the specified value.
+     * @brief Constructs a Size object with the specified value.
      * 
      * @param size The size value to wrap
      */
@@ -32,26 +39,34 @@ public:
         : value_(size) {}
     
     /**
-     * Default constructor - creates a Size with value 0.
+     * @brief Default constructor - creates a Size with value 0.
      */
     constexpr Size() noexcept 
         : value_(0) {}
 
     /**
-     * Returns the underlying size value.
+     * @brief Returns the underlying size value.
      * 
-     * @return The wrapped size value
+     * @return The wrapped size value as std::size_t
      */
     constexpr std::size_t value() const noexcept { return value_; }
     
     /**
-     * Checks if this Size represents the "not found" value.
+     * @brief Checks if this Size represents the "not found" value.
      * 
      * @return true if this Size equals npos, false otherwise
      */
     constexpr bool is_npos() const noexcept { return value_ == npos; }
     
-    // Comparison operators
+    /**
+     * @brief Comparison operators for Size objects
+     * 
+     * These operators allow Size objects to be compared with each other
+     * using standard comparison operators.
+     * 
+     * @param other The Size object to compare with
+     * @return Result of the comparison operation
+     */
     constexpr bool operator==(const Size& other) const noexcept { return value_ == other.value_; }
     constexpr bool operator!=(const Size& other) const noexcept { return value_ != other.value_; }
     constexpr bool operator< (const Size& other) const noexcept { return value_ <  other.value_; }
@@ -59,7 +74,15 @@ public:
     constexpr bool operator<=(const Size& other) const noexcept { return value_ <= other.value_; }
     constexpr bool operator>=(const Size& other) const noexcept { return value_ >= other.value_; }
     
-    // Arithmetic operators
+    /**
+     * @brief Arithmetic operators for Size objects
+     * 
+     * These operators allow Size objects to be added and subtracted.
+     * Note that these operations do not perform any bounds checking.
+     * 
+     * @param other The Size object to perform arithmetic with
+     * @return A new Size object with the result of the operation
+     */
     constexpr Size operator+(const Size& other) const noexcept { return Size(value_ + other.value_); }
     constexpr Size operator-(const Size& other) const noexcept { return Size(value_ - other.value_); }
 };
