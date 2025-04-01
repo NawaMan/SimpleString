@@ -166,39 +166,115 @@ inline int compare_utf8_strings(const std::string& str1, const std::string& str2
 } // namespace detail
 
 /**
- * Simple String - A simple string class that provides Java String-like functionality
+ * @brief A simple string class that provides Java String-like functionality
  *
- * Unicode Handling:
- * - Strings are stored internally as UTF-8
+ * This class implements a Java-like immutable string with Unicode support.
+ * It provides methods for string manipulation, comparison, and conversion
+ * that closely match Java's String class behavior.
+ *
+ * @section unicode Unicode Handling
+ * - Strings are stored internally as UTF-8 for memory efficiency
  * - length() returns the number of UTF-16 code units (like Java's String.length())
  * - Comparison operations use byte-by-byte comparison
+ * - Full support for Unicode surrogate pairs and code points
  * 
- * Note on Unicode Normalization:
+ * @section normalization Unicode Normalization
  * Different Unicode representations of the same visual character are treated as distinct strings.
  * For example:
  * - U+00E9 (é as single code point)
  * - U+0065 + U+0301 (e + ◌́ as combining character)
  * These will compare as different strings and have different lengths.
  * Future versions may support Unicode normalization for comparing such equivalent forms.
+ *
+ * @section memory Memory Efficiency
+ * The String class uses copy-on-write semantics to efficiently share memory between
+ * string instances. Substrings share the same underlying data without copying.
  */
 
+/**
+ * @brief Exception thrown when a string index is out of range
+ *
+ * This exception is thrown when an operation attempts to access a character
+ * at an index that is negative or beyond the end of the string.
+ */
 class StringIndexOutOfBoundsException : public std::out_of_range {
 public:
+    /**
+     * @brief Constructs a StringIndexOutOfBoundsException with the specified message
+     * @param msg The error message
+     */
     explicit StringIndexOutOfBoundsException(const std::string& msg)
         : std::out_of_range(msg) {}
 };
 
 class String {
 public:
-    // Static valueOf methods for primitive types
+    /**
+     * @name valueOf
+     * @brief Static methods to convert primitive types to String
+     *
+     * These methods convert various primitive types to their string representation.
+     * @{
+     */
+    
+    /**
+     * @brief Converts a boolean to a String
+     * @param b The boolean value to convert
+     * @return "true" or "false"
+     */
     static String valueOf(bool b);
+    
+    /**
+     * @brief Converts a character to a String
+     * @param c The character to convert
+     * @return A String containing the single character
+     */
     static String valueOf(char c);
+    
+    /**
+     * @brief Converts an integer to a String
+     * @param i The integer to convert
+     * @return The string representation of the integer
+     */
     static String valueOf(int i);
+    
+    /**
+     * @brief Converts a long to a String
+     * @param l The long value to convert
+     * @return The string representation of the long
+     */
     static String valueOf(long l);
+    
+    /**
+     * @brief Converts a float to a String
+     * @param f The float value to convert
+     * @return The string representation of the float ("NaN", "Infinity", or "-Infinity" for special values)
+     */
     static String valueOf(float f);
+    
+    /**
+     * @brief Converts a double to a String
+     * @param d The double value to convert
+     * @return The string representation of the double ("NaN", "Infinity", or "-Infinity" for special values)
+     */
     static String valueOf(double d);
     
-    // Generic valueOf method for any type that can be converted to string
+    /** @} */
+    
+    /**
+     * @brief Generic valueOf method for any type that can be converted to string
+     *
+     * This template method can convert any type to a String if it:
+     * - Is an arithmetic type (uses std::to_string)
+     * - Is a std::string (uses direct conversion)
+     * - Has a to_string() method
+     * - Is a container or map-like type (creates a string representation)
+     * - Supports operator<< with std::ostringstream
+     *
+     * @tparam T The type to convert
+     * @param obj The object to convert to a String
+     * @return A String representation of the object
+     */
     template<typename T>
     static String valueOf(const T& obj) {
         return String(to_string_helper(obj));
@@ -211,14 +287,24 @@ public:
           length_(0),
           utf16_cache_() {}
     
-    // Constructor from C++ string literal
+    /**
+     * @brief Constructor from C++ string literal
+     * @param str The std::string to convert
+     */
     explicit String(const std::string& str)
         : data_(std::make_shared<const std::string>(str)), 
           offset_(0), 
           length_(str.length()), 
           utf16_cache_() {}
     
-    // Constructor from C string with explicit length (for strings with null chars)
+    /**
+     * @brief Constructor from C string with explicit length
+     * 
+     * This constructor allows creating strings with embedded null characters.
+     *
+     * @param str The C string to convert
+     * @param length The number of characters to use from the C string
+     */
     String(const char* str, std::size_t length)
         : data_(std::make_shared<const std::string>(str, length)), 
           offset_(0), 
@@ -606,14 +692,23 @@ public:
     static String fromStdString(const std::string& str);
 
 private:
-    // Private constructor for creating substrings with shared data
+    /**
+     * @brief Private constructor for creating substrings with shared data
+     *
+     * This constructor is used internally to create substrings that share
+     * the same underlying data as the original string, avoiding unnecessary copying.
+     *
+     * @param data Shared pointer to the underlying string data
+     * @param offset Start offset in the data (in bytes)
+     * @param length Length of the substring (in bytes)
+     */
     String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
         : data_(std::move(data)), offset_(offset), length_(length), utf16_cache_() {}
 
-    std::shared_ptr<const std::string> data_;  // Immutable UTF-8 string storage shared between instances
-    std::size_t offset_{0};                      // Start offset in data_ (in bytes)
-    std::size_t length_{0};                      // Length of this substring (in bytes)
-    mutable std::shared_ptr<const std::u16string> utf16_cache_;  // Cached UTF-16 representation
+    std::shared_ptr<const std::string> data_;  ///< Immutable UTF-8 string storage shared between instances
+    std::size_t offset_{0};                      ///< Start offset in data_ (in bytes)
+    std::size_t length_{0};                      ///< Length of this substring (in bytes)
+    mutable std::shared_ptr<const std::u16string> utf16_cache_;  ///< Cached UTF-16 representation
     
     // Get or create UTF-16 representation
     const std::u16string& get_utf16() const;
@@ -635,7 +730,11 @@ private:
     friend class StringSharing;  // Test fixture for string sharing tests
 
 private:
-    // Helper templates and concepts for valueOf implementation
+    /**
+     * @brief Helper metafunction that is always false regardless of template parameter
+     * 
+     * Used for static_assert failures in template specializations
+     */
     template<typename T>
     struct always_false : std::false_type {};
 
