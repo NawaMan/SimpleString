@@ -858,14 +858,10 @@ String String::strip() const {
     while (end > start) {
         char16_t ch = utf16[end];
         // Check for surrogate pair at the end
-        uint32_t codepoint;
         if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
             char16_t high = utf16[end - 1];
             if (high >= 0xD800 && high <= 0xDBFF) {
                 // Surrogate pair
-                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
-                
-                // Check if the surrogate pair is whitespace
                 // For surrogate pairs, we don't have specific whitespace checks
                 // Just assume they're not whitespace for now
                 break;
@@ -873,7 +869,6 @@ String String::strip() const {
         }
         
         // Regular code unit
-        codepoint = ch;
         
         // Check if the character is whitespace
         bool is_whitespace = false;
@@ -889,7 +884,7 @@ String String::strip() const {
                  ch == 0xFEFF ||                   // Zero width no-break space
                  ch == 0x00A0 ||                   // Non-breaking space
                  ch == 0x2028 ||                   // Line separator
-                 ch == 0x2029) {                  // Paragraph separator
+                 ch == 0x2029) {                   // Paragraph separator
             is_whitespace = true;
         }
         
@@ -993,12 +988,10 @@ String String::stripTrailing() const {
     while (end < utf16.length()) {  // Using < to handle potential underflow when end is 0
         char16_t ch = utf16[end];
         // Check for surrogate pair at the end
-        uint32_t codepoint;
         if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
             char16_t high = utf16[end - 1];
             if (high >= 0xD800 && high <= 0xDBFF) {
                 // Surrogate pair
-                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
                 // For surrogate pairs, we don't have specific whitespace checks
                 // Just assume they're not whitespace for now
                 break;
@@ -1006,7 +999,6 @@ String String::stripTrailing() const {
         }
         
         // Regular code unit
-        codepoint = ch;
         
         // Check if the character is whitespace
         bool is_whitespace = false;
@@ -1079,17 +1071,13 @@ bool String::isStripped() const {
     
     // Check first character
     char16_t first = utf16[0];
-    uint32_t first_codepoint;
     if (first >= 0xD800 && first <= 0xDBFF && utf16.length() > 1) {
         char16_t low = utf16[1];
         if (low >= 0xDC00 && low <= 0xDFFF) {
             // Surrogate pair
-            first_codepoint = 0x10000 + ((first - 0xD800) << 10) + (low - 0xDC00);
-        } else {
-            first_codepoint = first;
         }
     } else {
-        first_codepoint = first;
+
     }
     
     // Check if the first character is whitespace
@@ -1116,17 +1104,13 @@ bool String::isStripped() const {
     
     // Check last character
     char16_t last = utf16[utf16.length() - 1];
-    uint32_t last_codepoint;
     if (last >= 0xDC00 && last <= 0xDFFF && utf16.length() > 1) {
         char16_t high = utf16[utf16.length() - 2];
         if (high >= 0xD800 && high <= 0xDBFF) {
             // Surrogate pair
-            last_codepoint = 0x10000 + ((high - 0xD800) << 10) + (last - 0xDC00);
-        } else {
-            last_codepoint = last;
         }
     } else {
-        last_codepoint = last;
+
     }
     
     // Check if the last character is whitespace
@@ -1299,14 +1283,7 @@ std::vector<uint8_t> String::getBytes(Encoding encoding, BOMPolicy bomPolicy, En
                         latin1_str.reserve(utf16.size());
                         bool chars_ignored = false;
                         
-                        // Check if the string contains non-Latin1 characters
-                        bool has_non_latin1 = false;
-                        for (char16_t ch : utf16) {
-                            if (ch > 0xFF) {
-                                has_non_latin1 = true;
-                                break;
-                            }
-                        }
+                        // Process each character, skipping those outside Latin-1 range
                         
                         // Process each character, skipping those outside Latin-1 range
                         for (char16_t ch : utf16) {
