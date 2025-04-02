@@ -5,7 +5,7 @@ set(CMAKE_SYSTEM_NAME Darwin)
 set(CMAKE_MACOSX_RPATH ON)
 
 # macOS Boost configuration
-set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_LIBS    OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
 # Set deployment target for macOS

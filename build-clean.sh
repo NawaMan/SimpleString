@@ -33,7 +33,7 @@ rm -rf dist
 # Remove generated files
 print_section "Removing generated files"
 rm -rf coverage_report
-rm -f coverage.info
-rm -f docker-build.sh
+rm -f  coverage.info
+rm -f  docker-build.sh
 
 echo -e "\n${GREEN}Build cleanup completed!${NC}"
