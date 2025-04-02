@@ -54,8 +54,13 @@ if(POLICY CMP0111)
     cmake_policy(SET CMP0111 NEW)
 endif()
 
-set(Boost_LOCALE_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_locale-mt-x64.a)
-set(Boost_REGEX_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_regex-mt-x64.a)
+# Set Boost library paths for MinGW (Windows cross-compilation)
+if(MINGW)
+    set(Boost_LOCALE_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_locale-mt.a)
+    set(Boost_REGEX_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_regex-mt.a)
+    set(Boost_INCLUDE_DIR /usr/x86_64-w64-mingw32/include)
+    set(Boost_LIBRARY_DIR /usr/x86_64-w64-mingw32/lib)
+endif()
 
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS locale regex)
@@ -96,6 +101,7 @@ target_include_directories(sstring_lib PUBLIC
 )
 
 if(MINGW)
+    # Set up imported targets for custom-built Boost libraries
     add_library(boost_locale STATIC IMPORTED)
     set_target_properties(boost_locale PROPERTIES
         IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_locale.a)
@@ -104,9 +110,17 @@ if(MINGW)
     set_target_properties(boost_regex PROPERTIES
         IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_regex.a)
 
+    # Add include directories for Boost
+    target_include_directories(sstring_lib PUBLIC
+        /usr/x86_64-w64-mingw32/include
+    )
+
+    # Link with the custom-built Boost libraries
     target_link_libraries(sstring_lib PUBLIC
         boost_locale
         boost_regex
+        -static-libgcc
+        -static-libstdc++
     )
 else()
     target_link_libraries(sstring_lib PUBLIC

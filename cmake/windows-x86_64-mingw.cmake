@@ -27,8 +27,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/x86_64-w64-mingw32/include")
 set(BOOST_ROOT ${MINGW_ROOT})
 set(BOOST_INCLUDEDIR ${MINGW_ROOT}/include)
 set(BOOST_LIBRARYDIR ${MINGW_ROOT}/lib)
+set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 set(Boost_DEBUG ON)
+set(Boost_NO_SYSTEM_PATHS ON)
 
 # Add MinGW-specific paths
 list(APPEND CMAKE_FIND_ROOT_PATH
@@ -37,7 +39,13 @@ list(APPEND CMAKE_FIND_ROOT_PATH
 
 # Set Boost paths for MinGW
 set(Boost_LOCALE_LIBRARY_RELEASE ${MINGW_ROOT}/lib/libboost_locale.a)
+set(Boost_REGEX_LIBRARY_RELEASE ${MINGW_ROOT}/lib/libboost_regex.a)
 set(Boost_LOCALE_LIBRARY_DEBUG ${Boost_LOCALE_LIBRARY_RELEASE})
-set(Boost_LIBRARIES ${Boost_LOCALE_LIBRARY_RELEASE})
+set(Boost_REGEX_LIBRARY_DEBUG ${Boost_REGEX_LIBRARY_RELEASE})
+set(Boost_LIBRARIES ${Boost_LOCALE_LIBRARY_RELEASE} ${Boost_REGEX_LIBRARY_RELEASE})
 set(Boost_FOUND TRUE)
 set(Boost_LOCALE_FOUND TRUE)
+set(Boost_REGEX_FOUND TRUE)
+
+# Ensure static linking of standard libraries
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++ -D_GLIBCXX_USE_CXX11_ABI=1")
