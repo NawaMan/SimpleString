@@ -100,10 +100,11 @@ print_status "Copying docker-build.sh template..."
 cp templates/build/docker-build.sh docker-build.sh
 chmod +x docker-build.sh
 
-# Copy the mingw-w64-x86_64.cmake template from templates directory
-print_status "Copying mingw-w64-x86_64.cmake template..."
+# Copy the CMake templates from templates directory
+print_status "Copying CMake templates..."
 mkdir -p cmake
 cp templates/cmake/mingw-w64-x86_64.cmake cmake/mingw-w64-x86_64.cmake
+cp templates/cmake/windows-x86_64-msvc-cross.cmake cmake/windows-x86_64-msvc-cross.cmake
 
 # Create dist directory
 mkdir -p dist

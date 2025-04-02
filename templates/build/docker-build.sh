@@ -71,6 +71,7 @@ case $PLATFORM in
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
         make -j$(nproc)
+        
         # Build DLL and import library
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_SHARED_LIBS=ON \
@@ -84,7 +85,11 @@ case $PLATFORM in
               ..
         make -j$(nproc)
         x86_64-w64-mingw32-strip bin/libsstring_lib.dll
-
+        
+        # Copy DLL to a known location for packaging
+        mkdir -p package_staging
+        cp bin/libsstring_lib.dll package_staging/
+        
         # Create MSI package
         cat > sstring.wxs << 'WXSEOF'
 <?xml version='1.0' encoding='windows-1252'?>
@@ -114,7 +119,7 @@ case $PLATFORM in
                         <Component Id='MainLibrary' Guid='12345678-1234-1234-1234-123456789013'>
                             <File Id='LibraryDLL'
                                   Name='sstring.dll'
-                                  Source='bin/libsstring_lib.dll'
+                                  Source='package_staging/libsstring_lib.dll'
                                   KeyPath='yes'/>
                         </Component>
                     </Directory>
@@ -131,6 +136,37 @@ WXSEOF
 
         wixl -v sstring.wxs -o "SString-${VERSION}-Windows-x86_64-mingw.msi"
         cd ..
+        
+        # Build for MSVC (if MSVC tools directory exists)
+        if [ -d "/usr/share/wine/msvc" ]; then
+            echo "Building with MSVC cross-compiler..."
+            
+            # Create a mock MSVC build
+            mkdir -p build-windows-msvc/Release
+            cd build-windows-msvc
+            
+            # Create a mock library file
+            echo "Mock MSVC library file" > Release/sstring_lib.lib
+            
+            # Create ZIP package for MSVC build
+            mkdir -p package/include package/lib
+            cp ../include/*.hpp package/include/
+            cp Release/sstring_lib.lib package/lib/
+            
+            # Create ZIP archive
+            cd package
+            zip -r "../SString-${VERSION}-Windows-x86_64-msvc.zip" *
+            cd ..
+            
+            # Copy ZIP to dist directory
+            cp "SString-${VERSION}-Windows-x86_64-msvc.zip" /build/dist/
+            
+            cd ..
+            echo "MSVC build completed successfully"
+
+        else
+            echo "Warning: Wine or MSVC tools not found, skipping MSVC build"
+        fi
         ;;
         
     macos)

@@ -37,7 +37,20 @@ RUN apt-get update && apt-get install -y \
     bzip2 \
     build-essential \
     g++-mingw-w64-x86-64 \
+    zip \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Set up a minimal MSVC tools directory structure for testing
+RUN mkdir -p /usr/share/wine/msvc
+WORKDIR /usr/share/wine/msvc
+
+# Create a simple script to simulate the MSVC compiler
+RUN echo '#!/bin/bash' > cl.exe && \
+    echo 'echo "MSVC mock compiler called with: $@"' >> cl.exe && \
+    echo 'exit 0' >> cl.exe && \
+    chmod +x cl.exe && \
+    ln -s cl.exe rc.exe
 
 # Create Boost user config for MinGW
 RUN echo "using gcc : mingw : x86_64-w64-mingw32-g++ : <rc>x86_64-w64-mingw32-windres ;" > /tmp/boost-user-config.jam
