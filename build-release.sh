@@ -130,7 +130,7 @@ case $PLATFORM in
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
               -DCMAKE_INSTALL_PREFIX=/usr \
-              -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/linux-x86_64-clang.cmake \
+              -DCMAKE_TOOLCHAIN_FILE=../cmake/linux-x86_64-clang.cmake \
               -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-x86_64-clang" \
               -DCPACK_SYSTEM_NAME="Linux-x86_64-clang" \
               ..
@@ -146,7 +146,7 @@ case $PLATFORM in
             cmake -DCMAKE_BUILD_TYPE=Release \
                   -DBUILD_TESTING=OFF \
                   -DCMAKE_INSTALL_PREFIX=/usr \
-                  -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/linux-aarch64-gcc.cmake \
+                  -DCMAKE_TOOLCHAIN_FILE=../cmake/linux-aarch64-gcc.cmake \
                   -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-aarch64-gcc" \
                   -DCPACK_SYSTEM_NAME="Linux-aarch64-gcc" \
                   ..
@@ -165,7 +165,7 @@ case $PLATFORM in
         mkdir -p build-windows-mingw && cd build-windows-mingw
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
-              -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/windows-x86_64-mingw.cmake \
+              -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-x86_64-mingw.cmake \
               -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Windows-x86_64-mingw" \
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..

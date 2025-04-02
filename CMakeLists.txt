@@ -54,6 +54,9 @@ if(POLICY CMP0111)
     cmake_policy(SET CMP0111 NEW)
 endif()
 
+set(Boost_LOCALE_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_locale-mt-x64.a)
+set(Boost_REGEX_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_regex-mt-x64.a)
+
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS locale regex)
 
@@ -91,10 +94,27 @@ add_library(sstring_lib
 target_include_directories(sstring_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_link_libraries(sstring_lib PUBLIC
-    Boost::locale
-    Boost::regex
-)
+
+if(MINGW)
+    add_library(boost_locale STATIC IMPORTED)
+    set_target_properties(boost_locale PROPERTIES
+        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_locale.a)
+
+    add_library(boost_regex STATIC IMPORTED)
+    set_target_properties(boost_regex PROPERTIES
+        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_regex.a)
+
+    target_link_libraries(sstring_lib PUBLIC
+        boost_locale
+        boost_regex
+    )
+else()
+    target_link_libraries(sstring_lib PUBLIC
+        Boost::locale
+        Boost::regex
+    )
+endif()
+
 
 # Set library output directory to dist
 set_target_properties(sstring_lib PROPERTIES
