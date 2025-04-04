@@ -35,5 +35,6 @@ print_section "Removing generated files"
 rm -rf coverage_report
 rm -f  coverage.info
 rm -f  docker-build.sh
+rm -f  compile_commands.json
 
 echo -e "\n${GREEN}Build cleanup completed!${NC}"

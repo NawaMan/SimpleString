@@ -37,7 +37,7 @@ if(WIN32)
 endif()
 
 # Optionally enable testing and coverage
-option(BUILD_TESTING "Build tests" ON)
+option(BUILD_TESTING   "Build tests"               ON)
 option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 
 # Coverage configuration
@@ -57,9 +57,9 @@ endif()
 # Set Boost library paths for MinGW (Windows cross-compilation)
 if(MINGW)
     set(Boost_LOCALE_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_locale-mt.a)
-    set(Boost_REGEX_LIBRARY /usr/x86_64-w64-mingw32/lib/libboost_regex-mt.a)
-    set(Boost_INCLUDE_DIR /usr/x86_64-w64-mingw32/include)
-    set(Boost_LIBRARY_DIR /usr/x86_64-w64-mingw32/lib)
+    set(Boost_REGEX_LIBRARY  /usr/x86_64-w64-mingw32/lib/libboost_regex-mt.a)
+    set(Boost_INCLUDE_DIR    /usr/x86_64-w64-mingw32/include)
+    set(Boost_LIBRARY_DIR    /usr/x86_64-w64-mingw32/lib)
 endif()
 
 # Find Boost
@@ -71,20 +71,20 @@ if(TARGET Boost::locale)
     if(NOT BOOST_LOCALE_LIB)
         set_target_properties(Boost::locale PROPERTIES
             IMPORTED_LOCATION_RELEASE "${Boost_LOCALE_LIBRARY_RELEASE}"
-            IMPORTED_LOCATION "${Boost_LOCALE_LIBRARY}")
+            IMPORTED_LOCATION         "${Boost_LOCALE_LIBRARY}")
     endif()
 endif()
 
 # Print compiler information
-message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_CXX_COMPILER_VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "CMAKE_CXX_COMPILER_ID:        ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION:   ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "CMAKE_CXX_COMPILER full path: ${CMAKE_CXX_COMPILER}")
 
 # Set RPATH for executables
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "/usr/lib/x86_64-linux-gnu;/home/linuxbrew/.linuxbrew/lib")
+set(CMAKE_SKIP_BUILD_RPATH            FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH    TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_INSTALL_RPATH "/usr/lib/x86_64-linux-gnu;/home/linuxbrew/.linuxbrew/lib")
 
 # Add the library
 add_library(sstring_lib
@@ -176,38 +176,38 @@ endif()
 # CPack configuration - set variables before including CPack
     
 # Basic package information
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_NAME                "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VERSION             "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VENDOR              "NawaMan")
+set(CPACK_PACKAGE_CONTACT             "nawa@nawaman.net")
+set(CPACK_PACKAGE_DESCRIPTION_FILE    "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple String - A smart string library")
-set(CPACK_PACKAGE_VENDOR "NawaMan")
-set(CPACK_PACKAGE_CONTACT "nawa@nawaman.net")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
 # Package generators
 if(WIN32)
-    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_GENERATOR        "ZIP")
     set(CPACK_SOURCE_GENERATOR "ZIP")
 elseif(APPLE)
-    set(CPACK_GENERATOR "TGZ;productbuild")
+    set(CPACK_GENERATOR        "TGZ;productbuild")
     set(CPACK_SOURCE_GENERATOR "TGZ")
 
     # macOS package settings
-    set(CPACK_PRODUCTBUILD_IDENTIFIER "net.nawaman.sstring")
-    set(CPACK_PRODUCTBUILD_DOMAINS true)
+    set(CPACK_OSX_PACKAGE_VERSION        "10.15")
+    set(CPACK_PRODUCTBUILD_DOMAINS       true)
+    set(CPACK_PRODUCTBUILD_IDENTIFIER    "net.nawaman.sstring")
     set(CPACK_PRODUCTBUILD_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/packaging/macos")
-    set(CPACK_OSX_PACKAGE_VERSION "10.15")
 else()
-    set(CPACK_GENERATOR "TGZ;DEB;RPM")
+    set(CPACK_GENERATOR        "TGZ;DEB;RPM")
     set(CPACK_SOURCE_GENERATOR "TGZ")
 
     # Debian package settings
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-locale")
-    set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS    "libboost-locale")
+    set(CPACK_DEBIAN_PACKAGE_SECTION    "libs")
 
     # RPM package settings
-    set(CPACK_RPM_PACKAGE_LICENSE "MIT")
-    set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+    set(CPACK_RPM_PACKAGE_LICENSE  "MIT")
+    set(CPACK_RPM_PACKAGE_GROUP    "Development/Libraries")
     set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
 endif()
 

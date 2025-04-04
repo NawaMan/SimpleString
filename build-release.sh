@@ -37,9 +37,9 @@ show_help() {
     echo "  -h, --help              Show this help message"
     echo "  -p, --platform PLATFORM Build for specific platform (linux, windows, macos)"
     echo "                          Default: all platforms"
-    echo "  -t, --type TYPE        Package type (tar.gz, deb, rpm, zip, msi, pkg)"
+    echo "  -t, --type TYPE         Package type (tar.gz, deb, rpm, zip, msi, pkg)"
     echo "                          Default: all types for selected platform"
-    echo "  -v, --version VERSION  Set package version (required)"
+    echo "  -v, --version VERSION   Set package version (required)"
     echo
 }
 
@@ -97,13 +97,13 @@ print_section "Creating Docker build context"
 
 # Copy the docker-build.sh template from config directory
 print_status "Copying docker-build.sh template..."
-cp config/templates/docker-build.sh docker-build.sh
-chmod +x docker-build.sh
+cp           config/templates/docker-build.sh docker-build.sh
+chmod +x     docker-build.sh
 
 # Copy the CMake templates from config directory
 print_status "Copying CMake templates..."
 mkdir -p cmake
-cp config/templates/cmake/mingw-w64-x86_64.cmake cmake/mingw-w64-x86_64.cmake
+cp config/templates/cmake/mingw-w64-x86_64.cmake          cmake/mingw-w64-x86_64.cmake
 cp config/templates/cmake/windows-x86_64-msvc-cross.cmake cmake/windows-x86_64-msvc-cross.cmake
 
 # Create dist directory
@@ -115,10 +115,10 @@ for platform in $PLATFORMS; do
     
     # Build the platform-specific image
     print_status "Building Docker image for $platform..."
-    docker build --target $platform \
-                --build-arg VERSION=$VERSION \
-                -f config/Dockerfile \
-                -t sstring-$platform-builder .
+    docker build --target    $platform          \
+                 --build-arg VERSION=$VERSION   \
+                 -f          config/Dockerfile  \
+                 -t          sstring-$platform-builder .
     
     # Run the build
     print_status "Running build for $platform..."

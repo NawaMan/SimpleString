@@ -11,16 +11,16 @@
 #   ./build-quick.sh [options]
 #
 # Options:
-#   -h, --help          Show this help message
+#   -h, --help         Show this help message
 #   -t, --with-tests   Build with tests (default)
 #   -n, --no-tests     Build without tests
 #   -c, --clean        Clean build directory before building
-#   --coverage        Enable code coverage (requires tests)
+#   --coverage         Enable code coverage (requires tests)
 #
 # Examples:
-#   ./build-quick.sh              # Debug build with tests
+#   ./build-quick.sh             # Debug build with tests
 #   ./build-quick.sh -n          # Debug build without tests
-#   ./build-quick.sh --coverage   # Debug build with tests and coverage
+#   ./build-quick.sh --coverage  # Debug build with tests and coverage
 #   ./build-quick.sh -c          # Clean debug build
 
 set -e  # Exit on error
@@ -57,13 +57,13 @@ show_help() {
 Usage: $(basename "$0") [options]
 
 Options:
-  -h, --help          Show this help message
+  -h, --help         Show this help message
   -t, --with-tests   Build with tests (default)
   -n, --no-tests     Build without tests
   -c, --clean        Clean build directory before building
 
 Examples:
-  ./build-quick.sh              # Debug build with tests
+  ./build-quick.sh             # Debug build with tests
   ./build-quick.sh -n          # Debug build without tests
   ./build-quick.sh -c          # Clean debug build with tests
 EOF
@@ -116,29 +116,29 @@ cd build
 
 # Configure
 print_section "Configuring Build"
-print_status "Running CMake..."
+print_status  "Running CMake..."
 
 # Configure coverage flags
 if [ "${ENABLE_COVERAGE}" = "ON" ]; then
     export CXXFLAGS="${CXXFLAGS} --coverage -fprofile-arcs -ftest-coverage -fprofile-update=atomic"
-    export LDFLAGS="${LDFLAGS} --coverage"
+    export LDFLAGS="${LDFLAGS}   --coverage"
 fi
 
-cmake -DCMAKE_BUILD_TYPE=Debug \
-      -DBUILD_TESTING=${BUILD_TESTS} \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake -DCMAKE_BUILD_TYPE=Debug             \
+      -DBUILD_TESTING=${BUILD_TESTS}       \
+      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON   \
       -DENABLE_COVERAGE=${ENABLE_COVERAGE} \
       ..
 
 # Build
 print_section "Building Project"
-print_status "Running make..."
+print_status  "Running make..."
 make -j$(nproc)
 
 # Run tests if enabled
 if [ "${BUILD_TESTS}" = "ON" ]; then
     print_section "Running Tests"
-    print_status "Running CTest..."
+    print_status  "Running CTest..."
     ctest --output-on-failure
 
     # Generate coverage report if enabled
@@ -151,32 +151,32 @@ if [ "${BUILD_TESTS}" = "ON" ]; then
         ./sstring_tests
 
         # Capture coverage data
-        lcov --directory . \
-             --capture \
-             --output-file coverage.info.raw \
-             --rc branch_coverage=1 \
-             --ignore-errors mismatch,negative,empty,unused \
-             --rc geninfo_unexecuted_blocks=1 \
+        lcov --directory      .                              \
+             --capture                                       \
+             --output-file    coverage.info.raw              \
+             --rc             branch_coverage=1              \
+             --ignore-errors  mismatch,negative,empty,unused \
+             --rc             geninfo_unexecuted_blocks=1    \
              --base-directory "$(pwd)/.."
 
         # Remove system files and test files
-        lcov --remove coverage.info.raw \
-             '/usr/include/*' \
-             '*/tests/*' \
-             --output-file coverage.info \
-             --rc branch_coverage=1 \
+        lcov --remove coverage.info.raw        \
+             '/usr/include/*'                  \
+             '*/tests/*'                       \
+             --output-file   coverage.info     \
+             --rc            branch_coverage=1 \
              --ignore-errors unused,mismatch
 
         # Generate HTML report
         if [ -x "$(command -v genhtml)" ]; then
             print_status "Generating HTML coverage report..."
-            genhtml coverage.info \
-                    --output-directory ../coverage_report \
-                    --branch-coverage \
-                    --legend \
-                    --title "Simple String Coverage Report" \
-                    --prefix $(pwd)/.. \
-                    --rc branch_coverage=1
+            genhtml coverage.info                            \
+                    --output-directory ../coverage_report    \
+                    --branch-coverage                        \
+                    --legend                                 \
+                    --title  "Simple String Coverage Report" \
+                    --prefix $(pwd)/..                       \
+                    --rc     branch_coverage=1
             echo -e "Coverage report generated at: ${BLUE}$(pwd)/../coverage_report/index.html${NC}"
         fi
     fi
