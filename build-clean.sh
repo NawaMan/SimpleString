@@ -36,5 +36,7 @@ rm -rf coverage_report
 rm -f  coverage.info
 rm -f  docker-build.sh
 rm -f  compile_commands.json
+rm -f  cmake/mingw-w64-x86_64.cmake
+rm -f  cmake/windows-x86_64-msvc-cross.cmake
 
 echo -e "\n${GREEN}Build cleanup completed!${NC}"
