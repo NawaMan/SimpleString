@@ -95,16 +95,16 @@ fi
 # Create Docker build context
 print_section "Creating Docker build context"
 
-# Copy the docker-build.sh template from templates directory
+# Copy the docker-build.sh template from config directory
 print_status "Copying docker-build.sh template..."
-cp templates/build/docker-build.sh docker-build.sh
+cp config/build/docker-build.sh docker-build.sh
 chmod +x docker-build.sh
 
-# Copy the CMake templates from templates directory
+# Copy the CMake templates from config directory
 print_status "Copying CMake templates..."
 mkdir -p cmake
-cp templates/cmake/mingw-w64-x86_64.cmake cmake/mingw-w64-x86_64.cmake
-cp templates/cmake/windows-x86_64-msvc-cross.cmake cmake/windows-x86_64-msvc-cross.cmake
+cp config/cmake/mingw-w64-x86_64.cmake cmake/mingw-w64-x86_64.cmake
+cp config/cmake/windows-x86_64-msvc-cross.cmake cmake/windows-x86_64-msvc-cross.cmake
 
 # Create dist directory
 mkdir -p dist
