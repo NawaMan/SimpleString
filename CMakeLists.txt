@@ -206,13 +206,13 @@ else()
 
     # Debian package settings
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS    "libboost-locale")
+    # No external dependencies for static build
     set(CPACK_DEBIAN_PACKAGE_SECTION    "libs")
 
     # RPM package settings
     set(CPACK_RPM_PACKAGE_LICENSE  "MIT")
     set(CPACK_RPM_PACKAGE_GROUP    "Development/Libraries")
-    set(CPACK_RPM_PACKAGE_REQUIRES "boost-locale")
+    # No external dependencies for static build
 endif()
 
 # Finally include CPack
