@@ -4,7 +4,11 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0048 NEW)  # project() command manages VERSION variables
 cmake_policy(SET CMP0042 NEW)  # MACOSX_RPATH is enabled by default
 
-project(SString VERSION 1.0.0 LANGUAGES CXX)
+# Read version from version.txt
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" PROJECT_VERSION)
+string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
+
+project(SString VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 # Output architecture information
 message(STATUS "Building for: ${CMAKE_SYSTEM_NAME} - ${CMAKE_SYSTEM_PROCESSOR}")

@@ -32,6 +32,7 @@ rm -rf dist
 
 # Remove generated files
 print_section "Removing generated files"
+rm -rf dist
 rm -rf coverage_report
 rm -f  coverage.info
 rm -f  docker-build.sh
