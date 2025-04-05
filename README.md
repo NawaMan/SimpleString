@@ -138,7 +138,7 @@ sudo apt-get install -y build-essential cmake git sed libgtest-dev libboost-all-
 
 ### Ensure proper line ends before commit
 
-Run : find . \( -path "./.git" -o -name "*.ps1" \) -prune -o -type f -exec sed -i 's/\r/\n/g' {} +
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
 
 ## Developing on Windows
 

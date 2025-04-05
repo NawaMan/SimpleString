@@ -174,7 +174,9 @@ if(BUILD_TESTING)
         ${GTEST_LIBRARIES}
         pthread
     )
-    add_test(NAME sstring_tests COMMAND sstring_tests)
+    # Use GoogleTest module to discover tests
+    include(GoogleTest)
+    gtest_discover_tests(sstring_tests)
 endif()
 
 # CPack configuration - set variables before including CPack

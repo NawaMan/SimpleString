@@ -29,6 +29,7 @@ set -e  # Exit on error
 BUILD_TESTS="ON"
 ENABLE_COVERAGE="OFF"
 CLEAN_BUILD=0
+VERBOSE_TESTS=0
 
 # Colors for output
 RED='\033[0;31m'
@@ -61,6 +62,7 @@ Options:
   -t, --with-tests   Build with tests (default)
   -n, --no-tests     Build without tests
   -c, --clean        Clean build directory before building
+  -v, --verbose      Show verbose test output with individual test details
 
 Examples:
   ./build-quick.sh             # Debug build with tests
@@ -93,6 +95,10 @@ while [[ $# -gt 0 ]]; do
             BUILD_TESTS="ON"  # Coverage requires tests
             shift
             ;;
+        -v|--verbose)
+            VERBOSE_TESTS=1
+            shift
+            ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
             show_help
@@ -103,6 +109,7 @@ done
 print_section "Quick Build Configuration"
 echo -e "Build Tests: ${BLUE}${BUILD_TESTS}${NC}"
 echo -e "Clean Build: ${BLUE}${CLEAN_BUILD}${NC}"
+echo -e "Verbose Tests: ${BLUE}$([ $VERBOSE_TESTS -eq 1 ] && echo "ON" || echo "OFF")${NC}"
 
 # Clean if requested
 if [ $CLEAN_BUILD -eq 1 ]; then
@@ -138,8 +145,13 @@ make -j$(nproc)
 # Run tests if enabled
 if [ "${BUILD_TESTS}" = "ON" ]; then
     print_section "Running Tests"
-    print_status  "Running CTest..."
-    ctest --output-on-failure
+    if [ $VERBOSE_TESTS -eq 1 ]; then
+        print_status "Running CTest with verbose output..."
+        ctest --output-on-failure -V
+    else
+        print_status "Running CTest..."
+        ctest --output-on-failure
+    fi
 
     # Generate coverage report if enabled
     if [ -x "$(command -v lcov)" ] && [ "${ENABLE_COVERAGE}" = "ON" ]; then
