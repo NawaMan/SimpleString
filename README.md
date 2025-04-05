@@ -118,6 +118,66 @@ open coverage_report/index.html
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Developer on Linux
+
+### Prerequisites
+- Linux
+- CMake
+- Git
+- sed
+- Boost
+
+```bash
+sudo apt-get install -y build-essential cmake git sed libgtest-dev libboost-all-dev
+```
+
+### Setup
+1. Clone the repository
+2. Build the Docker image
+3. Run the Docker container
+
+### Ensure proper line ends before commit
+
+Run : find . \( -path "./.git" -o -name "*.ps1" \) -prune -o -type f -exec sed -i 's/\r/\n/g' {} +
+
+## Developing on Windows
+
+### Prerequisites
+- Windows 10 or later
+- WSL (Windows Subsystem for Linux)
+- Docker
+- CMake
+- Git
+- sed
+- Boost
+
+### Setup
+1. Install WSL
+2. Install Docker
+3. Clone the repository
+4. Build the Docker image
+5. Run the Docker container
+
+### Ensure proper line ends before commit
+
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
+
+## Developer on MacOS
+
+### Prerequisites
+- Windows 10 or later
+- WSL (Windows Subsystem for Linux)
+- Docker
+- CMake
+- Git
+- sed
+- Boost
+- Clang
+
+### Ensure proper line ends before commit
+
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
