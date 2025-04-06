@@ -1,12 +1,66 @@
 #ifndef SIMPLE_REGEX_HPP
 #define SIMPLE_REGEX_HPP
 
-#include <boost/regex.hpp>
 #include <stdexcept>
 #include <vector>
+#include <memory>
 #include "string.hpp"
 
 namespace simple {
+
+class Flag {
+    int value_;
+    explicit Flag(int value) : value_(value) {}  // Make constructor explicit to avoid implicit conversions
+public:
+    int value() const { return value_; }  // Getter for value_
+
+    static const Flag CASE_INSENSITIVE;  ///< Case-insensitive matching
+    static const Flag MULTILINE;         ///< Multiline mode (^ and $ match at line breaks)
+    static const Flag DOTALL;            ///< Dot matches all characters including newlines
+    static const Flag EXTENDED;          ///< Extended syntax with whitespace ignored
+    static const Flag ECMAScript;        ///< ECMAScript (JavaScript) syntax    
+};
+
+class Flags {
+    int value_;
+    explicit Flags(int value) : value_(value) {}
+    // Default constructor needed for class members
+    Flags() : value_(0) {}
+    friend class RegEx; // Allow RegEx to access private constructor
+    
+    // Make Flag to Flags conversion public but not explicit
+    // This allows Flag objects to be implicitly converted to Flags
+public:
+    Flags(const Flag& flag) : value_(flag.value()) {}
+    int value() const { return value_; }  // Getter for the flag value
+
+    static const Flags empty() {
+        return Flags(0);
+    }
+
+    template <typename... FlagTypes>
+    static Flags of(FlagTypes... flags) {
+        int value = 0;
+        ((value |= flags.value()), ...);  // Fold expression to combine flags
+        return Flags(value);
+    }
+
+    // Overload | operator for Flags | Flag
+    Flags operator|(const Flag& flag) const {
+        return Flags(value_ | flag.value());
+    }
+
+    // Overload & operator for Flags & Flag
+    Flags operator&(const Flag& flag) const {
+        return Flags(value_ & flag.value());
+    }
+    
+    // Method to check if a specific flag is contained
+    bool contain(const Flag& flag) const {
+        return (value_ & flag.value()) == flag.value();
+    }
+};
+
 
 /**
  * @brief A class for regular expression pattern matching and manipulation.
@@ -33,20 +87,20 @@ public:
      * Initializes a regular expression with specific flags to control matching behavior.
      * 
      * @param pattern The regular expression pattern to compile
-     * @param flags The regex flags (combination of RegEx::Flag values)
+     * @param flags The regex flags (a Flags object or a single Flag)
      * @throws RegExSyntaxException If the pattern contains invalid regex syntax
-     * @see RegEx::Flag for available flag options
+     * @see RegEx::Flag and RegEx::Flags for available flag options
      */
-    RegEx(const String& pattern, int flags);
+    RegEx(const String& pattern, const Flags& flags);
     
     /**
      * @brief Returns the flags used by this regex pattern.
      *
      * Retrieves the original flags that were used to create this RegEx object.
      * 
-     * @return The regex flags as an integer (combination of RegEx::Flag values)
+     * @return The regex flags as a Flags object
      */
-    int flags() const;
+    Flags flags() const { return flags_; }
 
     /**
      * @brief Returns a RegEx that will exactly match the given string.
@@ -151,30 +205,21 @@ public:
      */
     std::vector<String> split(const String& input, int limit) const;
 
-    /**
-     * @brief Regex flags to control matching behavior.
-     *
-     * These flags map to Boost.Regex flags and can be combined using bitwise OR.
-     * For example: RegEx::CASE_INSENSITIVE | RegEx::EXTENDED
-     */
-    enum Flag {
-        CASE_INSENSITIVE = boost::regex_constants::icase,    ///< Case-insensitive matching
-        MULTILINE = boost::regex_constants::normal,          ///< Multiline mode (^ and $ match at line breaks)
-        DOTALL = boost::regex_constants::normal,             ///< Dot matches all characters including newlines
-        EXTENDED = boost::regex_constants::extended,         ///< Extended syntax with whitespace ignored
-        ECMAScript = boost::regex_constants::ECMAScript      ///< ECMAScript (JavaScript) syntax
-    };
-
 private:
     /**
-     * @brief The compiled regex pattern using Boost.Regex.
+     * @brief Implementation class to hide Boost dependency.
      */
-    boost::regex pattern_;
+    class Impl;
+    
+    /**
+     * @brief Shared pointer to the implementation.
+     */
+    std::shared_ptr<Impl> pimpl_;
     
     /**
      * @brief Original flags used to create this regex.
      */
-    int originalFlags_;
+    Flags flags_;
 
     /**
      * @brief Escapes regex metacharacters in a string.

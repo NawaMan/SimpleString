@@ -30,3 +30,5 @@ Thumbs.db
 /docker-build.sh
 
 .cache/
+
+cmake-build-debug/
