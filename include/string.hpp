@@ -6,7 +6,6 @@
 #include <sstream>
 #include <variant>
 #include <vector>
-#include <boost/locale.hpp>
 #include "compare_result.hpp"
 #include "char.hpp"
 #include "code_point.hpp"
@@ -73,15 +72,13 @@ namespace traits {
 
 namespace detail {
 
-// One-time initialization of Boost Locale
-inline void init_locale() {
-    static bool initialized = false;
-    if (!initialized) {
-        boost::locale::generator gen;
-        std::locale::global(gen("en_US.UTF-8"));
-        initialized = true;
-    }
-}
+// Forward declarations of implementation details
+// These functions are implemented in string.cpp
+void init_locale();
+
+// Forward declaration of the StringImpl class
+class StringImpl;
+
 
 // Count UTF-16 code units, treating each byte of invalid UTF-8 as a separate code unit
 inline std::size_t count_utf16_code_units(const std::string& utf8_str) {
@@ -281,21 +278,13 @@ public:
     }
     
     // Default constructor - creates an empty string
-    String()
-        : data_(std::make_shared<const std::string>("")),
-          offset_(0),
-          length_(0),
-          utf16_cache_() {}
+    String();
     
     /**
      * @brief Constructor from C++ string literal
      * @param str The std::string to convert
      */
-    explicit String(const std::string& str)
-        : data_(std::make_shared<const std::string>(str)), 
-          offset_(0), 
-          length_(str.length()), 
-          utf16_cache_() {}
+    explicit String(const std::string& str);
     
     /**
      * @brief Constructor from C string with explicit length
@@ -305,11 +294,7 @@ public:
      * @param str The C string to convert
      * @param length The number of characters to use from the C string
      */
-    String(const char* str, std::size_t length)
-        : data_(std::make_shared<const std::string>(str, length)), 
-          offset_(0), 
-          length_(length), 
-          utf16_cache_() {}
+    String(const char* str, std::size_t length);
     
     // Get the length of the string in UTF-16 code units
     std::size_t length() const;
@@ -702,13 +687,10 @@ private:
      * @param offset Start offset in the data (in bytes)
      * @param length Length of the substring (in bytes)
      */
-    String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
-        : data_(std::move(data)), offset_(offset), length_(length), utf16_cache_() {}
+    String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length);
 
-    std::shared_ptr<const std::string> data_;  ///< Immutable UTF-8 string storage shared between instances
-    std::size_t offset_{0};                      ///< Start offset in data_ (in bytes)
-    std::size_t length_{0};                      ///< Length of this substring (in bytes)
-    mutable std::shared_ptr<const std::u16string> utf16_cache_;  ///< Cached UTF-16 representation
+    // Implementation details are hidden using the PIMPL idiom
+    std::shared_ptr<detail::StringImpl> pimpl_;
     
     // Get or create UTF-16 representation
     const std::u16string& get_utf16() const;
