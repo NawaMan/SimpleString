@@ -103,9 +103,12 @@ String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
 
 # Generate optimized LLVM IR files
 ./build-llvm-ir.sh -r -o 2  # Release build with -O2 optimization
+
+# Generate LLVM IR as part of the release build process
+./build-release.sh -v 1.0.0 --with-llvm-ir
 ```
 
-The LLVM IR build generates intermediate representation files useful for advanced static analysis and optimization studies. See [LLVM IR Build Documentation](docs/scripts/build-llvm-ir.md) for more details.
+The LLVM IR build generates intermediate representation files useful for advanced static analysis and optimization studies. When using the `--with-llvm-ir` option with the release build script, LLVM IR files are generated and packaged alongside the regular release packages. See [LLVM IR Build Documentation](docs/scripts/build-llvm-ir.md) for more details.
 
 ## Testing
 The library comes with comprehensive test suites:

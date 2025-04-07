@@ -9,8 +9,16 @@ The `build-llvm-ir.sh` script generates LLVM Intermediate Representation (IR) fi
 
 ## Usage
 
+### Standalone LLVM IR Generation
+
 ```bash
 ./build-llvm-ir.sh [options]
+```
+
+### As Part of Release Build
+
+```bash
+./build-release.sh -v VERSION --with-llvm-ir [other options]
 ```
 
 ### Options
@@ -45,12 +53,31 @@ dist/llvm-ir/
   └── release-O3/    # Release build with -O3 optimization
 ```
 
+## Integration with Release Build
+
+The LLVM IR generation is integrated with the release build process through the `--with-llvm-ir` option in the `build-release.sh` script. When this option is used, the release build process will:
+
+1. Generate LLVM IR files for each source file in the library
+2. Package the LLVM IR files alongside the regular release packages
+3. Create separate LLVM IR tarballs for each platform (e.g., `SString-VERSION-Linux-x86_64-gcc-llvm-ir.tar.gz`)
+
+### Example
+
+```bash
+# Build release packages for all platforms and include LLVM IR files
+./build-release.sh -v 1.0.0 --with-llvm-ir
+
+# Build release packages for Linux only and include LLVM IR files
+./build-release.sh -v 1.0.0 -p linux --with-llvm-ir
+```
+
 ## Use Cases
 
 1. **Static Analysis**: Examine the LLVM IR to identify potential optimizations or bugs
 2. **Optimization Studies**: Compare different optimization levels and their effects
-3. **Cross-Platform Analysis**: Study platform-independent representation of the code
-4. **Educational Purposes**: Learn about compiler internals and code generation
+3. **Cross-Platform Analysis**: Compare LLVM IR generated for different platforms and study platform-independent representation of the code
+4. **Compiler Research**: Study how the Clang compiler translates C++ code to LLVM IR
+5. **Educational Purposes**: Learn about compiler internals and code generation
 
 ## Notes
 - LLVM IR files can be large, especially at lower optimization levels

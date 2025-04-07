@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     rubygems \
     rpm \
     clang \
+    llvm \
     && gem install fpm \
     && rm -rf /var/lib/apt/lists/*
 
@@ -77,7 +78,3 @@ RUN wget -q https://sourceforge.net/projects/boost/files/boost/1.83.0/boost_1_83
 WORKDIR /build
 
 FROM base AS macos
-RUN apt-get update && apt-get install -y \
-    clang \
-    llvm \
-    && rm -rf /var/lib/apt/lists/*

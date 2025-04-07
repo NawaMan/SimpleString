@@ -40,6 +40,7 @@ show_help() {
     echo "  -t, --type TYPE         Package type (tar.gz, deb, rpm, zip, msi, pkg)"
     echo "                          Default: all types for selected platform"
     echo "  -v, --version VERSION   Set package version (required)"
+    echo "      --with-llvm-ir      Generate LLVM IR files during build (requires Clang)"
     echo
 }
 
@@ -53,6 +54,7 @@ fi
 PLATFORMS="linux windows macos"
 PACKAGE_TYPES="all"
 VERSION=""
+GENERATE_LLVM_IR=0
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -71,6 +73,10 @@ while [[ $# -gt 0 ]]; do
         -v|--version)
             VERSION="$2"
             shift 2
+            ;;
+        --with-llvm-ir)
+            GENERATE_LLVM_IR=1
+            shift
             ;;
         *)
             print_error "Unknown option: $1"
@@ -124,7 +130,7 @@ for platform in $PLATFORMS; do
     print_status "Running build for $platform..."
     docker run --rm \
         -v "$(pwd)/dist:/build/dist" \
-        sstring-$platform-builder ./docker-build.sh $platform $VERSION
+        sstring-$platform-builder ./docker-build.sh $platform $VERSION $GENERATE_LLVM_IR
 done
 
 print_section "Build Summary"

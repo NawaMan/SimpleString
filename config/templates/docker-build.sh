@@ -3,11 +3,25 @@ set -e
 
 PLATFORM=$1
 VERSION=$2
+GENERATE_LLVM_IR=${3:-0}
+
+
 
 # Ensure version is provided
 if [ -z "$VERSION" ]; then
     echo "Error: Version must be provided"
     exit 1
+fi
+
+# Check if LLVM IR generation is enabled
+if [ "$GENERATE_LLVM_IR" -eq 1 ]; then
+    echo "LLVM IR generation is enabled"
+    
+    # Check if Clang is installed
+    if ! command -v clang++ &> /dev/null; then
+        echo "Warning: clang++ not found, LLVM IR generation will be skipped"
+        GENERATE_LLVM_IR=0
+    fi
 fi
 
 case $PLATFORM in
@@ -22,8 +36,59 @@ case $PLATFORM in
               ..
         make -j$(nproc)
         cpack -G TGZ
+        
+        # Generate LLVM IR if enabled
+        if [ "$GENERATE_LLVM_IR" -eq 1 ]; then
+            echo "Generating LLVM IR for Linux GCC build..."
+            
+            # Create output directory
+            mkdir -p llvm-ir/linux-x86_64-gcc/release-O2
+            
+            # Find all source files
+            source_files=$(find ../src -name "*.cpp")
+            
+            # Process each source file
+            for src_file in $source_files; do
+                # Get the base filename without extension
+                base_name=$(basename "$src_file" .cpp)
+                output_file="llvm-ir/linux-x86_64-gcc/release-O2/$base_name.ll"
+                
+                echo "  Processing $src_file -> $output_file"
+                
+                # Skip problematic files
+                if [[ "$src_file" == *"unicode_category.cpp"* ]]; then
+                    echo "    Skipping problematic file (constexpr issues)"
+                    continue
+                fi
+                
+                # Generate LLVM IR
+                clang++ -S -emit-llvm \
+                    -std=c++20 \
+                    -O2 \
+                    -I../include \
+                    -I/usr/include \
+                    -I/usr/local/include \
+                    -Wno-inconsistent-missing-override \
+                    -o "$output_file" \
+                    "$src_file"
+                    
+                if [ $? -eq 0 ]; then
+                    echo "    ✓ Success"
+                else
+                    echo "    ✗ Failed"
+                fi
+            done
+            
+            # Create a tarball of the LLVM IR files
+            tar -czf "SString-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" llvm-ir/
+            
+            # Copy the LLVM IR tarball to the dist directory
+            cp "SString-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" "/build/dist/"
+        fi
+        
         cpack -G DEB
         cpack -G RPM
+        
         cd ..
 
         # Build for x86_64 with Clang
@@ -37,8 +102,59 @@ case $PLATFORM in
               ..
         make -j$(nproc)
         cpack -G TGZ
+        
+        # Generate LLVM IR if enabled
+        if [ "$GENERATE_LLVM_IR" -eq 1 ]; then
+            echo "Generating LLVM IR for Linux Clang build..."
+            
+            # Create output directory
+            mkdir -p llvm-ir/linux-x86_64-clang/release-O2
+            
+            # Find all source files
+            source_files=$(find ../src -name "*.cpp")
+            
+            # Process each source file
+            for src_file in $source_files; do
+                # Get the base filename without extension
+                base_name=$(basename "$src_file" .cpp)
+                output_file="llvm-ir/linux-x86_64-clang/release-O2/$base_name.ll"
+                
+                echo "  Processing $src_file -> $output_file"
+                
+                # Skip problematic files
+                if [[ "$src_file" == *"unicode_category.cpp"* ]]; then
+                    echo "    Skipping problematic file (constexpr issues)"
+                    continue
+                fi
+                
+                # Generate LLVM IR
+                clang++ -S -emit-llvm \
+                    -std=c++20 \
+                    -O2 \
+                    -I../include \
+                    -I/usr/include \
+                    -I/usr/local/include \
+                    -Wno-inconsistent-missing-override \
+                    -o "$output_file" \
+                    "$src_file"
+                    
+                if [ $? -eq 0 ]; then
+                    echo "    ✓ Success"
+                else
+                    echo "    ✗ Failed"
+                fi
+            done
+            
+            # Create a tarball of the LLVM IR files
+            tar -czf "SString-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" llvm-ir/
+            
+            # Copy the LLVM IR tarball to the dist directory
+            cp "SString-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" "/build/dist/"
+        fi
+        
         cpack -G DEB
         cpack -G RPM
+        
         cd ..
 
         # Build for AArch64 with GCC
@@ -179,6 +295,56 @@ WXSEOF
               -DCPACK_SYSTEM_NAME="macOS-universal" \
               ..
         make -j$(nproc)
+        
+        # Generate LLVM IR if enabled
+        if [ "$GENERATE_LLVM_IR" -eq 1 ]; then
+            echo "Generating LLVM IR for macOS build..."
+            
+            # Create output directory
+            mkdir -p llvm-ir/macos-universal/release-O2
+            
+            # Find all source files
+            source_files=$(find ../src -name "*.cpp")
+            
+            # Process each source file
+            for src_file in $source_files; do
+                # Get the base filename without extension
+                base_name=$(basename "$src_file" .cpp)
+                output_file="llvm-ir/macos-universal/release-O2/$base_name.ll"
+                
+                echo "  Processing $src_file -> $output_file"
+                
+                # Skip problematic files
+                if [[ "$src_file" == *"unicode_category.cpp"* ]]; then
+                    echo "    Skipping problematic file (constexpr issues)"
+                    continue
+                fi
+                
+                # Generate LLVM IR
+                clang++ -S -emit-llvm \
+                    -std=c++20 \
+                    -O2 \
+                    -I../include \
+                    -I/usr/include \
+                    -I/usr/local/include \
+                    -Wno-inconsistent-missing-override \
+                    -o "$output_file" \
+                    "$src_file"
+                    
+                if [ $? -eq 0 ]; then
+                    echo "    ✓ Success"
+                else
+                    echo "    ✗ Failed"
+                fi
+            done
+            
+            # Create a tarball of the LLVM IR files
+            tar -czf "SString-${VERSION}-macOS-universal-llvm-ir.tar.gz" llvm-ir/
+            
+            # Copy the LLVM IR tarball to the dist directory
+            cp "SString-${VERSION}-macOS-universal-llvm-ir.tar.gz" "/build/dist/"
+        fi
+        
         # Create PKG package
         mkdir -p pkg_root/usr/local/{lib,include}
         cp /build/dist/libsstring_lib.a pkg_root/usr/local/lib/
@@ -216,7 +382,8 @@ find . -type f \( \
     -name "SString-*.deb" -o \
     -name "SString-*.rpm" -o \
     -name "SString-*.pkg" -o \
-    -name "SString-*.msi" \
+    -name "SString-*.msi" -o \
+    -name "SString-*-llvm-ir.tar.gz" \
 \) -exec cp {} /build/dist/ \;
 
 # Clean up any temporary files from package creation
