@@ -108,11 +108,11 @@ if(MINGW)
     # Set up imported targets for custom-built Boost libraries
     add_library(boost_locale STATIC IMPORTED)
     set_target_properties(boost_locale PROPERTIES
-        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_locale-mt.a)
+        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_locale.a)
 
     add_library(boost_regex STATIC IMPORTED)
     set_target_properties(boost_regex PROPERTIES
-        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_regex-mt.a)
+        IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_regex.a)
 
     # Add include directories for Boost
     target_include_directories(sstring_lib PUBLIC
