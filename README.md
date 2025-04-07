@@ -126,6 +126,8 @@ open coverage_report/index.html
 - Git
 - sed
 - Boost
+- make
+- ctest
 
 ```bash
 sudo apt-get install -y build-essential cmake git sed libgtest-dev libboost-all-dev
@@ -150,6 +152,8 @@ Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r
 - Git
 - sed
 - Boost
+- make
+- ctest
 
 ### Setup
 1. Install WSL
@@ -173,6 +177,8 @@ Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r
 - sed
 - Boost
 - Clang
+- make
+- ctest
 
 ### Ensure proper line ends before commit
 
