@@ -96,6 +96,17 @@ String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
 ./build-all-platforms.sh
 ```
 
+### LLVM IR Generation
+```bash
+# Generate LLVM IR files (requires Clang)
+./build-llvm-ir.sh
+
+# Generate optimized LLVM IR files
+./build-llvm-ir.sh -r -o 2  # Release build with -O2 optimization
+```
+
+The LLVM IR build generates intermediate representation files useful for advanced static analysis and optimization studies. See [LLVM IR Build Documentation](docs/scripts/build-llvm-ir.md) for more details.
+
 ## Testing
 The library comes with comprehensive test suites:
 ```bash
