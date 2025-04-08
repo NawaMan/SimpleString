@@ -1,5 +1,0 @@
-if(EXISTS "/mnt/c/Users/nawam/Documents/GitHub/SimpleString/build-llvm-ir/sstring_tests[1]_tests.cmake")
-  include("/mnt/c/Users/nawam/Documents/GitHub/SimpleString/build-llvm-ir/sstring_tests[1]_tests.cmake")
-else()
-  add_test(sstring_tests_NOT_BUILT sstring_tests_NOT_BUILT)
-endif()

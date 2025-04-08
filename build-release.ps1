@@ -7,7 +7,8 @@ param(
     [string]$Platform = 'all',
     [ValidateSet('all', 'tar.gz', 'deb', 'rpm', 'zip', 'msi', 'pkg')]
     [string]$PackageType = 'all',
-    [string]$Version
+    [string]$Version,
+    [switch]$ExcludeLlvmIr
 )
 
 # Colors for output
@@ -47,7 +48,8 @@ function Show-Help {
     Write-Host "                        Default: all platforms"
     Write-Host "  -PackageType TYPE     Package type (tar.gz, deb, rpm, zip, msi, pkg)"
     Write-Host "                        Default: all types for selected platform"
-    Write-Host "  -Version VERSION      Set package version (required)`n"
+    Write-Host "  -Version VERSION      Set package version (required)"
+    Write-Host "  -ExcludeLlvmIr        Exclude LLVM IR files during build (requires Clang)`n"
 }
 
 # Show help if requested
@@ -119,10 +121,13 @@ foreach ($platform in $Platforms) {
     
     # Run the build
     Write-Status "Running build for $platform..."
+    # Set LLVM IR generation flag (enabled by default unless excluded)
+    $generateLlvmIr = if ($ExcludeLlvmIr) { "0" } else { "1" }
+    
     # Use /bin/bash explicitly to run the script in the container
     docker run --rm `
         -v "${PWD}/dist:/build/dist" `
-        "sstring-$platform-builder" /bin/bash /build/docker-build.sh $platform $Version
+        "sstring-$platform-builder" /bin/bash /build/docker-build.sh $platform $Version $generateLlvmIr
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Docker run failed for $platform"

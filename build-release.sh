@@ -40,7 +40,7 @@ show_help() {
     echo "  -t, --type TYPE         Package type (tar.gz, deb, rpm, zip, msi, pkg)"
     echo "                          Default: all types for selected platform"
     echo "  -v, --version VERSION   Set package version (required)"
-    echo "      --with-llvm-ir      Generate LLVM IR files during build (requires Clang)"
+    echo "      --exclude-llvm-ir   Exclude LLVM IR files during build (requires Clang)"
     echo
 }
 
@@ -54,7 +54,7 @@ fi
 PLATFORMS="linux windows macos"
 PACKAGE_TYPES="all"
 VERSION=""
-GENERATE_LLVM_IR=0
+GENERATE_LLVM_IR=1
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -74,8 +74,8 @@ while [[ $# -gt 0 ]]; do
             VERSION="$2"
             shift 2
             ;;
-        --with-llvm-ir)
-            GENERATE_LLVM_IR=1
+        --exclude-llvm-ir)
+            GENERATE_LLVM_IR=0
             shift
             ;;
         *)
