@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.2] - 2025-04-01
+## [1.0.0] - 2025-04-08
 
 Code improvements and documentation updates.
 - Improved Unicode whitespace handling in string trimming methods (trim(), strip(), stripLeading(), stripTrailing(), isStripped())

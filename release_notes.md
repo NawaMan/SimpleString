@@ -1,6 +1,6 @@
 # Simple String Library - Release Notes
 
-## Version 0.4.2 (April 1, 2025)
+## Version 1.0.0 (April 8, 2025)
 
 ### Overview
 This release focuses on code quality improvements, better Unicode support, and enhanced documentation. The changes aim to improve compilation efficiency, provide better Unicode handling, and make the codebase more maintainable.
@@ -44,7 +44,7 @@ This release focuses on code quality improvements, better Unicode support, and e
 - Enhanced identity optimization tests
 
 ### Compatibility
-This release maintains full backward compatibility with version 0.4.0.
+This release maintains full backward compatibility with version 1.0.0.
 
 ### Known Issues
 None.
