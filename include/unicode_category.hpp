@@ -73,7 +73,10 @@ public:
     constexpr bool is_unassigned()  const noexcept { return value_ == simple::UnicodeCategoryEnum::UNASSIGNED; }
     constexpr bool is_unknown()     const noexcept { return value_ == simple::UnicodeCategoryEnum::UNKNOWN; }
 
-    // Group check methods
+    /**
+     * @brief Checks if the category represents any kind of letter
+     * @return true if the category is a letter category
+     */
     constexpr bool is_letter() const noexcept {
         return is_uppercase_letter()
             || is_lowercase_letter()
@@ -82,18 +85,30 @@ public:
             || is_other_letter();
     }
 
+    /**
+     * @brief Checks if the category represents any kind of mark
+     * @return true if the category is a mark category
+     */
     constexpr bool is_mark() const noexcept {
         return is_non_spacing_mark()
             || is_spacing_mark()
             || is_enclosing_mark();
     }
 
+    /**
+     * @brief Checks if the category represents any kind of number
+     * @return true if the category is a number category
+     */
     constexpr bool is_number() const noexcept {
         return is_decimal_number()
             || is_letter_number()
             || is_other_number();
     }
 
+    /**
+     * @brief Checks if the category represents any kind of punctuation
+     * @return true if the category is a punctuation category
+     */
     constexpr bool is_punctuation() const noexcept {
         return is_connector_punctuation()
             || is_dash_punctuation()
@@ -104,6 +119,10 @@ public:
             || is_other_punctuation();
     }
 
+    /**
+     * @brief Checks if the category represents any kind of symbol
+     * @return true if the category is a symbol category
+     */
     constexpr bool is_symbol() const noexcept {
         return is_math_symbol()
             || is_currency_symbol()
@@ -111,12 +130,20 @@ public:
             || is_other_symbol();
     }
 
+    /**
+     * @brief Checks if the category represents any kind of separator
+     * @return true if the category is a separator category
+     */
     constexpr bool is_separator() const noexcept {
         return is_space_separator()
             || is_line_separator()
             || is_paragraph_separator();
     }
 
+    /**
+     * @brief Checks if the category represents a control character or format
+     * @return true if the category is a control, format, surrogate, private use, or unassigned category
+     */
     constexpr bool is_control_or_format() const noexcept {
         return is_control()
             || is_format()
@@ -135,8 +162,8 @@ public:
             || is_line_separator()
             || is_paragraph_separator()
             || (is_control() 
-    		 && (value_ == simple::UnicodeCategoryEnum::FORMAT 
-			  || value_ == simple::UnicodeCategoryEnum::CONTROL));
+             && (value_ == simple::UnicodeCategoryEnum::FORMAT 
+              || value_ == simple::UnicodeCategoryEnum::CONTROL));
     }
 
     /**
