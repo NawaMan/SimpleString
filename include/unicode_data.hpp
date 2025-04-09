@@ -5,14 +5,30 @@
 namespace simple {
 namespace unicode_data {
 
+/**
+ * @brief Structure representing a range of Unicode code points with the same category
+ *
+ * This structure defines a continuous range of Unicode code points that all belong
+ * to the same Unicode category. It is used to efficiently categorize code points
+ * without needing to store individual category data for every possible code point.
+ */
 struct CodePointRange {
-    char32_t start;
-    char32_t end;
-    UnicodeCategoryEnum category;
+    char32_t start;               ///< First code point in the range (inclusive)
+    char32_t end;                 ///< Last code point in the range (inclusive)
+    UnicodeCategoryEnum category; ///< Unicode category for all code points in this range
 };
 
-// This is just a small subset of the Unicode data for common ranges
-// A complete implementation would need the full Unicode Character Database
+/**
+ * @brief A subset of the Unicode Character Database for common code point ranges
+ *
+ * This array contains a simplified representation of the Unicode Character Database,
+ * focusing on common ranges of code points. Each entry defines a range of code points
+ * that share the same Unicode category.
+ *
+ * Note: This is a simplified subset. A complete implementation would need to
+ * incorporate the full Unicode Character Database, which contains tens of thousands
+ * of ranges for precise categorization of all Unicode code points.
+ */
 constexpr std::array<CodePointRange, 32> UNICODE_RANGES {{
     // Math symbols
     {0x002B, 0x002B, UnicodeCategoryEnum::MATH_SYMBOL},      // +

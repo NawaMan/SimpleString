@@ -1,5 +1,5 @@
 # Build directory
-build/
+/build/
 
 # CMake files
 CMakeFiles/
@@ -25,14 +25,10 @@ compile_commands.json
 .DS_Store
 Thumbs.db
 
-dist/
-
-build-linux-aarch64-gcc/
-build-linux-x86_64-clang/
-build-linux-x86_64-gcc/
-build-windows-x86_64-mingw/
-
-coverage_report/
-docker-build.sh
+/dist/
+/coverage_report/
+/docker-build.sh
 
 .cache/
+
+cmake-build-debug/

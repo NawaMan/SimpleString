@@ -1,7 +1,7 @@
 # Simple String API Documentation
 
 ## Overview
-String is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization.
+String is a Java-style string class for C++ that provides robust Unicode support and efficient memory management through copy-on-write optimization. The library offers comprehensive Unicode handling with both UTF-8 and UTF-16 support.
 
 ## Core Classes
 
@@ -37,6 +37,8 @@ String(const char* str, std::size_t length);
 - `String stripLeading() const`: Removes Unicode whitespace from the beginning of the string
 - `String stripTrailing() const`: Removes Unicode whitespace from the end of the string
 - `bool isStripped() const`: Returns true if the string has no leading or trailing Unicode whitespace
+
+These methods properly handle all Unicode whitespace characters, including zero-width spaces and other special whitespace characters.
 
 #### Static valueOf Methods
 - `static String valueOf(bool b)`: Returns a String representation of the boolean argument
@@ -94,7 +96,45 @@ class StringIndexOutOfBoundsException : public std::out_of_range;
 - Proper handling of surrogate pairs
 - Automatic replacement of invalid UTF-8 sequences with U+FFFD
 - Byte-order-mark (BOM) handling
-- NFC normalization support via Boost.Locale
+- NFC normalization support
+- Comprehensive Unicode character categorization via the UnicodeCategory class
+- Efficient code point handling with UnicodeUtil
+- Regular expression support with Unicode properties
+
+### `RegEx`
+Provides regular expression pattern matching and manipulation with Unicode support.
+
+#### Constructors
+```cpp
+explicit RegEx(const String& pattern);
+RegEx(const String& pattern, const Flags& flags);
+RegEx(const String& pattern, const Flag& flag); // Implicit conversion from Flag to Flags
+```
+
+#### Flag and Flags
+```cpp
+// Individual flags
+static const Flag CASE_INSENSITIVE;  // Case-insensitive matching
+static const Flag MULTILINE;         // Multiline mode (^ and $ match at line breaks)
+static const Flag DOTALL;            // Dot matches all characters including newlines
+static const Flag EXTENDED;          // Extended syntax with whitespace ignored
+static const Flag ECMAScript;        // ECMAScript (JavaScript) syntax
+
+// Combining flags
+Flags flags = Flags::of(Flag::CASE_INSENSITIVE, Flag::MULTILINE);
+Flags flags = Flag::CASE_INSENSITIVE | Flag::MULTILINE;
+
+// Checking flags
+bool hasFlag = flags.contain(Flag::CASE_INSENSITIVE);
+```
+
+#### Methods
+- `bool matches(const String& input) const`: Tests if the pattern matches the entire input
+- `bool find(const String& input) const`: Tests if the pattern appears anywhere in the input
+- `String replaceAll(const String& input, const String& replacement) const`: Replaces all matches
+- `String replaceFirst(const String& input, const String& replacement) const`: Replaces first match
+- `std::vector<String> split(const String& input) const`: Splits input around matches
+- `std::vector<String> split(const String& input, int limit) const`: Splits with limit control
 
 ## Memory Management
 - Copy-on-write optimization using `std::shared_ptr`

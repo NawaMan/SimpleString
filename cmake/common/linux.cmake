@@ -11,5 +11,5 @@ list(APPEND CMAKE_FIND_ROOT_PATH
 )
 
 # Linux Boost configuration
-set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_LIBS    OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)

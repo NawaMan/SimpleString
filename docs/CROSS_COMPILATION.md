@@ -43,7 +43,7 @@ mkdir build-<platform>
 
 # Configure with toolchain
 cmake -B build-<platform> \
-      -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/<toolchain-file>.cmake \
+      -DCMAKE_TOOLCHAIN_FILE=cmake/<toolchain-file>.cmake \
       -DCMAKE_BUILD_TYPE=Release \
       .
 

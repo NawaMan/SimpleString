@@ -1,12 +1,14 @@
 # Simple String Library
 
-A modern C++ string library with robust Unicode support and efficient memory management. Simple String provides a safe and performance way to handle text in C++, with full UTF-8 and UTF-16 support.
+A modern C++ string library with robust Unicode support and efficient memory management. Simple String provides a safe and performant way to handle text in C++, with full UTF-8 and UTF-16 support and comprehensive Unicode character handling.
 
 ## Features
 - Full Unicode support (UTF-8/UTF-16)
 - Efficient memory management with copy-on-write
 - Comprehensive character access and manipulation
 - Robust handling of invalid UTF-8 sequences
+- Advanced Unicode whitespace handling in string trimming operations
+- Unicode character categorization and code point utilities
 - Cross-platform compatibility
 - Extensive test coverage
 
@@ -68,6 +70,10 @@ String str2{"🌟 Stars"};  // Emoji support
 // Access characters
 auto ch = str1.char_at(7);  // Gets '世'
 
+// Unicode whitespace handling
+String text = "  Hello, world!  ";
+String stripped = text.strip();  // Removes all Unicode whitespace
+
 // Safe handling of invalid UTF-8
 String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
 // Automatically replaced with U+FFFD (replacement character)
@@ -90,6 +96,20 @@ String invalid{"\xFF\xFE"};  // Invalid UTF-8 bytes
 ./build-all-platforms.sh
 ```
 
+### LLVM IR Generation
+```bash
+# Generate LLVM IR files (requires Clang)
+./build-llvm-ir.sh
+
+# Generate optimized LLVM IR files
+./build-llvm-ir.sh -r -o 2  # Release build with -O2 optimization
+
+# Generate LLVM IR as part of the release build process
+./build-release.sh -v 1.0.0 --with-llvm-ir
+```
+
+The LLVM IR build generates intermediate representation files useful for advanced static analysis and optimization studies. When using the `--with-llvm-ir` option with the release build script, LLVM IR files are generated and packaged alongside the regular release packages. See [LLVM IR Build Documentation](docs/scripts/build-llvm-ir.md) for more details.
+
 ## Testing
 The library comes with comprehensive test suites:
 ```bash
@@ -111,6 +131,72 @@ open coverage_report/index.html
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Developer on Linux
+
+### Prerequisites
+- Linux
+- CMake
+- Git
+- sed
+- Boost
+- make
+- ctest
+
+```bash
+sudo apt-get install -y build-essential cmake git sed libgtest-dev libboost-all-dev
+```
+
+### Setup
+1. Clone the repository
+2. Build the Docker image
+3. Run the Docker container
+
+### Ensure proper line ends before commit
+
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
+
+## Developing on Windows
+
+### Prerequisites
+- Windows 10 or later
+- WSL (Windows Subsystem for Linux)
+- Docker
+- CMake
+- Git
+- sed
+- Boost
+- make
+- ctest
+
+### Setup
+1. Install WSL
+2. Install Docker
+3. Clone the repository
+4. Build the Docker image
+5. Run the Docker container
+
+### Ensure proper line ends before commit
+
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
+
+## Developer on MacOS
+
+### Prerequisites
+- Windows 10 or later
+- WSL (Windows Subsystem for Linux)
+- Docker
+- CMake
+- Git
+- sed
+- Boost
+- Clang
+- make
+- ctest
+
+### Ensure proper line ends before commit
+
+Run : find . -path "./.git" -prune -o -type f ! -name "*.ps1" -exec sed -i 's/\r$//' {} +
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

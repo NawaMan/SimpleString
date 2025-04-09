@@ -1,8 +1,87 @@
 #include "../include/string.hpp"
 #include <boost/locale/encoding.hpp>
+#include <boost/locale.hpp>
 #include <cmath>
 
 namespace simple {
+
+namespace detail {
+
+// Implementation of the init_locale function that was moved from the header
+void init_locale() {
+    static bool initialized = false;
+    if (!initialized) {
+        boost::locale::generator gen;
+        std::locale::global(gen("en_US.UTF-8"));
+        initialized = true;
+    }
+}
+
+// Implementation of StringImpl class to hide Boost implementation details
+class StringImpl {
+public:
+    // Default constructor
+    StringImpl() 
+        : data_(std::make_shared<const std::string>(""))
+        , offset_(0)
+        , length_(0)
+        , utf16_cache_() {}
+
+    // Constructor from string
+    explicit StringImpl(const std::string& str)
+        : data_(std::make_shared<const std::string>(str))
+        , offset_(0)
+        , length_(str.length())
+        , utf16_cache_() {}
+
+    // Constructor from C string with explicit length
+    StringImpl(const char* str, std::size_t length)
+        : data_(std::make_shared<const std::string>(str, length))
+        , offset_(0)
+        , length_(length)
+        , utf16_cache_() {}
+
+    // Constructor for substrings
+    StringImpl(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
+        : data_(std::move(data))
+        , offset_(offset)
+        , length_(length)
+        , utf16_cache_() {}
+
+    // Getters
+    const std::shared_ptr<const std::string>& data() const { return data_; }
+    std::size_t offset() const { return offset_; }
+    std::size_t length() const { return length_; }
+    const std::shared_ptr<const std::u16string>& utf16_cache() const { return utf16_cache_; }
+
+    // Set the UTF-16 cache
+    void set_utf16_cache(std::shared_ptr<const std::u16string> cache) const {
+        utf16_cache_ = std::move(cache);
+    }
+
+    // Check if this impl shares the same underlying data with another impl
+    bool shares_data_with(const StringImpl& other) const {
+        return data_ == other.data_;
+    }
+
+private:
+    std::shared_ptr<const std::string> data_;  ///< Immutable UTF-8 string storage shared between instances
+    std::size_t offset_{0};                    ///< Start offset in data_ (in bytes)
+    std::size_t length_{0};                    ///< Length of this substring (in bytes)
+    mutable std::shared_ptr<const std::u16string> utf16_cache_;  ///< Cached UTF-16 representation
+};
+
+} // namespace detail
+
+// String class constructors
+String::String() : pimpl_(std::make_shared<detail::StringImpl>()) {}
+
+String::String(const std::string& str) : pimpl_(std::make_shared<detail::StringImpl>(str)) {}
+
+String::String(const char* str, std::size_t length) : pimpl_(std::make_shared<detail::StringImpl>(str, length)) {}
+
+String::String(std::shared_ptr<const std::string> data, std::size_t offset, std::size_t length)
+    : pimpl_(std::make_shared<detail::StringImpl>(std::move(data), offset, length)) {}
 
 auto String::char_at(Index index) const -> Char {
     const auto& utf16 = get_utf16();
@@ -57,38 +136,40 @@ std::size_t String::length() const {
     detail::init_locale();
     
     // Use cached UTF-16 representation if available
-    if (utf16_cache_) {
-        return utf16_cache_->length();
+    if (pimpl_->utf16_cache()) {
+        return pimpl_->utf16_cache()->length();
     }
     
     // Otherwise count UTF-16 code units from UTF-8, considering offset and length
-    if (length_ == 0) {
+    if (pimpl_->length() == 0) {
         return 0;
     }
     
     // Create a substring view for counting
-    std::string_view view(data_->c_str() + offset_, length_);
+    std::string_view view(pimpl_->data()->c_str() + pimpl_->offset(), pimpl_->length());
     return detail::count_utf16_code_units(std::string(view));
 }
 
 bool String::is_empty() const {
-    return length_ == 0;
+    return pimpl_->length() == 0;
 }
 
 bool String::equals(const String& other) const {
     // Fast path: check if strings share data and have same offset/length
-    if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
+    if (shares_data_with(other) && 
+        pimpl_->offset() == other.pimpl_->offset() && 
+        pimpl_->length() == other.pimpl_->length()) {
         return true;
     }
     
     // Otherwise do a byte-by-byte comparison of the substrings
     // This is more efficient than creating full string copies with to_string()
-    const char* this_data = data_->c_str() + offset_;
-    const char* other_data = other.data_->c_str() + other.offset_;
-    std::size_t min_length = std::min(length_, other.length_);
+    const char* this_data = pimpl_->data()->c_str() + pimpl_->offset();
+    const char* other_data = other.pimpl_->data()->c_str() + other.pimpl_->offset();
+    std::size_t min_length = std::min(pimpl_->length(), other.pimpl_->length());
     
     // First check if lengths are different
-    if (length_ != other.length_) {
+    if (pimpl_->length() != other.pimpl_->length()) {
         return false;
     }
     
@@ -104,7 +185,9 @@ bool String::equals(const String& other) const {
 
 simple::CompareResult String::compare_to(const String& other) const {
     // Fast path: check if strings share data and have same offset/length
-    if (shares_data_with(other) && offset_ == other.offset_ && length_ == other.length_) {
+    if (shares_data_with(other) && 
+        pimpl_->offset() == other.pimpl_->offset() && 
+        pimpl_->length() == other.pimpl_->length()) {
         return simple::CompareResult::EQUAL;
     }
     
@@ -171,12 +254,12 @@ std::size_t String::code_point_count(Index begin_index, Index end_index) const {
 }
 
 const std::string& String::to_string() const { 
-    if (offset_ == 0 && length_ == data_->length()) {
-        return *data_;  // Return reference to original for full strings
+    if (pimpl_->offset() == 0 && pimpl_->length() == pimpl_->data()->length()) {
+        return *pimpl_->data();  // Return reference to original for full strings
     }
     // For substrings, create a new string with just the substring portion
     static thread_local std::string result;
-    result = data_->substr(offset_, length_);
+    result = pimpl_->data()->substr(pimpl_->offset(), pimpl_->length());
     return result;
 }
 
@@ -222,8 +305,8 @@ String String::substring(Index beginIndex, Index endIndex) const {
     
     // Find the UTF-8 byte offset for beginIndex
     if (beginIndex > 0) {
-        const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-        const unsigned char* end = str + length_;
+        const unsigned char* str = reinterpret_cast<const unsigned char*>(pimpl_->data()->c_str() + pimpl_->offset());
+        const unsigned char* end = str + pimpl_->length();
         std::size_t utf16_index = 0;
         
         while (str < end && utf16_index < beginIndex.value()) {
@@ -269,13 +352,13 @@ String String::substring(Index beginIndex, Index endIndex) const {
             }
         }
         
-        utf8_begin = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+        utf8_begin = str - reinterpret_cast<const unsigned char*>(pimpl_->data()->c_str() + pimpl_->offset());
     }
     
     // Find the UTF-8 byte offset for endIndex
     if (endIndex > 0) {
-        const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-        const unsigned char* end = str + length_;
+        const unsigned char* str = reinterpret_cast<const unsigned char*>(pimpl_->data()->c_str() + pimpl_->offset());
+        const unsigned char* end = str + pimpl_->length();
         std::size_t utf16_index = 0;
         
         while (str < end && utf16_index < endIndex.value()) {
@@ -321,11 +404,10 @@ String String::substring(Index beginIndex, Index endIndex) const {
             }
         }
         
-        utf8_end = str - reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
+        utf8_end = str - reinterpret_cast<const unsigned char*>(pimpl_->data()->c_str() + pimpl_->offset());
     }
     
-    // Create a new String with the same data but adjusted offset and length
-    return String(data_, offset_ + utf8_begin, utf8_end - utf8_begin);
+    return String(pimpl_->data(), pimpl_->offset() + utf8_begin, utf8_end - utf8_begin);
 }
 
 // Operator overloads
@@ -443,13 +525,13 @@ String String::replace(const String& target, const String& replacement) const {
 // Private methods
 const std::u16string& String::get_utf16() const {
     // Double-checked locking pattern with atomic operations
-    auto cache = utf16_cache_;
+    auto cache = pimpl_->utf16_cache();
     if (!cache) {
         // First check failed, acquire the data and create cache
         std::u16string result;
         
-        const unsigned char* str = reinterpret_cast<const unsigned char*>(data_->c_str() + offset_);
-        const unsigned char* end = str + length_;
+        const unsigned char* str = reinterpret_cast<const unsigned char*>(pimpl_->data()->c_str() + pimpl_->offset());
+        const unsigned char* end = str + pimpl_->length();
         
         while (str < end) {
             if (*str < 0x80) {
@@ -527,14 +609,17 @@ const std::u16string& String::get_utf16() const {
             }
         }
         
-        cache = std::make_shared<const std::u16string>(std::move(result));
-        utf16_cache_ = cache;
+        // Create a new cache and atomically update the shared pointer
+        auto new_cache = std::make_shared<const std::u16string>(std::move(result));
+        pimpl_->set_utf16_cache(new_cache);
+        return *new_cache;
     }
+    
     return *cache;
 }
 
-bool String::shares_data_with(const String& other) const { 
-    return data_ == other.data_; 
+bool String::shares_data_with(const String& other) const {
+    return pimpl_->shares_data_with(*other.pimpl_);
 }
 
 // Implementation of indexOf methods
@@ -858,14 +943,10 @@ String String::strip() const {
     while (end > start) {
         char16_t ch = utf16[end];
         // Check for surrogate pair at the end
-        uint32_t codepoint;
         if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
             char16_t high = utf16[end - 1];
             if (high >= 0xD800 && high <= 0xDBFF) {
                 // Surrogate pair
-                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
-                
-                // Check if the surrogate pair is whitespace
                 // For surrogate pairs, we don't have specific whitespace checks
                 // Just assume they're not whitespace for now
                 break;
@@ -873,7 +954,6 @@ String String::strip() const {
         }
         
         // Regular code unit
-        codepoint = ch;
         
         // Check if the character is whitespace
         bool is_whitespace = false;
@@ -889,7 +969,7 @@ String String::strip() const {
                  ch == 0xFEFF ||                   // Zero width no-break space
                  ch == 0x00A0 ||                   // Non-breaking space
                  ch == 0x2028 ||                   // Line separator
-                 ch == 0x2029) {                  // Paragraph separator
+                 ch == 0x2029) {                   // Paragraph separator
             is_whitespace = true;
         }
         
@@ -993,12 +1073,10 @@ String String::stripTrailing() const {
     while (end < utf16.length()) {  // Using < to handle potential underflow when end is 0
         char16_t ch = utf16[end];
         // Check for surrogate pair at the end
-        uint32_t codepoint;
         if (ch >= 0xDC00 && ch <= 0xDFFF && end > 0) {
             char16_t high = utf16[end - 1];
             if (high >= 0xD800 && high <= 0xDBFF) {
                 // Surrogate pair
-                codepoint = 0x10000 + ((high - 0xD800) << 10) + (ch - 0xDC00);
                 // For surrogate pairs, we don't have specific whitespace checks
                 // Just assume they're not whitespace for now
                 break;
@@ -1006,7 +1084,6 @@ String String::stripTrailing() const {
         }
         
         // Regular code unit
-        codepoint = ch;
         
         // Check if the character is whitespace
         bool is_whitespace = false;
@@ -1079,17 +1156,13 @@ bool String::isStripped() const {
     
     // Check first character
     char16_t first = utf16[0];
-    uint32_t first_codepoint;
     if (first >= 0xD800 && first <= 0xDBFF && utf16.length() > 1) {
         char16_t low = utf16[1];
         if (low >= 0xDC00 && low <= 0xDFFF) {
             // Surrogate pair
-            first_codepoint = 0x10000 + ((first - 0xD800) << 10) + (low - 0xDC00);
-        } else {
-            first_codepoint = first;
         }
     } else {
-        first_codepoint = first;
+
     }
     
     // Check if the first character is whitespace
@@ -1116,17 +1189,13 @@ bool String::isStripped() const {
     
     // Check last character
     char16_t last = utf16[utf16.length() - 1];
-    uint32_t last_codepoint;
     if (last >= 0xDC00 && last <= 0xDFFF && utf16.length() > 1) {
         char16_t high = utf16[utf16.length() - 2];
         if (high >= 0xD800 && high <= 0xDBFF) {
             // Surrogate pair
-            last_codepoint = 0x10000 + ((high - 0xD800) << 10) + (last - 0xDC00);
-        } else {
-            last_codepoint = last;
         }
     } else {
-        last_codepoint = last;
+
     }
     
     // Check if the last character is whitespace
@@ -1299,14 +1368,7 @@ std::vector<uint8_t> String::getBytes(Encoding encoding, BOMPolicy bomPolicy, En
                         latin1_str.reserve(utf16.size());
                         bool chars_ignored = false;
                         
-                        // Check if the string contains non-Latin1 characters
-                        bool has_non_latin1 = false;
-                        for (char16_t ch : utf16) {
-                            if (ch > 0xFF) {
-                                has_non_latin1 = true;
-                                break;
-                            }
-                        }
+                        // Process each character, skipping those outside Latin-1 range
                         
                         // Process each character, skipping those outside Latin-1 range
                         for (char16_t ch : utf16) {

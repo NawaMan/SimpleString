@@ -7,11 +7,11 @@ using namespace simple;
 TEST(RegExTest, Construction) {
     // Test basic construction
     RegEx regex(String("[a-z]+"));
-    EXPECT_EQ(regex.flags(), boost::regex::ECMAScript);
+    EXPECT_EQ(regex.flags().value(), Flag::ECMAScript.value());
     
     // Test construction with flags
-    RegEx regexWithFlags(String("[a-z]+"), RegEx::CASE_INSENSITIVE);
-    EXPECT_EQ(regexWithFlags.flags(), RegEx::CASE_INSENSITIVE);
+    RegEx regexWithFlags(String("[a-z]+"), Flag::CASE_INSENSITIVE);
+    EXPECT_TRUE(regexWithFlags.flags().contain(Flag::CASE_INSENSITIVE));
     
     // Test invalid regex pattern
     EXPECT_THROW(RegEx(String("[")), RegExSyntaxException);
@@ -45,7 +45,7 @@ TEST(RegExTest, Matching) {
     EXPECT_FALSE(regex.matches(String("abc123")));
     
     // Test case insensitive
-    RegEx caseInsensitiveRegex(String("^[a-z]+$"), RegEx::CASE_INSENSITIVE);
+    RegEx caseInsensitiveRegex(String("^[a-z]+$"), Flag::CASE_INSENSITIVE);
     EXPECT_TRUE(caseInsensitiveRegex.matches(String("ABC")));
     
     // Test find

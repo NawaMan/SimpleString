@@ -4,14 +4,48 @@
 
 namespace simple {
 
+// Define and initialize static members outside the class
+const Flag Flag::CASE_INSENSITIVE = Flag(0x01);
+const Flag Flag::MULTILINE        = Flag(0x02);
+const Flag Flag::DOTALL           = Flag(0x04);
+const Flag Flag::EXTENDED         = Flag(0x08);
+const Flag Flag::ECMAScript       = Flag(0x10);
+
+// Implementation class definition
+class RegEx::Impl {
+public:
+    boost::regex pattern;
+    
+    Impl(const std::string& pattern_str, Flags flags) {
+        // Convert our flag values to Boost regex flags
+        boost::regex::flag_type boost_flags = boost::regex::ECMAScript; // Default
+        
+        // Use flags directly since it's now a typedef for int
+        if (flags.contain(Flag::CASE_INSENSITIVE))
+            boost_flags |= boost::regex::icase;
+        if (flags.contain(Flag::MULTILINE))
+            boost_flags |= boost::regex::normal;
+        if (flags.contain(Flag::DOTALL))
+            boost_flags |= boost::regex::normal;
+        if (flags.contain(Flag::EXTENDED))
+            boost_flags |= boost::regex::extended;
+        if (flags.contain(Flag::ECMAScript))
+            boost_flags |= boost::regex::ECMAScript;
+            
+        // Always enable Perl syntax for better Unicode support
+        boost_flags |= boost::regex::perl;
+        
+        // Compile the pattern
+        pattern = boost::regex(pattern_str, boost_flags);
+    }
+};
+
 // Constructor with pattern only
-RegEx::RegEx(const String& pattern) : RegEx(pattern, boost::regex::ECMAScript) {
+RegEx::RegEx(const String& pattern) : RegEx(pattern, Flags::of(Flag::ECMAScript)) {
 }
 
 // Constructor with pattern and flags
-RegEx::RegEx(const String& pattern, int flags) {
-    // Store the original flags for later retrieval
-    originalFlags_ = flags;
+RegEx::RegEx(const String& pattern, const Flags& flags) : flags_(flags) {
     
     try {
         // Convert the String pattern to std::string for Boost.Regex
@@ -21,17 +55,8 @@ RegEx::RegEx(const String& pattern, int flags) {
         // Check if the pattern contains Unicode property escapes
         bool hasUnicodeProperties = utf8Pattern.find("\\p{") != std::string::npos;
         
-        // Add Unicode support flags
-        boost::regex::flag_type regexFlags = static_cast<boost::regex::flag_type>(flags);
-        
-        // Always enable Perl syntax for better Unicode support
-        regexFlags |= boost::regex::perl;
-        
         // For patterns with Unicode properties, we need to ensure proper Unicode support
         if (hasUnicodeProperties) {
-            // Enable Unicode property support
-            regexFlags |= boost::regex::collate;  // Enable collation for Unicode
-            
             // Since Boost.Regex without ICU doesn't fully support Unicode property escapes,
             // we need to handle specific test cases directly
             
@@ -79,15 +104,16 @@ RegEx::RegEx(const String& pattern, int flags) {
                             utf8Pattern.replace(pos, closeBrace - pos + 1, ".");
                         }
                     } else {
-                        // No closing brace found, move past this position
-                        pos += 3;
+                        // Malformed pattern, break to avoid infinite loop
+                        break;
                     }
                 }
             }
         }
         
-        // Create the regex pattern with the specified flags
-        pattern_ = boost::regex(utf8Pattern, regexFlags);
+        // Create the implementation object with the processed pattern
+        pimpl_ = std::make_shared<Impl>(utf8Pattern, flags);
+        
     } catch (const boost::regex_error& e) {
         // Properly catch and rethrow as our custom exception
         throw RegExSyntaxException(e.what());
@@ -95,9 +121,7 @@ RegEx::RegEx(const String& pattern, int flags) {
 }
 
 // Get the flags used by this regex
-int RegEx::flags() const {
-    return originalFlags_;
-}
+// flags() method is now implemented inline in the header
 
 // Create a RegEx that exactly matches a String
 RegEx RegEx::forExactString(const String& str) {
@@ -142,13 +166,11 @@ RegEx RegEx::forExactChar(const Char& ch) {
 // Test if the regex matches the entire input string
 bool RegEx::matches(const String& input) const {
     try {
+        // Convert to std::string for Boost.Regex
         std::string utf8Input = input.to_string();
         
-        // Use Boost's regex_match with proper UTF-8 handling
-        boost::match_flag_type flags = boost::match_default;
-        
-        // Match the entire string
-        return boost::regex_match(utf8Input, pattern_, flags);
+        // Use regex_match to check if the entire string matches the pattern
+        return boost::regex_match(utf8Input, pimpl_->pattern);
     } catch (const boost::regex_error& e) {
         throw RegExSyntaxException(e.what());
     }
@@ -159,11 +181,11 @@ bool RegEx::find(const String& input) const {
     try {
         std::string utf8Input = input.to_string();
         
-        // Use Boost's regex_search with proper UTF-8 handling
-        boost::match_results<std::string::const_iterator> what;
+        // Use Boost's regex_search to find a match anywhere in the string
         boost::match_flag_type flags = boost::match_default;
         
-        return boost::regex_search(utf8Input, what, pattern_, flags);
+        // Search for the pattern anywhere in the string
+        return boost::regex_search(utf8Input, pimpl_->pattern, flags);
     } catch (const boost::regex_error& e) {
         throw RegExSyntaxException(e.what());
     }
@@ -179,7 +201,7 @@ String RegEx::replaceAll(const String& input, const String& replacement) const {
         boost::match_flag_type flags = boost::match_default | boost::format_all;
         
         // For Unicode patterns, we need to ensure we're handling the entire string correctly
-        std::string result = boost::regex_replace(utf8Input, pattern_, utf8Replacement, flags);
+        std::string result = boost::regex_replace(utf8Input, pimpl_->pattern, utf8Replacement, flags);
         
         return String(result);
     } catch (const boost::regex_error& e) {
@@ -194,7 +216,7 @@ String RegEx::replaceFirst(const String& input, const String& replacement) const
         std::string utf8Replacement = replacement.to_string();
         
         // Use boost::regex_replace with format_first_only flag
-        std::string result = boost::regex_replace(utf8Input, pattern_, utf8Replacement, 
+        std::string result = boost::regex_replace(utf8Input, pimpl_->pattern, utf8Replacement, 
                                                 boost::regex_constants::format_first_only);
         return String(result);
     } catch (const boost::regex_error& e) {
@@ -220,7 +242,7 @@ std::vector<String> RegEx::split(const String& input, int limit) const {
         }
         
         // Special case for Unicode patterns: handle empty pattern case
-        if (pattern_.str().empty()) {
+        if (pimpl_->pattern.str().empty()) {
             // Empty pattern splits the string into individual UTF-8 characters
             std::size_t i = 0;
             int count = 0;
@@ -251,14 +273,14 @@ std::vector<String> RegEx::split(const String& input, int limit) const {
         
         // Use boost::regex_token_iterator to split the string
         boost::sregex_token_iterator end;
-        boost::sregex_token_iterator iter(utf8Input.begin(), utf8Input.end(), pattern_, -1);
+        boost::sregex_token_iterator iter(utf8Input.begin(), utf8Input.end(), pimpl_->pattern, -1);
         
         // Special handling for trailing delimiters
         bool hasTrailingDelimiter = false;
-        if (boost::regex_search(utf8Input, pattern_)) {
+        if (boost::regex_search(utf8Input, pimpl_->pattern)) {
             std::string lastChar = utf8Input.substr(utf8Input.length() - 1);
             boost::smatch what;
-            if (boost::regex_match(lastChar, what, pattern_)) {
+            if (boost::regex_match(lastChar, what, pimpl_->pattern)) {
                 hasTrailingDelimiter = true;
             }
         }
@@ -288,7 +310,7 @@ std::vector<String> RegEx::split(const String& input, int limit) const {
                 boost::smatch what;
                 std::string remainingInput = utf8Input.substr(utf8Input.find(lastPart) + lastPart.length());
                 
-                if (boost::regex_search(remainingInput, what, pattern_)) {
+                if (boost::regex_search(remainingInput, what, pimpl_->pattern)) {
                     std::string delimiter = what.str();
                     
                     // Add the first part
